@@ -16,6 +16,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".CreateEvent"
+            android:label="@string/title_activity_create_event" >
+        </activity>
+        <activity
+            android:name=".ViewEvent"
+            android:label="@string/title_activity_view_event" >
+        </activity>
+        <activity
+            android:name=".WelcomeScreen"
+            android:label="@string/title_activity_welcome_screen" >
+        </activity>
     </application>
 
 </manifest>
