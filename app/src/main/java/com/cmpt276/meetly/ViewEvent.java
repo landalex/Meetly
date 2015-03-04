@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-
+/**
+ * Fields: Name, Location, Date/Time, Time to event start, People, Notes,
+ */
 public class ViewEvent extends ActionBarActivity {
 
     @Override

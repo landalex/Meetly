@@ -16,13 +16,8 @@ import android.widget.TextView;
 import com.cmpt276.meetly.dummy.DummyContent;
 
 /**
- * A fragment representing a list of Items.
- * <p/>
- * Large screen devices (such as tablets) are supported by replacing the ListView
- * with a GridView.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
- * interface.
+ * Scroll bar (draggable), Swipe for options (View, edit, delete, invite)
+ * Each item shows title, date/time and duration (location as well?)
  */
 public class EventList extends Fragment implements AbsListView.OnItemClickListener {
 

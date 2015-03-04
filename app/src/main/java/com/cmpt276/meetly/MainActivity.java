@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-
+/**
+ * Actionbar: Add event button, Location info, Location change button?
+ */
 public class MainActivity extends ActionBarActivity {
 
     @Override

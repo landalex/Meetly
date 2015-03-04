@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-
+/**
+ * Animation, ends with start screen (View or create events)
+ */
 public class WelcomeScreen extends ActionBarActivity {
 
     @Override
