@@ -6,16 +6,22 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.util.TimeFormatException;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 
 
 import com.cmpt276.meetly.dummy.DummyContent;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Scroll bar (draggable), Swipe for options (View, edit, delete, invite)
@@ -24,15 +30,8 @@ import com.cmpt276.meetly.dummy.DummyContent;
 public class EventList extends Fragment implements AbsListView.OnItemClickListener {
 
     private final String TAG = "EventListFragment";
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private final String EVENT_TITLE = "text1";
+    private final String EVENT_DATE = "text2";
 
     private OnFragmentInteractionListener mListener;
 
@@ -47,13 +46,8 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
      */
     private ListAdapter mAdapter;
 
-    // TODO: Rename and change types of parameters
     public static EventList newInstance(String param1, String param2) {
         EventList fragment = new EventList();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -68,14 +62,46 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        String[] testArray = {"Test string 1", "Test string 2", "Test string 3"};
 
         // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+//        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
+//                android.R.layout.simple_list_item_2, android.R.id.text1, DummyContent.ITEMS);
+        createAdapter();
+    }
+
+    private void createAdapter() {
+        final String[] fromMapKey = {EVENT_TITLE, EVENT_DATE};
+        final int[] toLayoutId = {android.R.id.text1, android.R.id.text2};
+        List<Map<String, String>> eventList = getEventList();
+
+
+        mAdapter = new SimpleAdapter(getActivity(), eventList, android.R.layout.simple_list_item_2,
+                fromMapKey, toLayoutId);
+    }
+
+    private List getEventList() {
+        final List<Map<String, String>> eventList = new ArrayList<>();
+
+        ArrayList<Event> testEvents = getTestEvents();
+
+        for (Event event : testEvents) {
+            Map<String, String> eventMap = new HashMap<>();
+            eventMap.put(EVENT_TITLE, event.getTitle());
+            eventMap.put(EVENT_DATE, event.getDate());
+            eventList.add(eventMap);
+        }
+
+        return Collections.unmodifiableList(eventList);
+    }
+
+    private ArrayList getTestEvents() {
+        ArrayList<Event> testEvents = new ArrayList<>();
+        testEvents.add(new Event("Tims Run", new Date()));
+        testEvents.add(new Event("Lunch", new Date()));
+        testEvents.add(new Event("Dinner", new Date()));
+
+        return testEvents;
     }
 
     @Override
