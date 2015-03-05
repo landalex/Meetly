@@ -1,15 +1,18 @@
 package com.cmpt276.meetly;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 
 /**
  * Actionbar: Add event button, Location info, Location change button?
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements EventList.OnFragmentInteractionListener{
 
     private final String TAG = "MainActivity";
 
@@ -17,6 +20,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getFragmentManager().beginTransaction().replace(android.R.id.content, new EventList()).commit();
     }
 
 
@@ -40,5 +45,10 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentInteraction(String id) {
+
     }
 }
