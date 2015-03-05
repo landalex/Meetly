@@ -1,5 +1,6 @@
 package com.cmpt276.meetly;
 
+import android.nfc.Tag;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,10 +11,15 @@ import android.view.MenuItem;
  */
 public class WelcomeScreen extends ActionBarActivity {
 
+
+
+    private final String TAG = "WelcomeScreenActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_screen);
+
     }
 
 

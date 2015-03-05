@@ -6,11 +6,13 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.util.TimeFormatException;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
 
 
 import com.cmpt276.meetly.dummy.DummyContent;
@@ -20,6 +22,8 @@ import com.cmpt276.meetly.dummy.DummyContent;
  * Each item shows title, date/time and duration (location as well?)
  */
 public class EventList extends Fragment implements AbsListView.OnItemClickListener {
+
+    private final String TAG = "EventListFragment";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

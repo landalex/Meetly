@@ -10,6 +10,8 @@ import android.view.MenuItem;
  */
 public class CreateEvent extends ActionBarActivity {
 
+    private final String TAG = "CreateEventActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -7,26 +7,52 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        //Main Activity --> Parent
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cmpt276.meetly.Parent" />
+        </activity>
+        //Create Events
+        <activity
+            android:name=".CreateEvent"
+            android:label="@string/title_activity_create_event" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cmpt276.meetly.Parent" />
+        </activity>
+        //View Events
+        <activity
+            android:name=".ViewEvent"
+            android:label="@string/title_activity_view_event" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cmpt276.meetly.Parent" />
+        </activity>
+        //Welcome Screen
+        <activity
+            android:name=".WelcomeScreen"
+            android:label="@string/title_activity_welcome_screen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cmpt276.meetly.Parent" />
+        </activity>
+        //Parent Activity
+        <activity
+            android:name=".Parent"
+            android:label="@string/title_activity_parent" >
         </activity>
         <activity
-            android:name=".CreateEvent"
-            android:label="@string/title_activity_create_event" >
-        </activity>
-        <activity
-            android:name=".ViewEvent"
-            android:label="@string/title_activity_view_event" >
-        </activity>
-        <activity
-            android:name=".WelcomeScreen"
-            android:label="@string/title_activity_welcome_screen" >
+            android:name=".Database"
+            android:label="@string/title_activity_database" >
         </activity>
     </application>
 
