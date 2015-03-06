@@ -1,9 +1,0 @@
-# Cool Ideas/Extras
-
-- Share intent from Google Maps to create a new event
-- Animation is the logo being written (imagine a person writing cursive)
-- Tagline! (Let's meetly!)
-- Sharing event via texts (tell people when/where to meet in plain text)
-- Storing events in local Calendar (using Calendar as a 2 way database?)
-- Quick add from preset locations with dialog popup
-- Location change button (to view events at other locations)
