@@ -50,10 +50,6 @@
             android:name=".Parent"
             android:label="@string/title_activity_parent" >
         </activity>
-        <activity
-            android:name=".Database"
-            android:label="@string/title_activity_database" >
-        </activity>
     </application>
 
 </manifest>
