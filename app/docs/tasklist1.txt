@@ -1,5 +1,7 @@
 Scrum master for iteration 1: Tina Tran
 
+Google Drive folder: https://drive.google.com/folderview?id=0B4M7kI-uLettfjVpWUJhSEQ2dDdzOUVzQUV0MnB2bVhQWHVwaFFncWRtRnlya1p5TEE2eFU&usp=sharing
+
 View events
 - Create welcome screen splash screen - Tina
 - Create activity to list events from database - Alex
