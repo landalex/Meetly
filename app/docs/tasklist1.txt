@@ -1,0 +1,20 @@
+Scrum master for iteration 1: Tina Tran
+
+View events
+- Create welcome screen splash screen - Tina
+- Create activity to list events from database - Alex
+- Create indicator to get the user’s current location on a map - Alex
+	- Assume the current location will indicate the current city the user is in
+
+View event details 
+- Create activity to handle when user presses on an event listing and is taken to the event display dialog to view event details - Jasdeep
+- Figure out how to store events in a database - Tina & Hami 
+
+Create a new event 
+- Create activity to allow the user to create a new event and add it to the events list - Jasdeep
+
+Other tasks
+- Sketch UI design - Tina
+- Create UI - Tina & Alex
+- Decide on colour scheme for UI - Tina
+- Create OOD - everyone 
