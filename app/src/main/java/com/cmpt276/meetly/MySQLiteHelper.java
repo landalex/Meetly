@@ -18,18 +18,18 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ATTENDEES= "attendees";
     public static final String COLUMN_NOTES = "notes";
 
-    private static final String DATABASE_NAME = "MeetlyDB";
-    private static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "MeetlyDB";
+    public static final int DATABASE_VERSION = 1;
 
     // Database creation sql statement
     private static final String DATABASE_CREATE = "create table "
             + TABLE_EVENTS + "("
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_TITLE + " text not null,"
-            + COLUMN_DATE + "char(19),"
-            + COLUMN_LOCATION + "text,"
-            + COLUMN_ATTENDEES + "text,"
-            + COLUMN_NOTES + "char(1000)"
+            + COLUMN_DATE + " char(19),"
+            + COLUMN_LOCATION + " text,"
+            + COLUMN_ATTENDEES + " text,"
+            + COLUMN_NOTES + " text"
             + ");";
 
     public MySQLiteHelper(Context context) {
@@ -49,6 +49,5 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
         onCreate(db);
     }
-
 
 }
