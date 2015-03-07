@@ -13,9 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-/**
- * Created by AlexLand on 15-03-05.
- */
+
+
 public class Event {
     private long eventID;
     private String title;

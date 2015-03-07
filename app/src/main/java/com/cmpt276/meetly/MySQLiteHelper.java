@@ -6,8 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * Created by Hami on 3/4/2015.
- * This class is responsible for creating Meetly Database
+ * This class is responsible for creating the Meetly Database
  */
 public class MySQLiteHelper extends SQLiteOpenHelper {
 

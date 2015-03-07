@@ -16,9 +16,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by Hami on 3/6/2015.
- */
+
 public class EventsDataSource {
 
 
@@ -37,18 +35,23 @@ public class EventsDataSource {
     private ArrayList<String> testArray = new ArrayList<>();
     Event testEvent;
 
+
+
+
+
     /**
      * Events Data Source constructor.
      * Facilitates database connections and supports adding new events and fetching events
-     * @param context
+     * @param context Application context
      */
     public EventsDataSource(Context context){
         dbHelper = new MySQLiteHelper(context);
  }
 
-    public void open() throws SQLException {
-        database = dbHelper.getWritableDatabase();
-    }
+    /**
+     * @throws SQLException
+     */
+    public void open() throws SQLException {database = dbHelper.getWritableDatabase();}
 
     public void close(){
         dbHelper.close();
@@ -63,7 +66,11 @@ public class EventsDataSource {
      * @param notes notes  for event
      */
     public Event createEvent(String title, Date date, String location, ArrayList<String> attendees, String notes) {
-        database = dbHelper.getWritableDatabase();
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
         //build record pairs
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_TITLE, title);
@@ -93,8 +100,7 @@ public class EventsDataSource {
      */
     public static ArrayList<String> parseAttendees(String attendeeString){
         String subString = attendeeString.substring(1,attendeeString.length()-1);
-        ArrayList<String> arrList = new ArrayList<String>(Arrays.asList(subString.split(",")));
-        return arrList;
+        return new ArrayList<>(Arrays.asList(subString.split(",")));
     }
 
 
@@ -103,10 +109,43 @@ public class EventsDataSource {
      * @param event The event to be deleted
      */
     public void deleteEvent(Event event){
-        database = dbHelper.getWritableDatabase();
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
         long eventId = event.getID();
         database.delete(MySQLiteHelper.TABLE_EVENTS, MySQLiteHelper.COLUMN_ID + " = " + eventId, null);
         close();
+    }
+
+    /**
+     *
+     * @param date
+     * @return
+     */
+    public List<Event> findEventsByDate(Date date){
+        database = dbHelper.getReadableDatabase();
+        List<Event> events;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD");
+        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_DATE
+                + " = " + dateFormat.format(date),null,null,null,"date");
+        events = buildEventsList(resultSet);
+        return events;
+    }
+
+    /**
+     *
+     * @param location
+     * @return
+     */
+    public List<Event> findEventsByLocation(String location){
+        database = dbHelper.getReadableDatabase();
+        List<Event> events;
+        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns,MySQLiteHelper.COLUMN_LOCATION
+                + " = " + location,null,null,null,"date");
+        events = buildEventsList(resultSet);
+        return events;
     }
 
     /**
@@ -115,9 +154,21 @@ public class EventsDataSource {
      */
     public List<Event> getAllEvents(){
         database = dbHelper.getReadableDatabase();
-        List<Event> events = new ArrayList<Event>();
-
+        List<Event> events;
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, null, null, null, null, null);
+        events = buildEventsList(resultSet);
+        resultSet.close();
+        close();
+        return events;
+    }
+
+    /**
+     * Builds a List containing events from a Cursor object
+     * @param resultSet The cursor to build from
+     * @return The list of events
+     */
+    private List<Event> buildEventsList(Cursor resultSet){
+        List<Event> events = new ArrayList<>();
 
         resultSet.moveToFirst();
         while(!resultSet.isAfterLast()){
@@ -125,15 +176,13 @@ public class EventsDataSource {
             events.add(event);
             resultSet.moveToNext();
         }
-
-        resultSet.close();
-        close();
         return events;
     }
 
+
     /**
      * Gets an Event from a cursor to this database
-     * @param resultSet
+     * @param resultSet cursor to the database
      * @return The Event from the database cursor points to
      */
     private Event getEventFromCursor(Cursor resultSet){
@@ -183,7 +232,11 @@ public class EventsDataSource {
      * Put this in constructor, and call a test inside its body after creating properties
      */
     private void performTests() {
-        database = dbHelper.getWritableDatabase();
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
         insertData();
         insertData();
         insertData();
@@ -217,7 +270,11 @@ public class EventsDataSource {
 
     private void EDSTEST( ){
         Log.i(TAG, "----------------------RUNNING EDSTEST()------------------");
-        database = dbHelper.getWritableDatabase();
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
 
         long id = insertData();
         Log.i(TAG, "sql insert successful!");
