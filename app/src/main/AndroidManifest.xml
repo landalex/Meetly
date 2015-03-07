@@ -34,7 +34,7 @@
         //Welcome Screen
         <activity
             android:name=".WelcomeScreen"
-            android:label="@string/title_activity_welcome_screen" >
+            android:label="Meetly" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

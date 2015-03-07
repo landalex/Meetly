@@ -44,9 +44,6 @@ public class EventsDataSource {
      */
     public EventsDataSource(Context context){
         dbHelper = new MySQLiteHelper(context);
-
-        //for testing
-        performTests();
  }
 
     public void open() throws SQLException {
@@ -66,7 +63,7 @@ public class EventsDataSource {
      * @param notes notes  for event
      */
     public Event createEvent(String title, Date date, String location, ArrayList<String> attendees, String notes) {
-
+        database = dbHelper.getWritableDatabase();
         //build record pairs
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_TITLE, title);
@@ -84,6 +81,7 @@ public class EventsDataSource {
         resultSet.moveToFirst();
         Event event = new Event(insertID,title, date, location, attendees, notes);
         resultSet.close();
+        close();
         return event;
     }
 
@@ -105,16 +103,18 @@ public class EventsDataSource {
      * @param event The event to be deleted
      */
     public void deleteEvent(Event event){
+        database = dbHelper.getWritableDatabase();
         long eventId = event.getID();
         database.delete(MySQLiteHelper.TABLE_EVENTS, MySQLiteHelper.COLUMN_ID + " = " + eventId, null);
+        close();
     }
 
     /**
-     * NOT TESTED THOROUGHLY
      * Gets all the events in the database and returns them in a list of events
      * @return A list of events
      */
     public List<Event> getAllEvents(){
+        database = dbHelper.getReadableDatabase();
         List<Event> events = new ArrayList<Event>();
 
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, null, null, null, null, null);
@@ -127,12 +127,12 @@ public class EventsDataSource {
         }
 
         resultSet.close();
+        close();
         return events;
     }
 
     /**
-     *  NOT TESTED THOROUGHLY
-     *  Gets an Event from a cursor to the database
+     * Gets an Event from a cursor to this database
      * @param resultSet
      * @return The Event from the database cursor points to
      */
@@ -140,9 +140,7 @@ public class EventsDataSource {
         Event event = new Event();
         event.setID(resultSet.getLong(0));
         event.setTitle(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_TITLE)));
-
         event.setDate(stringToDate(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_DATE))));
-
         event.setLocation(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LOCATION)));
         event.setAttendees(parseAttendees(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_ATTENDEES))));
         event.setNotes(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_NOTES)));
@@ -201,9 +199,6 @@ public class EventsDataSource {
         testArray.add("Alex4");
         testArray.add("Jas3");
         testArray.add("Tina3");
-
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
     }
 
     private void createEventTEST(){
@@ -252,6 +247,7 @@ public class EventsDataSource {
         Log.i(TAG, "Database currently has " + MySQLiteHelper.DATABASE_SIZE
                 + " records");
         Log.i(TAG, "Size of database is currently: " + size);
+        close();
     }
 
     /**
@@ -273,7 +269,6 @@ public class EventsDataSource {
         values.put(MySQLiteHelper.COLUMN_ATTENDEES,arr.toString());
         values.put(MySQLiteHelper.COLUMN_NOTES, "notesTest");
         return database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
-
     }
 
 

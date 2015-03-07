@@ -1,9 +1,14 @@
 package com.cmpt276.meetly;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.nfc.Tag;
+import android.util.Log;
 
 import java.text.DateFormat;
+import java.text.FieldPosition;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,6 +23,8 @@ public class Event {
     private String location;
     private ArrayList<String> attendees;
     private String notes;
+
+    final private String TAG = "EventClass";
 
 
     /**
@@ -71,6 +78,22 @@ public class Event {
     public Event(String title, Date date) {
         this.title = title;
         this.date = date;
+    }
+
+    /**
+     * Prints out event details to logcat
+     * @return
+     */
+    public void printEvent(){
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+        Log.i(TAG, "\nEvent ID: " + eventID
+            + "\nEvent title: " + title
+            + "\nEvent date: " + dateFormat.format(date).toString()
+            + "\nEvent location: " + location
+            + "\nEvent Attendees: " + attendees.toString()
+            + "\nEvent notes: " + notes);
     }
 
 
