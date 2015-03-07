@@ -15,8 +15,6 @@ import android.widget.Button;
  */
 public class WelcomeScreen extends ActionBarActivity {
 
-
-
     private final String TAG = "WelcomeScreenActivity";
 
     @Override
@@ -55,7 +53,8 @@ public class WelcomeScreen extends ActionBarActivity {
     public void onSkipIntro(View view){
         Button skipButton = (Button) view;
         Log.i(TAG, "Skipping intro");
-        // Launch MainActivity for testing EventList
+
+        // Launch MainActivity for testing EventList and EventsDataSource
         startActivity(new Intent(WelcomeScreen.this, MainActivity.class));
     }
 }

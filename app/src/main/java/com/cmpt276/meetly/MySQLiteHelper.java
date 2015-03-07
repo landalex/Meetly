@@ -7,6 +7,7 @@ import android.util.Log;
 
 /**
  * Created by Hami on 3/4/2015.
+ * This class is responsible for creating Meetly Database
  */
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
@@ -21,7 +22,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "MeetlyDB";
     public static final int DATABASE_VERSION = 1;
 
-    // Database creation sql statement
+    public static int DATABASE_SIZE = 0;
+    public static int DATABASE_NEXT_RECORD = DATABASE_SIZE++;
+
+    // EventsDataSource creation sql statement
     private static final String DATABASE_CREATE = "create table "
             + TABLE_EVENTS + "("
             + COLUMN_ID + " integer primary key autoincrement, "
@@ -32,6 +36,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + COLUMN_NOTES + " text"
             + ");";
 
+    /**
+     * Constructor
+     * @param context
+     */
     public MySQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -41,6 +49,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         database.execSQL(DATABASE_CREATE);
     }
 
+    /**
+     * Deletes all existing data from the table and re-creates the table
+     * @param db the database to re-create
+     * @param oldVersion the current version of the database
+     * @param newVersion the version of the database to move to
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.w(MySQLiteHelper.class.getName(),
@@ -49,5 +63,18 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
         onCreate(db);
     }
+
+    /**
+     * Closes connections to database and deletes it. This should be called if
+     * changes are made to the database structure
+     * @param db the database to close
+     * @param context
+     */
+    public static void deleteDatabase(SQLiteDatabase db, Context context){
+        db.close();
+        context.deleteDatabase(DATABASE_NAME);
+    }
+
+
 
 }

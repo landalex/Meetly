@@ -1,17 +1,22 @@
 package com.cmpt276.meetly;
 
+import android.database.Cursor;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * Created by AlexLand on 15-03-05.
  */
 public class Event {
-    private int _id;
+    private long eventID;
     private String title;
-    private String date;
+    private Date date;
     private String location;
-    //attendees limit defaults to 25
-    private String[] attendees = new String[25];
+    private ArrayList<String> attendees;
     private String notes;
 
 
@@ -22,23 +27,10 @@ public class Event {
      * @param location
      * @param notes
      */
-    public Event(String title, Date date, String location, String notes) {
+    public Event(long eventID, String title, Date date, String location, ArrayList<String> attendees, String notes) {
+        this.eventID = eventID;
         this.title = title;
-        this.date = date.toString();
-        this.location = location;
-        this.notes = notes;
-    }
-
-    /**
-     * Event Constructor
-     * @param title
-     * @param date
-     * @param location
-     * @param notes
-     */
-    public Event(String title, Date date, String location, String[] attendees, String notes) {
-        this.title = title;
-        this.date = date.toString();
+        this.date = date;
         this.location = location;
         this.attendees = attendees;
         this.notes = notes;
@@ -46,14 +38,29 @@ public class Event {
 
     /**
      * Event Copy Constructor
-     * @param eventCopy : The event to copy
+     * @param eventCopy The event to shallow copy
      */
     public Event(Event eventCopy) {
+        this.eventID = eventCopy.getID();
         this.title = eventCopy.getTitle();
-        this.date = eventCopy.getTitle();
+        this.date = eventCopy.getDateAsDate();
         this.location = eventCopy.getLocation();
         this.attendees = eventCopy.getAttendees();
         this.notes = eventCopy.getNotes();
+    }
+
+    /**
+     * Event Constructor
+     * Gives properties default values
+     * The event is unusable in this state until its properties have been assigned
+     */
+    public Event() {
+        this.eventID = -1;
+        this.title = "";
+        this.date = null;
+        this.location = "";
+        this.attendees = new ArrayList<String>();
+        this.notes = "";
     }
 
     /**
@@ -63,29 +70,38 @@ public class Event {
      */
     public Event(String title, Date date) {
         this.title = title;
-        this.date = date.toString();
+        this.date = date;
     }
+
 
 
     // Accessors
     public String getTitle() {return title;}
 
-    public String getDate() {return date;}
+    public Date getDateAsDate() {return date;}
+
+    public String getDate() {return date.toString();}
 
     public String getLocation() {return location;}
 
-    public String[] getAttendees() {return attendees;}
+    public ArrayList<String> getAttendees() {return attendees;}
 
     public String getNotes(){ return notes;}
 
+    public long getID() {return eventID;}
+
     //Basic Mutators
-    public void setTitle(String newTitle) {title = newTitle;}
+    public void setTitle(String title) { this.title = title;}
 
-    public void setDate(Date newDate) {date = newDate.toString();}
+    public void setDate(Date date) { this.date = date;}
 
-    public void setLocation(String newLocation) {location = newLocation;}
+    public void setLocation(String location) { this.location = location;}
 
-    public void setAttendees(String[] newAttendees) {attendees = newAttendees;}
+    public void setAttendees(ArrayList<String> attendees) {this.attendees = (ArrayList) attendees.clone();}
 
-    public void setNotes(String newNotes){ notes = newNotes;}
+    public void setNotes(String notes){ this.notes = notes;}
+
+    public void setID(long eventID) {this.eventID = eventID;}
+
+
 }
