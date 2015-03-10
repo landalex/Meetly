@@ -32,6 +32,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         newDS = new EventsDataSource(getApplicationContext());
+        openFragment(getCurrentFocus());
 
         }
 
@@ -57,11 +58,13 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         }
 
         else if (id == R.id.action_add_event) {
-            newDS.createEvent("Test",
+            if (newDS.createEvent("Test",
                     new Date(),
                     "A Place",
                     new ArrayList<String>(),
-                    "This is a note");
+                    "This is a note") != null) {
+                Log.i(TAG, "Event created");
+            };
         }
 
         return super.onOptionsItemSelected(item);

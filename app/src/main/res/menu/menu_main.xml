@@ -5,5 +5,5 @@
         android:orderInCategory="100" app:showAsAction="always" />
     <item android:id="@+id/action_add_event" android:title="@string/actionbar_add_event"
         android:orderInCategory="10" app:showAsAction="always"
-        android:icon="@drawable/ic_action_add" />
+        android:icon="@drawable/ic_add_white" />
 </menu>

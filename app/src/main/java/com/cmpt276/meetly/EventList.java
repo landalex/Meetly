@@ -3,6 +3,9 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 
 import com.cmpt276.meetly.dummy.DummyContent;
@@ -22,6 +25,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
+import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
+import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.recyclerview.internal.CardArrayRecyclerViewAdapter;
+import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 
 /**
  * Scroll bar (draggable), Swipe for options (View, edit, delete, invite)
@@ -40,13 +51,13 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     /**
      * The fragment's ListView/GridView.
      */
-    private AbsListView mListView;
+    private CardRecyclerView mRecyclerView;
 
     /**
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private CardArrayRecyclerViewAdapter mCardArrayAdapter;
 
     /**
      * The database helper
@@ -71,26 +82,77 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
         String[] testArray = {"Test string 1", "Test string 2", "Test string 3"};
 
-        // TODO: Change Adapter to display your content
-//        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-//                android.R.layout.simple_list_item_2, android.R.id.text1, DummyContent.ITEMS);
-        createAdapter();
+//        createAdapter();
+        ArrayList<Card> cards = makeCards();
+        createCardAdapter(cards);
+
+    }
+
+    private void createCardAdapter(ArrayList<Card> cards) {
+        mCardArrayAdapter = new CardArrayRecyclerViewAdapter(getActivity(), cards);
+    }
+
+    private ArrayList<Card> makeCards() {
+        List<Event> eventList = getTestEvents();
+        ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
+
+        IconSupplementalAction ic1 = new IconSupplementalAction(getActivity(), R.id.ic1);
+        ic1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+            @Override
+            public void onClick(Card card, View view) {
+                Toast.makeText(getActivity()," Click on icon 1 ", Toast.LENGTH_SHORT).show();
+            }
+        });
+        actions.add(ic1);
+
+        IconSupplementalAction ic2 = new IconSupplementalAction(getActivity(), R.id.ic2);
+        ic2.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+            @Override
+            public void onClick(Card card, View view) {
+                Toast.makeText(getActivity()," Click on icon 2 ", Toast.LENGTH_SHORT).show();
+            }
+        });
+        actions.add(ic2);
+
+        IconSupplementalAction ic3 = new IconSupplementalAction(getActivity(), R.id.ic3);
+        ic3.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+            @Override
+            public void onClick(Card card, View view) {
+                Toast.makeText(getActivity()," Click on icon 3 ", Toast.LENGTH_SHORT).show();
+            }
+        });
+        actions.add(ic3);
+
+        ArrayList<Card> cards = new ArrayList<>();
+        for (Event event: eventList) {
+            MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
+                    .setTextOverImage(event.getTitle())
+                    .setTitle(event.getDate())
+                    .setSubTitle(timeUntil(event.getDateAsDate()))
+                    .useDrawableId(R.drawable.card_background)
+                    .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
+                    .build();
+            card.addCardHeader(new CardHeader(getActivity()));
+            cards.add(card);
+        }
+
+        return cards;
     }
 
     private void createAdapter() {
-        final String[] fromMapKey = {EVENT_TITLE, EVENT_DATE/*, EVENT_LOCATION, EVENT_COUNTDOWN*/};
+        final String[] fromMapKey = {EVENT_TITLE, EVENT_DATE, EVENT_LOCATION, EVENT_COUNTDOWN};
         final int[] toLayoutId = {android.R.id.text1, android.R.id.text2/*, android.R.id.text3, android.R.id.text4*/};
         List<Map<String, String>> eventList = getEventList();
 
 
-        mAdapter = new SimpleAdapter(getActivity(), eventList, android.R.layout.simple_list_item_2,
-                fromMapKey, toLayoutId);
+//        mAdapter = new SimpleAdapter(getActivity(), eventList, android.R.layout.simple_list_item_2,
+//                fromMapKey, toLayoutId);
     }
 
     private List getEventList() {
         final List<Map<String, String>> eventMapList = new ArrayList<>();
 
-        List<Event> eventList = database.getAllEvents();
+        List<Event> eventList = getTestEvents();
 
         for (Event event : eventList) {
             Map<String, String> eventMap = new HashMap<>();
@@ -116,9 +178,15 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
     private ArrayList getTestEvents() {
         ArrayList<Event> testEvents = new ArrayList<>();
-        testEvents.add(new Event("Tims Run", new Date()));
-        testEvents.add(new Event("Lunch", new Date()));
-        testEvents.add(new Event("Dinner", new Date()));
+        ArrayList<String> attendees = new ArrayList<>();
+        attendees.add("Alex");
+        attendees.add("Hami");
+        attendees.add("Tina");
+        attendees.add("Jas");
+        testEvents.add(new Event(0, "Tims Run", new Date(2015, 03, 10), "Somewhere", attendees, "A note"));
+        testEvents.add(new Event(1, "Tims Run", new Date(2015, 03, 11), "Somewhere", attendees, "A note"));
+        testEvents.add(new Event(2, "Tims Run", new Date(2015, 03, 12), "Somewhere", attendees, "A note"));
+
 
         return testEvents;
     }
@@ -126,14 +194,22 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_item, container, false);
+        View view = inflater.inflate(R.layout.fragment_recyclerview, container, false);
 
-        // Set the adapter
-        mListView = (AbsListView) view.findViewById(android.R.id.list);
-        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+//        // Set the adapter
+//        mListView = (AbsListView) view.findViewById(android.R.id.list);
+//        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+//
+//        // Set OnItemClickListener so we can be notified on item clicks
+//        mListView.setOnItemClickListener(this);
 
-        // Set OnItemClickListener so we can be notified on item clicks
-        mListView.setOnItemClickListener(this);
+        mRecyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
+        mRecyclerView.setHasFixedSize(false);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        if (mRecyclerView != null) {
+            mRecyclerView.setAdapter(mCardArrayAdapter);
+        }
 
         return view;
     }
@@ -162,19 +238,6 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
             mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-        }
-    }
-
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
         }
     }
 
