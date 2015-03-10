@@ -15,11 +15,8 @@ import android.widget.Toast;
 import com.cmpt276.meetly.dummy.DummyContent;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
 import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
@@ -36,17 +33,8 @@ import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 public class EventList extends Fragment implements AbsListView.OnItemClickListener {
 
     private final String TAG = "EventListFragment";
-    private static final String EVENT_TITLE = "text1";
-    private static final String EVENT_DATE = "text2";
-    private static final String EVENT_LOCATION = "text3";
-    private static final String EVENT_COUNTDOWN = "text4";
 
     private OnFragmentInteractionListener mListener;
-
-    /**
-     * The fragment's ListView/GridView.
-     */
-    private CardRecyclerView mRecyclerView;
 
     /**
      * The Adapter which will be used to populate the ListView/GridView with
@@ -60,8 +48,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     private EventsDataSource database = new EventsDataSource(getActivity());
 
     public static EventList newInstance() {
-        EventList fragment = new EventList();
-        return fragment;
+        return new EventList();
     }
 
     /**
@@ -80,8 +67,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_layout, container, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_layout, container, false);
     }
 
     @Override
@@ -97,13 +83,10 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     }
 
     private void configureRecyclerView() {
-        mRecyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
+        CardRecyclerView mRecyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        if (mRecyclerView != null) {
-            mRecyclerView.setAdapter(mCardArrayAdapter);
-        }
+        mRecyclerView.setAdapter(mCardArrayAdapter);
     }
 
     private void createCardAdapter(ArrayList<Card> cards) {
@@ -158,6 +141,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     }
 
     private String timeUntil(Date date) {
+        // TODO: Make this not suck
         Date now = new Date();
         long hoursUntil = date.getHours() - now.getHours();
         long minutesUntil = date.getMinutes() - now.getMinutes();
