@@ -77,22 +77,10 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_layout, container, false);
-
-//        // Set the adapter
-//        mListView = (AbsListView) view.findViewById(android.R.id.list);
-//        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
-//
-//        // Set OnItemClickListener so we can be notified on item clicks
-//        mListView.setOnItemClickListener(this);
-
-
-
         return view;
     }
 
@@ -100,12 +88,15 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-//        hideList(false);
-
         ArrayList<Card> cards = makeCards();
 
         createCardAdapter(cards);
 
+        configureRecyclerView();
+
+    }
+
+    private void configureRecyclerView() {
         mRecyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
         mRecyclerView.setHasFixedSize(false);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -113,7 +104,6 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         if (mRecyclerView != null) {
             mRecyclerView.setAdapter(mCardArrayAdapter);
         }
-
     }
 
     private void createCardAdapter(ArrayList<Card> cards) {
@@ -165,33 +155,6 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         }
 
         return cards;
-    }
-
-    private void createAdapter() {
-        final String[] fromMapKey = {EVENT_TITLE, EVENT_DATE, EVENT_LOCATION, EVENT_COUNTDOWN};
-        final int[] toLayoutId = {android.R.id.text1, android.R.id.text2/*, android.R.id.text3, android.R.id.text4*/};
-        List<Map<String, String>> eventList = getEventList();
-
-
-//        mAdapter = new SimpleAdapter(getActivity(), eventList, android.R.layout.simple_list_item_2,
-//                fromMapKey, toLayoutId);
-    }
-
-    private List getEventList() {
-        final List<Map<String, String>> eventMapList = new ArrayList<>();
-
-        List<Event> eventList = getTestEvents();
-
-        for (Event event : eventList) {
-            Map<String, String> eventMap = new HashMap<>();
-            eventMap.put(EVENT_TITLE, event.getTitle());
-            eventMap.put(EVENT_DATE, event.getDate());
-            eventMap.put(EVENT_LOCATION, event.getLocation());
-            eventMap.put(EVENT_COUNTDOWN, timeUntil(event.getDateAsDate()));
-            eventMapList.add(eventMap);
-        }
-
-        return Collections.unmodifiableList(eventMapList);
     }
 
     private String timeUntil(Date date) {
@@ -257,7 +220,6 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(String id);
     }
 
