@@ -9,5 +9,6 @@
     <string name="title_activity_welcome_screen">WelcomeScreen</string>
     <string name="title_activity_parent">Parent</string>
     <string name="title_activity_database">Database</string>
+    <string name="actionbar_add_event">Add Event</string>
 
 </resources>

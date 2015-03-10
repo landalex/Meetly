@@ -14,6 +14,9 @@ import android.view.View;
 import android.widget.Button;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 
 /**
  * Actionbar: Add event button, Location info, Location change button?
@@ -21,17 +24,16 @@ import android.database.sqlite.SQLiteDatabase;
 public class MainActivity extends ActionBarActivity implements EventList.OnFragmentInteractionListener{
 
     private final String TAG = "MainActivity";
-
+    private EventsDataSource newDS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        newDS = new EventsDataSource(getApplicationContext());
 
-        EventsDataSource newDS = new EventsDataSource(getApplicationContext());
-
-        //getFragmentManager().beginTransaction().replace(android.R.id.content, new EventList()).commit();
-    }
+        }
 
 
     @Override
@@ -50,7 +52,16 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            onDeleteDBClick(getCurrentFocus());
             return true;
+        }
+
+        else if (id == R.id.action_add_event) {
+            newDS.createEvent("Test",
+                    new Date(),
+                    "A Place",
+                    new ArrayList<String>(),
+                    "This is a note");
         }
 
         return super.onOptionsItemSelected(item);
@@ -61,11 +72,16 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     }
 
-    /* For QuickDelete of database
+    /* For opening event list on MainActivity */
+    public void openFragment(View view) {
+        getFragmentManager().beginTransaction().replace(android.R.id.content, new EventList()).commit();
+    }
+
+    /* For QuickDelete of database*/
     public void onDeleteDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         dbHelper.close();
         dbHelper.deleteDatabase(database, getApplicationContext());
-    }*/
+    }
 }
