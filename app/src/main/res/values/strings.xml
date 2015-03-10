@@ -10,5 +10,8 @@
     <string name="title_activity_parent">Parent</string>
     <string name="title_activity_database">Database</string>
     <string name="actionbar_add_event">Add Event</string>
+    <string name="fragment_card_edit_description">Edit event</string>
+    <string name="fragment_card_delete_description">Delete event</string>
+    <string name="fragment_card_invite_description">Invite people</string>
 
 </resources>
