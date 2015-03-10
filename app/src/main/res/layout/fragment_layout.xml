@@ -15,7 +15,7 @@
     <it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        card:list_card_layout_resourceID="@layout/native_recyclerview_card_layout"
+        card:list_card_layout_resourceID="@layout/fragment_card_view"
         android:id="@+id/fragment_recyclerview"/>
 
 </FrameLayout>

@@ -4,16 +4,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -64,7 +59,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
      */
     private EventsDataSource database = new EventsDataSource(getActivity());
 
-    public static EventList newInstance(String param1, String param2) {
+    public static EventList newInstance() {
         EventList fragment = new EventList();
         return fragment;
     }
@@ -80,11 +75,44 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String[] testArray = {"Test string 1", "Test string 2", "Test string 3"};
+    }
 
-//        createAdapter();
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_layout, container, false);
+
+//        // Set the adapter
+//        mListView = (AbsListView) view.findViewById(android.R.id.list);
+//        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+//
+//        // Set OnItemClickListener so we can be notified on item clicks
+//        mListView.setOnItemClickListener(this);
+
+
+
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+//        hideList(false);
+
         ArrayList<Card> cards = makeCards();
+
         createCardAdapter(cards);
+
+        mRecyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
+        mRecyclerView.setHasFixedSize(false);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        if (mRecyclerView != null) {
+            mRecyclerView.setAdapter(mCardArrayAdapter);
+        }
 
     }
 
@@ -129,7 +157,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
                     .setTextOverImage(event.getTitle())
                     .setTitle(event.getDate())
                     .setSubTitle(timeUntil(event.getDateAsDate()))
-                    .useDrawableId(R.drawable.card_background)
+                    .useDrawableId(R.drawable.card_picture)
                     .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                     .build();
             card.addCardHeader(new CardHeader(getActivity()));
@@ -189,29 +217,6 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
 
         return testEvents;
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_recyclerview, container, false);
-
-//        // Set the adapter
-//        mListView = (AbsListView) view.findViewById(android.R.id.list);
-//        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
-//
-//        // Set OnItemClickListener so we can be notified on item clicks
-//        mListView.setOnItemClickListener(this);
-
-        mRecyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
-        mRecyclerView.setHasFixedSize(false);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        if (mRecyclerView != null) {
-            mRecyclerView.setAdapter(mCardArrayAdapter);
-        }
-
-        return view;
     }
 
     @Override

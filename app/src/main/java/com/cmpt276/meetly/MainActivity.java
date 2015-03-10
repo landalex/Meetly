@@ -77,7 +77,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     /* For opening event list on MainActivity */
     public void openFragment(View view) {
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new EventList()).commit();
+        getFragmentManager().beginTransaction().replace(android.R.id.content, EventList.newInstance()).commit();
     }
 
     /* For QuickDelete of database*/
