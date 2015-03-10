@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.nfc.Tag;
 import android.util.Log;
 
 import java.io.File;
@@ -127,7 +128,7 @@ public class EventsDataSource {
     public List<Event> findEventsByDate(Date date){
         database = dbHelper.getReadableDatabase();
         List<Event> events;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_DATE
                 + " = " + dateFormat.format(date),null,null,null,"date");
         events = buildEventsList(resultSet);
@@ -160,6 +161,36 @@ public class EventsDataSource {
         resultSet.close();
         close();
         return events;
+    }
+
+    /**
+     * Commits an update to an event to the database
+     * @param eventToUpdate
+     */
+    public void updateEvent(Event eventToUpdate){
+        Event event = eventToUpdate;
+        try{
+            open();
+        }catch (SQLException e){
+            Log.e(TAG, "Failed to open database for writing");
+            e.printStackTrace();
+        }
+
+        //build record pairs
+        ContentValues values = new ContentValues();
+        values.put(MySQLiteHelper.COLUMN_TITLE, event.getTitle());
+        values.put(MySQLiteHelper.COLUMN_DATE, event.getDate());
+        values.put(MySQLiteHelper.COLUMN_LOCATION, event.getLocation());
+        values.put(MySQLiteHelper.COLUMN_ATTENDEES,event.getAttendees().toString());
+        values.put(MySQLiteHelper.COLUMN_NOTES, event.getNotes());
+
+        try{
+            database.update(MySQLiteHelper.TABLE_EVENTS, values,MySQLiteHelper.COLUMN_ID + " = " + event.getID(),null);
+        }catch (RuntimeException e){
+            Log.i(TAG, "Event ID #" + event.getID() + " \"" + event.getTitle() + "\" failed to update");
+        }
+
+        Log.i(TAG, "Event ID #" + event.getID() + " \"" + event.getTitle() + "\" has been updated");
     }
 
     /**
