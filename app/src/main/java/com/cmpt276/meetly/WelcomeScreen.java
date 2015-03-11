@@ -9,22 +9,35 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 
 /**
  * Animation, ends with start screen (View or create events)
  */
-public class WelcomeScreen extends ActionBarActivity {
-
+public class WelcomeScreen extends ActionBarActivity implements Animation.AnimationListener {
     private final String TAG = "WelcomeScreenActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_screen);
+        onSkipIntro(findViewById(R.id.button));
+        playAnimation(R.id.appName);
+        playAnimation(R.id.tagline);
 
         // Launch MainActivity for testing EventList
         //startActivity(new Intent(WelcomeScreen.this, MainActivity.class));
 
+    }
+
+    private void playAnimation(int id) {
+        TextView text = (TextView)findViewById(id);
+        Animation animationFadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in_animation);
+
+        text.setVisibility(View.VISIBLE);
+        text.startAnimation(animationFadeIn);
     }
 
 
@@ -56,5 +69,20 @@ public class WelcomeScreen extends ActionBarActivity {
 
         // Launch MainActivity for testing EventList and EventsDataSource
         startActivity(new Intent(WelcomeScreen.this, MainActivity.class));
+    }
+
+    @Override
+    public void onAnimationStart(Animation animation) {
+
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+
     }
 }

@@ -4,10 +4,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.cmpt276.meetly.WelcomeScreen">
-
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    tools:context="com.cmpt276.meetly.WelcomeScreen"
+    android:background="@mipmap/light_blue_bg" >
 
 
     <Button
@@ -15,7 +13,30 @@
         android:layout_height="wrap_content"
         android:text="Skip Splash Screen"
         android:id="@+id/button"
+        android:onClick="onSkipIntro"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="60dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:id="@+id/appName"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="onSkipIntro"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="129dp"
+        style="@style/TitleHeadingTextStyle"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/app_tagline"
+        android:id="@+id/tagline"
+        style="@style/TaglineHeadingTextStyle"
+        android:layout_below="@+id/appName"
+        android:layout_alignStart="@+id/appName"
+        android:visibility="gone" />
 </RelativeLayout>
