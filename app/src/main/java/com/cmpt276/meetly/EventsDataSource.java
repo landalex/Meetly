@@ -203,8 +203,9 @@ public class EventsDataSource {
      * @return returns date object converted from string, or null if conversion failed
      */
     private Date stringToDate(String dateString){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
         Date date;
+        Log.i(TAG, "DATESTRING: " + dateString);
         try{
             date = dateFormat.parse(dateString);
             return date;

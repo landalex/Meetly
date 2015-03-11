@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +50,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     /**
      * The database helper
      */
-    private EventsDataSource database = new EventsDataSource(getActivity());
+    private EventsDataSource database;
     private ArrayList<Card> cards;
     public boolean showingCrouton;
 
@@ -67,7 +68,15 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        database = new EventsDataSource(getActivity());
+//        makeTestEvents();
+    }
 
+    private void makeTestEvents() {
+        for (int i = 1; i < 4; i++) {
+            database.createEvent("Test" + i, new Date(2015, 3, 11 + i), "A place", new ArrayList<String>(), "Notes");
+            Log.i(TAG, "Event" + i + " added");
+        }
     }
 
     @Override
@@ -100,7 +109,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     }
 
     private ArrayList<Card> makeCards() {
-        List<Event> eventList = getTestEvents();
+        List<Event> eventList = getEvents();
         ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
 
         IconSupplementalAction ic1 = new IconSupplementalAction(getActivity(), R.id.ic1);
@@ -132,15 +141,20 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
         ArrayList<Card> cards = new ArrayList<>();
         for (Event event: eventList) {
-            MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
-                    .setTextOverImage(event.getTitle())
-                    .setTitle(event.getDate())
-                    .setSubTitle(timeUntil(event.getDateAsDate()))
-                    .useDrawableId(R.drawable.card_picture)
-                    .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
-                    .build();
-            card.addCardHeader(new CardHeader(getActivity()));
-            cards.add(card);
+            if (event.getDateAsDate() == null) {
+                Log.i(TAG, "DATE TO STRING: " + event.getDate());
+            }
+            else {
+                MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
+                        .setTextOverImage(event.getTitle())
+                        .setTitle(event.getDate())
+                        .setSubTitle(timeUntil(event.getDateAsDate()))
+                        .useDrawableId(R.drawable.card_picture)
+                        .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
+                        .build();
+                card.addCardHeader(new CardHeader(getActivity()));
+                cards.add(card);
+            }
         }
 
         return cards;
@@ -170,6 +184,10 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
 
         return testEvents;
+    }
+
+    private List getEvents() {
+        return database.getAllEvents();
     }
 
     public Crouton makeLocationCrouton() {

@@ -72,6 +72,9 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
                 Log.d(TAG, "show crouton");
             }
         }
+        else if (id == R.id.action_delete_db) {
+            onDeleteDBClick(getCurrentFocus());
+        }
 
         return super.onOptionsItemSelected(item);
     }

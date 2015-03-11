@@ -102,7 +102,9 @@ public class Event {
 
     public Date getDateAsDate() {return date;}
 
-    public String getDate() {return date.toString();}
+    public String getDate() {
+        return date.toString();
+    }
 
     public String getLocation() {return location;}
 
