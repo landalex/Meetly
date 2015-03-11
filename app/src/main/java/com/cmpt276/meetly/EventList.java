@@ -176,7 +176,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
                 .build();
 
         Style style = new Style.Builder()
-//                .setBackgroundColor(getResources().getColor(R.color.green))
+                .setBackgroundColor(R.color.green)
                 .setHeight(250)
                 .setConfiguration(config)
                 .build();
