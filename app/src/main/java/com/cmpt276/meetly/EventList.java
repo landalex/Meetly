@@ -173,10 +173,12 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     public void makeLocationCrouton() {
         Configuration config = new Configuration.Builder()
                 .setDuration(Configuration.DURATION_INFINITE)
+                .setInAnimation(R.anim.abc_slide_in_top)
+                .setOutAnimation(R.anim.abc_slide_out_top)
                 .build();
 
         Style style = new Style.Builder()
-                .setBackgroundColor(R.color.green)
+                .setBackgroundColorValue(getResources().getColor(R.color.green))
                 .setHeight(250)
                 .setConfiguration(config)
                 .build();

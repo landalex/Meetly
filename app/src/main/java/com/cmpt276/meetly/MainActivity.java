@@ -84,6 +84,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         Crouton.cancelAllCroutons();
     }
 }
