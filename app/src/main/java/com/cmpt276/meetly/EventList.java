@@ -20,6 +20,7 @@ import java.util.List;
 
 import de.keyboardsurfer.android.widget.crouton.Configuration;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.LifecycleCallback;
 import de.keyboardsurfer.android.widget.crouton.Style;
 import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
 import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
@@ -50,6 +51,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
      */
     private EventsDataSource database = new EventsDataSource(getActivity());
     private ArrayList<Card> cards;
+    public boolean showingCrouton;
 
     public static EventList newInstance() {
         return new EventList();
@@ -105,7 +107,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         ic1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Toast.makeText(getActivity()," Click on icon 1 ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), " Click on icon 1 ", Toast.LENGTH_SHORT).show();
             }
         });
         actions.add(ic1);
@@ -114,7 +116,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         ic2.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Toast.makeText(getActivity()," Click on icon 2 ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), " Click on icon 2 ", Toast.LENGTH_SHORT).show();
             }
         });
         actions.add(ic2);
@@ -170,7 +172,18 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         return testEvents;
     }
 
-    public void makeLocationCrouton() {
+    public Crouton makeLocationCrouton() {
+        LifecycleCallback callback = new LifecycleCallback() {
+            @Override
+            public void onDisplayed() {
+                showingCrouton = true;
+            }
+
+            @Override
+            public void onRemoved() {
+                showingCrouton = false;
+            }
+        };
         Configuration config = new Configuration.Builder()
                 .setDuration(Configuration.DURATION_INFINITE)
                 .setInAnimation(R.anim.abc_slide_in_top)
@@ -190,7 +203,8 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
                 crouton.hide();
             }
         });
-        crouton.show();
+        crouton.setLifecycleCallback(callback);
+        return crouton;
     }
 
     @Override

@@ -21,6 +21,8 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     private final String TAG = "MainActivity";
     private EventsDataSource newDS;
+    private EventList eventListFragment;
+    private Crouton locationCrouton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +32,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         newDS = new EventsDataSource(getApplicationContext());
         openFragment(getCurrentFocus());
 
-        }
+    }
 
 
     @Override
@@ -56,8 +58,19 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
                 Log.i(TAG, "Event created");
             }
         } else if (id == R.id.action_get_location) {
-            EventList fragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
-            fragment.makeLocationCrouton();
+            if (eventListFragment == null) {
+                eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
+                locationCrouton = eventListFragment.makeLocationCrouton();
+            }
+            if (eventListFragment.showingCrouton) {
+                locationCrouton.hide();
+                Log.d(TAG, "hide crouton");
+            }
+            else {
+                locationCrouton = eventListFragment.makeLocationCrouton();
+                locationCrouton.show();
+                Log.d(TAG, "show crouton");
+            }
         }
 
         return super.onOptionsItemSelected(item);
