@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import de.keyboardsurfer.android.widget.crouton.Configuration;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
 import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
 import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
@@ -46,6 +49,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
      * The database helper
      */
     private EventsDataSource database = new EventsDataSource(getActivity());
+    private ArrayList<Card> cards;
 
     public static EventList newInstance() {
         return new EventList();
@@ -74,7 +78,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        ArrayList<Card> cards = makeCards();
+        cards = makeCards();
 
         createCardAdapter(cards);
 
@@ -158,12 +162,33 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         attendees.add("Hami");
         attendees.add("Tina");
         attendees.add("Jas");
-        testEvents.add(new Event(0, "Tims Run", new Date(2015, 03, 10), "Somewhere", attendees, "A note"));
-        testEvents.add(new Event(1, "Tims Run", new Date(2015, 03, 11), "Somewhere", attendees, "A note"));
-        testEvents.add(new Event(2, "Tims Run", new Date(2015, 03, 12), "Somewhere", attendees, "A note"));
+        testEvents.add(new Event(0, "Tims Run", new Date(2015, 3, 10), "Somewhere", attendees, "A note"));
+        testEvents.add(new Event(1, "Tims Run", new Date(2015, 3, 11), "Somewhere", attendees, "A note"));
+        testEvents.add(new Event(2, "Tims Run", new Date(2015, 3, 12), "Somewhere", attendees, "A note"));
 
 
         return testEvents;
+    }
+
+    public void makeLocationCrouton() {
+        Configuration config = new Configuration.Builder()
+                .setDuration(Configuration.DURATION_INFINITE)
+                .build();
+
+        Style style = new Style.Builder()
+//                .setBackgroundColor(getResources().getColor(R.color.green))
+                .setHeight(250)
+                .setConfiguration(config)
+                .build();
+
+        final Crouton crouton = Crouton.makeText(getActivity(), "Placeholder Location", style);
+        crouton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                crouton.hide();
+            }
+        });
+        crouton.show();
     }
 
     @Override

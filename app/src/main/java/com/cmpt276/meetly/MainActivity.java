@@ -1,21 +1,17 @@
 package com.cmpt276.meetly;
 
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.Date;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
 
 
 /**
@@ -46,29 +42,27 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             onDeleteDBClick(getCurrentFocus());
             return true;
-        }
-
-        else if (id == R.id.action_add_event) {
+        } else if (id == R.id.action_add_event) {
             if (newDS.createEvent("Test",
                     new Date(),
                     "A Place",
                     new ArrayList<String>(),
                     "This is a note") != null) {
                 Log.i(TAG, "Event created");
-            };
+            }
+        } else if (id == R.id.action_get_location) {
+            EventList fragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
+            fragment.makeLocationCrouton();
         }
 
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     public void onFragmentInteraction(String id) {
@@ -77,7 +71,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     /* For opening event list on MainActivity */
     public void openFragment(View view) {
-        getFragmentManager().beginTransaction().replace(android.R.id.content, EventList.newInstance()).commit();
+        getFragmentManager().beginTransaction().replace(android.R.id.content, EventList.newInstance(), "EventListFragment").commit();
     }
 
     /* For QuickDelete of database*/
@@ -86,5 +80,10 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         dbHelper.close();
         dbHelper.deleteDatabase(database, getApplicationContext());
+    }
+
+    @Override
+    protected void onDestroy() {
+        Crouton.cancelAllCroutons();
     }
 }

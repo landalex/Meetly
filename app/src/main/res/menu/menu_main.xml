@@ -2,8 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
     <item android:id="@+id/action_delete_db" android:title="Delete DB"
-        android:orderInCategory="100" app:showAsAction="always" />
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
     <item android:id="@+id/action_add_event" android:title="@string/actionbar_add_event"
-        android:orderInCategory="10" app:showAsAction="always"
+        android:orderInCategory="10" app:showAsAction="ifRoom"
         android:icon="@drawable/ic_add_white" />
+    <item android:id="@+id/action_get_location" android:title="@string/activity_main_actionbar_get_location"
+        android:orderInCategory="1" app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_my_location_white" />
 </menu>
