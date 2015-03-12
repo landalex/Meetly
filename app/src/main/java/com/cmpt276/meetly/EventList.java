@@ -1,6 +1,8 @@
 package com.cmpt276.meetly;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -52,7 +54,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
      * The database helper
      */
     private EventsDataSource database;
-    private ArrayList<Card> cards;
+    private ArrayList<Card> cards = new ArrayList<>(0);
     public boolean showingCrouton;
 
     public static EventList newInstance() {
@@ -90,12 +92,15 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        cards = makeCards();
-
         createCardAdapter(cards);
-
         configureRecyclerView();
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        new UpdateCards().execute();
     }
 
     private void configureRecyclerView() {
@@ -109,8 +114,8 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         mCardArrayAdapter = new CardArrayRecyclerViewAdapter(getActivity(), cards);
     }
 
-    private ArrayList<Card> makeCards() {
-        List<Event> eventList = getEvents();
+    private ArrayList<Card> makeCards(EventsDataSource database) {
+        List<Event> eventList = getEvents(database);
         ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
 
         IconSupplementalAction ic1 = new IconSupplementalAction(getActivity(), R.id.ic1);
@@ -142,22 +147,16 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
         ArrayList<Card> cards = new ArrayList<>();
         for (Event event: eventList) {
-            if (event.getDateAsDate() == null) {
-                Log.i(TAG, "DATE TO STRING: " + event.getDate());
-            }
-            else {
-                MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
-                        .setTextOverImage(event.getTitle())
-                        .setTitle(event.getDate())
-                        .setSubTitle(timeUntil(event.getDateAsDate()))
-                        .useDrawableId(R.drawable.card_picture)
-                        .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
-                        .build();
-                card.addCardHeader(new CardHeader(getActivity()));
-                cards.add(card);
-            }
+            MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
+                    .setTextOverImage(event.getTitle())
+                    .setTitle(event.getDate())
+                    .setSubTitle(timeUntil(event.getDateAsDate()))
+                    .useDrawableId(R.drawable.card_picture)
+                    .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
+                    .build();
+            card.addCardHeader(new CardHeader(getActivity()));
+            cards.add(card);
         }
-
         return cards;
     }
 
@@ -196,7 +195,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         return testEvents;
     }
 
-    private List getEvents() {
+    private List getEvents(EventsDataSource database) {
         return database.getAllEvents();
     }
 
@@ -276,4 +275,34 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         public void onFragmentInteraction(String id);
     }
 
+    private class UpdateCards extends AsyncTask<Boolean, Void, Integer> {
+        EventsDataSource database = new EventsDataSource(getActivity());
+        ProgressDialog dialog;
+
+        protected void onPreExecute() {
+            this.dialog = new ProgressDialog(getActivity());
+            this.dialog.setIndeterminate(true);
+            this.dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
+            this.dialog.show();
+        }
+
+        @Override
+        protected Integer doInBackground(Boolean... params) {
+            cards.removeAll(cards);
+            cards.addAll(makeCards(this.database));
+            return 1;
+        }
+
+        protected void onProgressUpdate() {
+        }
+
+        @Override
+        protected void onPostExecute(Integer done) {
+            if (this.dialog.isShowing()) {
+                this.dialog.dismiss();
+            }
+                mCardArrayAdapter.notifyDataSetChanged();
+        }
+
+    }
 }
