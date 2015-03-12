@@ -11,11 +11,14 @@ import android.view.MenuItem;
 public class ViewEvent extends ActionBarActivity {
 
     private final String TAG = "ViewEventActivity";
+    private Event thisEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_event);
+
+        thisEvent = getEvent();
     }
 
 
@@ -39,5 +42,10 @@ public class ViewEvent extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private Event getEvent(){
+        EventsDataSource eds = new EventsDataSource(this);
+        return eds.findEventByID(56);
     }
 }
