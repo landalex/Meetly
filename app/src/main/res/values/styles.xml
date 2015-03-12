@@ -5,4 +5,15 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="TitleHeadingTextStyle"  >
+        <item name="android:textColor">@color/summer_sky_blue</item>
+        <item name="android:textSize">55sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TaglineHeadingTextStyle"  >
+        <item name="android:textColor">@color/steel_grey</item>
+        <item name="android:textSize">30sp</item>
+    </style>
+
 </resources>
