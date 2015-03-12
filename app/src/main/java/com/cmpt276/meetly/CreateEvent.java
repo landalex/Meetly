@@ -30,7 +30,10 @@ import java.util.ArrayList;
 /**
  * Fields: Name, Location (Open map), Date/Time (Use the circle thingy), People (Open contacts), Notes (1000 characters?)
  */
-public class CreateEvent extends Activity { //extends FragmentActivity implements OnMapReadyCallback {
+
+// TODO: Commit to database
+
+public class CreateEvent extends Activity {
 
     private final String TAG = "CreateEventActivity";
     private GoogleMap map;
@@ -42,8 +45,12 @@ public class CreateEvent extends Activity { //extends FragmentActivity implement
 
         chooseTimeButton();
         chooseDateButton();
+        displayMap();
 
-        // Map
+    }
+
+    private void displayMap() {
+        // Map Setup
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         map.setMyLocationEnabled(true);
 
@@ -71,7 +78,7 @@ public class CreateEvent extends Activity { //extends FragmentActivity implement
 
 
         // Setting a marker to the user selected location
-        final ArrayList<LatLng> markerLocation = new ArrayList<>();     // Work around to having final variables in an inner anon class
+        final ArrayList<LatLng> markerLocation = new ArrayList<LatLng>();     // Work around to having final variables in an inner anon class
         markerLocation.add(0, myLatLng);
 
         // Making this final to use inside the onMapClick inner class below
@@ -85,7 +92,6 @@ public class CreateEvent extends Activity { //extends FragmentActivity implement
                 markerLocation.add(0, eventMarker.getPosition());
             }
         });
-
     }
 
     private void chooseTimeButton() {
