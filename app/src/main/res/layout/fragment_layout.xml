@@ -13,6 +13,7 @@
         <!--android:layout_height="match_parent" android:gravity="center" />-->
 
     <it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView
+        android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         card:list_card_layout_resourceID="@layout/fragment_card_view"

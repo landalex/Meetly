@@ -18,6 +18,7 @@ import com.cmpt276.meetly.dummy.DummyContent;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import de.keyboardsurfer.android.widget.crouton.Configuration;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -74,7 +75,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
     private void makeTestEvents() {
         for (int i = 1; i < 4; i++) {
-            database.createEvent("Test" + i, new Date(2015, 3, 11 + i), "A place", new ArrayList<String>(), "Notes");
+            database.createEvent("Test" + i, new Date(1430000000000l), "A place", new ArrayList<String>(), "Notes");
             Log.i(TAG, "Event" + i + " added");
         }
     }
@@ -161,14 +162,23 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     }
 
     private String timeUntil(Date date) {
-        // TODO: Make this not suck
-        Date now = new Date();
-        long hoursUntil = date.getHours() - now.getHours();
-        long minutesUntil = date.getMinutes() - now.getMinutes();
-        long daysUntil = hoursUntil / 24;
-        hoursUntil = hoursUntil % 24;
+        long now = new Date().getTime();
+        long eventTime = date.getTime();
+        long diff = eventTime - now;
 
-        return daysUntil + ":" + hoursUntil + ":" + minutesUntil;
+        if (diff <= 0) {
+            return "Happening now";
+        }
+
+        final long hoursInDay = TimeUnit.DAYS.toHours(1);
+        final long minutesInHour = TimeUnit.HOURS.toMinutes(1);
+
+        long daysUntil = TimeUnit.MILLISECONDS.toDays(diff);
+        long hoursUntil = TimeUnit.MILLISECONDS.toHours(diff) % hoursInDay;
+        long minutesUntil = TimeUnit.MILLISECONDS.toMinutes(diff) % minutesInHour;
+
+
+        return String.format("Happening in %02d days, %02d hours, and %02d minutes", daysUntil, hoursUntil, minutesUntil);
     }
 
     private ArrayList getTestEvents() {

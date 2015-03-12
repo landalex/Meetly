@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
             return true;
         } else if (id == R.id.action_add_event) {
             if (newDS.createEvent("Test",
-                    new Date(),
+                    new Date(2015, 4, 1),
                     "A Place",
                     new ArrayList<String>(),
                     "This is a note") != null) {
