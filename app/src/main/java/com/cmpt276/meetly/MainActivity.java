@@ -1,5 +1,6 @@
 package com.cmpt276.meetly;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -13,6 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.database.sqlite.SQLiteDatabase;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 
 /**
@@ -28,9 +32,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        EventsDataSource newDS = new EventsDataSource(getApplicationContext());
-
-        //getFragmentManager().beginTransaction().replace(android.R.id.content, new EventList()).commit();
+        goToViewEvent();
     }
 
 
@@ -62,8 +64,13 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     }
 
     public void goToViewEvent(){
-        EventsDataSource eds = new EventsDataSource(this);
-        //eds.createEvent()
+        EventsDataSource eds = new EventsDataSource(getApplicationContext());
+
+        Event someEvent = eds.findEventByID(63);
+        Intent intent = new
+        Intent(getApplicationContext(),ViewEvent.class);
+        intent.putExtra("eventID",someEvent.getID());
+        startActivity(intent);
     }
 
     /* For QuickDelete of database

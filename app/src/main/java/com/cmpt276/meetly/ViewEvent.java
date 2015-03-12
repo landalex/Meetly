@@ -1,9 +1,11 @@
 package com.cmpt276.meetly;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 /**
  * Fields: Name, Location, Date/Time, Time to event start, People, Notes,
@@ -18,7 +20,8 @@ public class ViewEvent extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_event);
 
-        thisEvent = getEvent();
+        getEventToView();
+        showEvent();
     }
 
 
@@ -44,8 +47,38 @@ public class ViewEvent extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private Event getEvent(){
-        EventsDataSource eds = new EventsDataSource(this);
-        return eds.findEventByID(56);
+    /**
+     * Sends event details to view screen to display to user
+     */
+    private void showEvent(){
+        TextView textView = (TextView) findViewById(R.id.title);
+        textView.setText(thisEvent.getTitle());
+
+        textView = (TextView) findViewById(R.id.date);
+        textView.setText(thisEvent._12HRgetDate());
+
+        textView = (TextView) findViewById(R.id.location);
+        textView.setText(thisEvent.getLocation());
+
+        textView = (TextView) findViewById(R.id.attendees);
+        String tempString = thisEvent.getAttendees().toString();
+        tempString = tempString.substring(1,tempString.length()-1);
+        textView.setText(tempString);
+
+        textView = (TextView) findViewById(R.id.notes);
+        textView.setText(thisEvent.getNotes());
+    }
+
+    /**
+     * Retrieves event passed by previous activity
+     */
+    private void getEventToView(){
+        Intent in = getIntent();
+        Bundle extras = in.getExtras();
+        long id = extras.getLong("eventID");
+
+        EventsDataSource eds = new EventsDataSource(getApplicationContext());
+        thisEvent = eds.findEventByID(id);
+        thisEvent.printEventS();
     }
 }

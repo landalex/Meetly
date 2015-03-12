@@ -95,7 +95,7 @@ public class Event {
     }
 
     /**
-     * Prints out event details to logcat
+     * Prints out event details to logcat (24HR time)
      * @return
      */
     public void printEvent(){
@@ -110,6 +110,21 @@ public class Event {
             + "\nEvent notes: " + notes);
     }
 
+    /**
+     * Prints out event details to logcat (12HR time)
+     * @return
+     */
+    public void printEventS(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm a");
+
+        Log.i(TAG, "\nEvent ID: " + eventID
+                + "\nEvent title: " + title
+                + "\nEvent date: " + sdf.format(date)
+                + "\nEvent location: " + location
+                + "\nEvent Attendees: " + attendees.toString()
+                + "\nEvent notes: " + notes);
+    }
+
 
 
     // Accessors
@@ -119,6 +134,11 @@ public class Event {
 
     public String getDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        return sdf.format(this.date);
+    }
+
+    public String _12HRgetDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm a");
         return sdf.format(date);
     }
 

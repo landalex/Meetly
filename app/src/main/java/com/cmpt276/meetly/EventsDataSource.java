@@ -47,7 +47,7 @@ public class EventsDataSource {
      */
     public EventsDataSource(Context context){
         dbHelper = new MySQLiteHelper(context);
-        performTests();
+        //performTests();
  }
 
     /**
@@ -349,10 +349,10 @@ public class EventsDataSource {
     }
 
     private void createTestProperties(){
-        testArray.add("Zelda");
-        testArray.add("Link");
-        testArray.add("Shepard");
-        testArray.add("Liar");
+        testArray.add("Sarge");
+        testArray.add("Church");
+        testArray.add("Tucker");
+        testArray.add("Caboose");
     }
 
     private void createEventTEST(){
@@ -360,10 +360,11 @@ public class EventsDataSource {
 
         Date date = new Date();
 
-        testEvent = createEvent("textTest", date,"testLocation", testArray,"eventNotes");
+        testEvent = createEvent("RvB Title Test", date,"Blood Gulch", testArray,"The Meta notes");
+        testEvent.printEvent();
 
         //build record pairs
-        ContentValues values = new ContentValues();
+        /*ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_ID, testEvent.getID());
         values.put(MySQLiteHelper.COLUMN_TITLE, testEvent.getTitle());
         values.put(MySQLiteHelper.COLUMN_DATE, testEvent.getDate());
@@ -381,7 +382,7 @@ public class EventsDataSource {
         updateEvent(testEvent2);
         Event testE = findEventByID(testEvent2.getID());
 
-        testE.printEvent();
+        testE.printEvent();*/
     }
 
     private void deleteEventTEST(){
