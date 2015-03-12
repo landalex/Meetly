@@ -61,6 +61,11 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     }
 
+    public void goToViewEvent(){
+        EventsDataSource eds = new EventsDataSource(this);
+        //eds.createEvent()
+    }
+
     /* For QuickDelete of database
     public void onDeleteDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
