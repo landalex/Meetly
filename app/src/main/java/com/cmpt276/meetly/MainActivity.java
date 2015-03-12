@@ -66,7 +66,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     public void goToViewEvent(){
         EventsDataSource eds = new EventsDataSource(getApplicationContext());
 
-        Event someEvent = eds.findEventByID(63);
+        Event someEvent = eds.findEventByID(5);
         Intent intent = new
         Intent(getApplicationContext(),ViewEvent.class);
         intent.putExtra("eventID",someEvent.getID());

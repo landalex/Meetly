@@ -47,6 +47,7 @@ public class EventsDataSource {
      */
     public EventsDataSource(Context context){
         dbHelper = new MySQLiteHelper(context);
+
         //performTests();
  }
 
@@ -450,6 +451,11 @@ public class EventsDataSource {
      * @return
      */
     private long insertData(){
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
         ArrayList<String> arr = new ArrayList<String>();
         arr.add("Hami");
         arr.add("Alex");
@@ -463,7 +469,9 @@ public class EventsDataSource {
         values.put(MySQLiteHelper.COLUMN_LOCATION, "locationTest");
         values.put(MySQLiteHelper.COLUMN_ATTENDEES,arr.toString());
         values.put(MySQLiteHelper.COLUMN_NOTES, "notesTest");
-        return database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
+        long id = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
+        close();
+        return id;
     }
 
 

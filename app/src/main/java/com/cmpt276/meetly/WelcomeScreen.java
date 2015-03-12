@@ -23,12 +23,8 @@ public class WelcomeScreen extends ActionBarActivity implements Animation.Animat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_screen);
-        onSkipIntro(findViewById(R.id.button));
         playAnimation(R.id.appName);
         playAnimation(R.id.tagline);
-
-        // Launch MainActivity for testing EventList
-        //startActivity(new Intent(WelcomeScreen.this, MainActivity.class));
 
     }
 
@@ -64,7 +60,6 @@ public class WelcomeScreen extends ActionBarActivity implements Animation.Animat
     }
 
     public void onSkipIntro(View view){
-        Button skipButton = (Button) view;
         Log.i(TAG, "Skipping intro");
 
         // Launch MainActivity for testing EventList and EventsDataSource
