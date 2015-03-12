@@ -10,5 +10,6 @@
     <string name="title_activity_welcome_screen">WelcomeScreen</string>
     <string name="title_activity_parent">Parent</string>
     <string name="title_activity_database">Database</string>
+    <string name="event_details">Event Details</string>
 
 </resources>

@@ -68,7 +68,7 @@ public class WelcomeScreen extends ActionBarActivity implements Animation.Animat
         Log.i(TAG, "Skipping intro");
 
         // Launch MainActivity for testing EventList and EventsDataSource
-        startActivity(new Intent(WelcomeScreen.this, MainActivity.class));
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
     }
 
     @Override
