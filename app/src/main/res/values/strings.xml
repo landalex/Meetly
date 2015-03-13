@@ -11,5 +11,11 @@
     <string name="title_activity_parent">Parent</string>
     <string name="title_activity_database">Database</string>
     <string name="event_details">Event Details</string>
+    <string name="create_event_eventNameLabel">Event Name</string>
+    <string name="create_event_locationLabel">Location</string>
+    <string name="create_event_dateTimeLabel">Date and Time</string>
+    <string name="create_event_timeBtn">Choose Time</string>
+    <string name="create_event_dateBtn">Choose Date</string>
+    <string name="create_event_durationLabel">Duration</string>
 
 </resources>
