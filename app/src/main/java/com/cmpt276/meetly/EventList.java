@@ -3,7 +3,9 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -239,6 +241,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     }
 
     private String getLocation() {
+        String location = "Not available";
         // Instantiate a LocationManager.
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
 
@@ -252,7 +255,15 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         Location myLocation = locationManager.getLastKnownLocation(provider);
 
         // Store current location as a Latitude and Longitude
-        return "" + myLocation.getLatitude() + myLocation.getLongitude();
+        Geocoder geocoder = new Geocoder(getActivity());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(myLocation.getLatitude(), myLocation.getLongitude(), 5);
+            location = addresses.get(0).getLocality();
+        }
+        catch (Exception e) {
+            Log.e(TAG, "geocoder.getFromLocation failed");
+        }
+        return location;
     }
 
     @Override
