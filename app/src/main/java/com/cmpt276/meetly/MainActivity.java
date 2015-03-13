@@ -32,7 +32,6 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        goToViewEvent();
     }
 
 
