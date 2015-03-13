@@ -1,5 +1,6 @@
 package com.cmpt276.meetly;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -50,13 +51,8 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
             onDeleteDBClick(getCurrentFocus());
             return true;
         } else if (id == R.id.action_add_event) {
-            if (newDS.createEvent("Test",
-                    new Date(2015, 4, 1),
-                    "A Place",
-                    new ArrayList<String>(),
-                    "This is a note") != null) {
-                Log.i(TAG, "Event created");
-            }
+            Intent intent = new Intent(this, CreateEvent.class);
+            startActivity(intent);
         } else if (id == R.id.action_get_location) {
             if (eventListFragment == null) {
                 eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
