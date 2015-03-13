@@ -17,7 +17,6 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.Date;
 
-
 /**
  * Actionbar: Add event button, Location info, Location change button?
  */
@@ -25,6 +24,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     private final String TAG = "MainActivity";
     private EventsDataSource newDS;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +34,9 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         newDS = new EventsDataSource(getApplicationContext());
 
         }
+
+        goToViewEvent();
+    }
 
 
     @Override
@@ -70,6 +73,15 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     @Override
     public void onFragmentInteraction(String id) {
 
+    }
+
+    public void goToViewEvent(){
+        EventsDataSource eds = new EventsDataSource(getApplicationContext());
+
+        Event someEvent = eds.findEventByID(5);
+        Intent intent = new Intent(getApplicationContext(),ViewEvent.class);
+        intent.putExtra("eventID",someEvent.getID());
+        startActivity(intent);
     }
 
     /* For opening event list on MainActivity */

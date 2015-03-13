@@ -46,33 +46,6 @@ public class Parent extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /*
-    This Section will be for wrapper methods for using sql querys
-     */
-
-    /**
-     * Creates application database
-     * @return int --> Success == 0, Failure == -1
-     */
-    private int createDatabase(){
-
-        return -1;
-    }
-
-    public String[] getFirstRecord(){
-        String[] record = {"",""};
-        return record;
-    }
-
-    public String[] getRecordAt(){
-        String[] record = {"",""};
-        return record;
-    }
-
-    public String[] getRecordMatch(){
-        String[] record = {"",""};
-        return record;
-    }
 }
 
 

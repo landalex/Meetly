@@ -1,5 +1,6 @@
 package com.cmpt276.meetly;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.nfc.Tag;
@@ -57,6 +58,20 @@ public class Event {
 
     /**
      * Event Constructor
+     *       Note: values must contain 6 key-value pairs
+     * @param values The values to create the event with
+     */
+    public Event(ContentValues values) {
+        this.eventID = values.getAsLong(MySQLiteHelper.COLUMN_ID);
+        this.title = values.getAsString(MySQLiteHelper.COLUMN_TITLE);
+        this.date = EventsDataSource.stringToDate((values.getAsString(MySQLiteHelper.COLUMN_DATE)));
+        this.location = values.getAsString(MySQLiteHelper.COLUMN_LOCATION);
+        this.attendees = EventsDataSource.parseAttendees(values.getAsString(MySQLiteHelper.COLUMN_ATTENDEES));
+        this.notes = values.getAsString(MySQLiteHelper.COLUMN_NOTES);
+    }
+
+    /**
+     * Event Constructor
      * Gives properties default values
      * The event is unusable in this state until its properties have been assigned
      */
@@ -80,19 +95,34 @@ public class Event {
     }
 
     /**
-     * Prints out event details to logcat
+     * Prints out event details to logcat (24HR time)
      * @return
      */
     public void printEvent(){
         Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
         Log.i(TAG, "\nEvent ID: " + eventID
             + "\nEvent title: " + title
-            + "\nEvent date: " + dateFormat.format(date).toString()
+            + "\nEvent date: " + sdf.format(date)
             + "\nEvent location: " + location
             + "\nEvent Attendees: " + attendees.toString()
             + "\nEvent notes: " + notes);
+    }
+
+    /**
+     * Prints out event details to logcat (12HR time)
+     * @return
+     */
+    public void printEventS(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm a");
+
+        Log.i(TAG, "\nEvent ID: " + eventID
+                + "\nEvent title: " + title
+                + "\nEvent date: " + sdf.format(date)
+                + "\nEvent location: " + location
+                + "\nEvent Attendees: " + attendees.toString()
+                + "\nEvent notes: " + notes);
     }
 
 
@@ -102,7 +132,15 @@ public class Event {
 
     public Date getDateAsDate() {return date;}
 
-    public String getDate() {return date.toString();}
+    public String getDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        return sdf.format(this.date);
+    }
+
+    public String _12HRgetDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm a");
+        return sdf.format(date);
+    }
 
     public String getLocation() {return location;}
 
@@ -119,7 +157,7 @@ public class Event {
 
     public void setLocation(String location) { this.location = location;}
 
-    public void setAttendees(ArrayList<String> attendees) {this.attendees = (ArrayList) attendees.clone();}
+    public void setAttendees(ArrayList<String> attendees) {this.attendees = attendees;}
 
     public void setNotes(String notes){ this.notes = notes;}
 

@@ -9,24 +9,48 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 
 /**
  * Animation, ends with start screen (View or create events)
  */
-public class WelcomeScreen extends ActionBarActivity {
-
+public class WelcomeScreen extends ActionBarActivity implements Animation.AnimationListener {
+    private static final int TAGLINE_DELAY = 1500;
     private final String TAG = "WelcomeScreenActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_screen);
-
-        // Launch MainActivity for testing EventList
-        //startActivity(new Intent(WelcomeScreen.this, MainActivity.class));
-
+        playImageAnimation(R.id.indicator, R.anim.fade_in_animation);
+        playTextAnimation(R.id.appName);
+        animationStartDelay(R.id.tagline, R.anim.fade_in_animation, TAGLINE_DELAY);
     }
 
+    private void playTextAnimation(int id) {
+        TextView text = (TextView)findViewById(id);
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in_animation);
+
+        text.setVisibility(View.VISIBLE);
+        text.startAnimation(animation);
+    }
+
+    private void playImageAnimation(int id, int animationId) {
+        View view = (View) findViewById(id);
+        Animation animation = AnimationUtils.loadAnimation(this, animationId);
+        view.setVisibility(View.VISIBLE);
+        view.startAnimation(animation);
+    }
+
+    private void animationStartDelay(int id, int animationId, int delay){
+        TextView text = (TextView)findViewById(id);
+        Animation animation = AnimationUtils.loadAnimation(this, animationId);
+        animation.setStartOffset(delay);
+        text.setVisibility(View.VISIBLE);
+        text.startAnimation(animation);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -51,10 +75,24 @@ public class WelcomeScreen extends ActionBarActivity {
     }
 
     public void onSkipIntro(View view){
-        Button skipButton = (Button) view;
         Log.i(TAG, "Skipping intro");
 
         // Launch MainActivity for testing EventList and EventsDataSource
-        startActivity(new Intent(WelcomeScreen.this, MainActivity.class));
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+    }
+
+    @Override
+    public void onAnimationStart(Animation animation) {
+
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+
     }
 }

@@ -1,0 +1,196 @@
+[33mcommit 704268cf0070146cb0393f12ed27b7afbc0c685a[m
+Merge: c12f51b 68df3f1
+Author: Hami <htusiime@sfu.ca>
+Date:   Tue Mar 10 19:08:39 2015 -0700
+
+    added findEventByID and test okay;
+    added exception handling with database interactions
+
+[33mcommit c12f51b55546fa7f6ce42d75b7e8603b6c594f79[m
+Author: Hami <htusiime@sfu.ca>
+Date:   Tue Mar 10 01:07:14 2015 -0700
+
+    generic project files...
+
+[33mcommit 3337de39d371921c501c24e8aa517e2880671289[m
+Author: Hami <htusiime@sfu.ca>
+Date:   Tue Mar 10 01:06:26 2015 -0700
+
+    added update database event
+
+[33mcommit 68df3f1964c11b8f85144d041ae0b3e3317d1540[m
+Author: Hami <htusiime@sfu.ca>
+Date:   Sat Mar 7 02:40:59 2015 -0800
+
+    database fixes and enhancements
+
+[33mcommit 8d09ae5b663e29d6bf515f8bf31a6c3a2fced664[m
+Author: Hami <htusiime@sfu.ca>
+Date:   Sat Mar 7 02:29:00 2015 -0800
+
+    added methods in EDS to get events by date and by location
+
+[33mcommit c7d3873cdd1b391b9d59c00769f250d28eb24c84[m
+Author: Hami <htusiime@sfu.ca>
+Date:   Sat Mar 7 02:00:12 2015 -0800
+
+    added method for logging eventDetails in Event class;
+    completed testing for primary EDS accessors;
+
+[33mcommit 60f3584010623601ad42588b0848f31b706fafa3[m
+Author: Hami Tusiime <htusiime@sfu.ca>
+Date:   Fri Mar 6 20:16:39 2015 -0800
+
+    added tests for EventsDataSource (can be used with own data);
+    added events creation and auto-insert into database
+    added method that retrieves all events from the database in EventDataSource
+
+[33mcommit 18741d823d28eb9d469f95df4963c095cb08cf40[m
+Author: Hami Tusiime <htusiime@sfu.ca>
+Date:   Fri Mar 6 14:34:33 2015 -0800
+
+    added overloading constructor, copy constructor, and accessors and mutators for event details
+
+[33mcommit caefada7e90ef773cee12c14ec38d04a438d860a[m
+Author: Hami Tusiime <htusiime@sfu.ca>
+Date:   Fri Mar 6 11:46:31 2015 -0800
+
+    database can now be queried and modified using basic "execQuery" statements in MainActivity
+    Created debug configuration "Meetly_Debug"
+
+[33mcommit 080fb11438334381b4253eac8054aa304c7ec62b[m
+Author: Hami Tusiime <htusiime@sfu.ca>
+Date:   Thu Mar 5 23:38:45 2015 -0800
+
+    added database columns for app
+
+[33mcommit 26d3da42348c1a52057e7cc475620589df5a197b[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Thu Mar 5 20:45:28 2015 -0800
+
+    added Google Drive folder link to tasklist
+
+[33mcommit 0d00b9d461775ff1bf9e92b8f7e9e5ee50f27710[m
+Author: Tina <tta39@sfu.ca>
+Date:   Thu Mar 5 20:39:34 2015 -0800
+
+    Moved docs folder to app folder
+
+[33mcommit 018ec4a90eb700b5ab09df3e7a38bb0ab699c2b3[m
+Author: Tina Tran <tta39@sfu.ca>
+Date:   Thu Mar 5 20:31:26 2015 -0800
+
+    Edited tasks list
+
+[33mcommit 2fd677cebd92b82dd9615a412c66252c0cf4e2e5[m
+Author: Tina Tran <tta39@sfu.ca>
+Date:   Thu Mar 5 20:23:34 2015 -0800
+
+    Edited tasks list
+
+[33mcommit e90b42f4a89a6abec4aced6f4b9357ea4796a204[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Thu Mar 5 12:01:13 2015 -0800
+
+    Uncommented code that was causing problems
+
+[33mcommit dd6e3e06fe73b6fba6b4debec09d456203c8e155[m
+Merge: 320530b e676d48
+Author: Alex Land <aland@sfu.ca>
+Date:   Thu Mar 5 12:00:32 2015 -0800
+
+    Merge branch 'master' of csil-git1.cs.surrey.sfu.ca:aland/team-fritter-meetly
+
+[33mcommit 320530b23e84699d7d9549cf9ffd1525755d76f2[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Thu Mar 5 12:00:19 2015 -0800
+
+    Set up listing of Events
+
+[33mcommit 8a022d84e3bd00ef61887bb74095e81456899442[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Thu Mar 5 11:59:52 2015 -0800
+
+    Created Event data structure
+
+[33mcommit 65768ac9282545eebef4bc20b5a5f401e5518565[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Thu Mar 5 11:41:01 2015 -0800
+
+    Set up testing ability for EventList
+
+[33mcommit a0fe1b407e5b37fb1de545474cb1848d95b24ca9[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Thu Mar 5 11:40:28 2015 -0800
+
+    Commented out some lines that were giving errors (files missing)
+
+[33mcommit e676d48ea0b2cb685ffb45ca9679e638f7161c4f[m
+Author: Hami Tusiime <htusiime@sfu.ca>
+Date:   Thu Mar 5 10:34:46 2015 -0800
+
+    including some missing xml files from previous commit
+
+[33mcommit 863c08da0d2d5cb88dd0cbfb26340a31f07319ab[m
+Author: Hami Tusiime <htusiime@sfu.ca>
+Date:   Wed Mar 4 23:25:49 2015 -0800
+
+    added metadata for parent activity in android manifest
+    new parent activity to inherit data from
+    began work on database wrapper structures in Parent activity
+    added Sqlitedatabase java class for database creation and upgrading
+    added database activity as database controller
+
+[33mcommit 5b04fa3031550ec70fa0df289ee35ec322e0461e[m
+Author: Tina Tran <tta39@sfu.ca>
+Date:   Wed Mar 4 14:37:56 2015 -0800
+
+    Edited tasks list
+
+[33mcommit b4dd2fad8b6243e8488d60b1021246fd68d86da5[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Wed Mar 4 13:19:01 2015 -0800
+
+    added some extras
+
+[33mcommit b393bdfe4e288e6219bb9da9e4cb1cc810c571a5[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Wed Mar 4 13:18:35 2015 -0800
+
+    Added comments for classes
+
+[33mcommit 1d7e91dbaf92aff834b18ca0f8df0cd02834fb93[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Wed Mar 4 12:43:38 2015 -0800
+
+    added base activities
+
+[33mcommit cf8355d68ce78ccfedab72088696fde3b06391f7[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Wed Mar 4 12:30:18 2015 -0800
+
+    added extra idea list
+
+[33mcommit 32e354e8f267116f18112cb17e6927b7da03435b[m
+Author: Tina Tran <tta39@sfu.ca>
+Date:   Wed Mar 4 12:27:00 2015 -0800
+
+    Added task list to docs folder
+
+[33mcommit d4b85a31d0182ce407a38ca7d5b423f7908a10c5[m
+Author: Tina Tran <tta39@sfu.ca>
+Date:   Wed Mar 4 12:07:40 2015 -0800
+
+    Added task list to docs folder
+
+[33mcommit 275f78e2fff5207dfde64be6cbbe9ed449d74052[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Wed Mar 4 11:54:15 2015 -0800
+
+    upgraded minimum api to 17
+
+[33mcommit b5385d038182d57846806e99748000bf9375cbe0[m
+Author: Alex Land <aland@sfu.ca>
+Date:   Wed Mar 4 11:16:15 2015 -0800
+
+    inital commit
