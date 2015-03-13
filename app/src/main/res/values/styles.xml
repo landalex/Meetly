@@ -33,4 +33,9 @@
         <item name="android:textSize">30sp</item>
     </style>
 
+    <style name="MainHeadingTextStyle"  >
+        <item name="android:textColor">@color/summer_sky_blue</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
 </resources>

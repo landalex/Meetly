@@ -45,11 +45,11 @@ public class EventsDataSource {
      * Facilitates database connections and supports adding new events and fetching events
      * @param context Application context
      */
-    public EventsDataSource(Context context){
+    public EventsDataSource(Context context) {
         dbHelper = new MySQLiteHelper(context);
 
-        //performTests();
- }
+        performTests();
+    }
 
     /**
      * @throws SQLException
@@ -105,7 +105,6 @@ public class EventsDataSource {
      * @return a copy of the event added to the database
      */
     public Event createEvent(ContentValues values){
-
 
         try {
             open();
@@ -337,16 +336,16 @@ public class EventsDataSource {
         }catch (SQLException e){
             e.printStackTrace();
         }
-        //insertData();
-        //insertData();
-        //insertData();
+        insertData();
+        insertData();
+        insertData();
         createTestProperties();
 
         //tests
-        //EDSTEST();
+        EDSTEST();
         createEventTEST();
-        //deleteEventTEST();
-        //getEventTEST();
+        deleteEventTEST();
+        getEventTEST();
     }
 
     private void createTestProperties(){
