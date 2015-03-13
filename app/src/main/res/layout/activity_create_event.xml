@@ -21,7 +21,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/create_event_eventNameLabel"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"/>
 
             <EditText
                 android:layout_width="match_parent"
