@@ -30,8 +30,10 @@ import java.util.Map;
 public class EventList extends Fragment implements AbsListView.OnItemClickListener {
 
     private final String TAG = "EventListFragment";
-    private final String EVENT_TITLE = "text1";
-    private final String EVENT_DATE = "text2";
+    private static final String EVENT_TITLE = "text1";
+    private static final String EVENT_DATE = "text2";
+    private static final String EVENT_LOCATION = "text3";
+    private static final String EVENT_COUNTDOWN = "text4";
 
     private OnFragmentInteractionListener mListener;
 
@@ -45,6 +47,11 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
      * Views.
      */
     private ListAdapter mAdapter;
+
+    /**
+     * The database helper
+     */
+    private EventsDataSource database = new EventsDataSource(getActivity());
 
     public static EventList newInstance(String param1, String param2) {
         EventList fragment = new EventList();
@@ -71,8 +78,8 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     }
 
     private void createAdapter() {
-        final String[] fromMapKey = {EVENT_TITLE, EVENT_DATE};
-        final int[] toLayoutId = {android.R.id.text1, android.R.id.text2};
+        final String[] fromMapKey = {EVENT_TITLE, EVENT_DATE/*, EVENT_LOCATION, EVENT_COUNTDOWN*/};
+        final int[] toLayoutId = {android.R.id.text1, android.R.id.text2/*, android.R.id.text3, android.R.id.text4*/};
         List<Map<String, String>> eventList = getEventList();
 
 
@@ -81,18 +88,30 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     }
 
     private List getEventList() {
-        final List<Map<String, String>> eventList = new ArrayList<>();
+        final List<Map<String, String>> eventMapList = new ArrayList<>();
 
-        ArrayList<Event> testEvents = getTestEvents();
+        List<Event> eventList = database.getAllEvents();
 
-        for (Event event : testEvents) {
+        for (Event event : eventList) {
             Map<String, String> eventMap = new HashMap<>();
             eventMap.put(EVENT_TITLE, event.getTitle());
             eventMap.put(EVENT_DATE, event.getDate());
-            eventList.add(eventMap);
+            eventMap.put(EVENT_LOCATION, event.getLocation());
+            eventMap.put(EVENT_COUNTDOWN, timeUntil(event.getDateAsDate()));
+            eventMapList.add(eventMap);
         }
 
-        return Collections.unmodifiableList(eventList);
+        return Collections.unmodifiableList(eventMapList);
+    }
+
+    private String timeUntil(Date date) {
+        Date now = new Date();
+        long hoursUntil = date.getHours() - now.getHours();
+        long minutesUntil = date.getMinutes() - now.getMinutes();
+        long daysUntil = hoursUntil / 24;
+        hoursUntil = hoursUntil % 24;
+
+        return daysUntil + ":" + hoursUntil + ":" + minutesUntil;
     }
 
     private ArrayList getTestEvents() {

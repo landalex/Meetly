@@ -17,5 +17,6 @@
     <string name="create_event_timeBtn">Choose Time</string>
     <string name="create_event_dateBtn">Choose Date</string>
     <string name="create_event_durationLabel">Duration</string>
+    <string name="actionbar_add_event">Add Event</string>
 
 </resources>
