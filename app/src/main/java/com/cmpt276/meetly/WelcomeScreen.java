@@ -17,25 +17,40 @@ import android.widget.TextView;
  * Animation, ends with start screen (View or create events)
  */
 public class WelcomeScreen extends ActionBarActivity implements Animation.AnimationListener {
+    private static final int TAGLINE_DELAY = 1500;
     private final String TAG = "WelcomeScreenActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_screen);
-        playAnimation(R.id.appName);
-        playAnimation(R.id.tagline);
-
+        playImageAnimation(R.id.indicator, R.anim.fade_in_animation);
+        playTextAnimation(R.id.appName);
+        animationStartDelay(R.id.tagline, R.anim.fade_in_animation, TAGLINE_DELAY);
     }
 
-    private void playAnimation(int id) {
+    private void playTextAnimation(int id) {
         TextView text = (TextView)findViewById(id);
-        Animation animationFadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in_animation);
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in_animation);
 
         text.setVisibility(View.VISIBLE);
-        text.startAnimation(animationFadeIn);
+        text.startAnimation(animation);
     }
 
+    private void playImageAnimation(int id, int animationId) {
+        View view = (View) findViewById(id);
+        Animation animation = AnimationUtils.loadAnimation(this, animationId);
+        view.setVisibility(View.VISIBLE);
+        view.startAnimation(animation);
+    }
+
+    private void animationStartDelay(int id, int animationId, int delay){
+        TextView text = (TextView)findViewById(id);
+        Animation animation = AnimationUtils.loadAnimation(this, animationId);
+        animation.setStartOffset(delay);
+        text.setVisibility(View.VISIBLE);
+        text.startAnimation(animation);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
