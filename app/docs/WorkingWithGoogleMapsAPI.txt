@@ -1,0 +1,54 @@
+A checklist for things you need to do in order for the Google Maps API to work
+
+1) Configuring the AndroidManifest file
+
+A) Add the following as child of the <manifest> element
+
+     <!--These permissions are used for the map api-->
+        <uses-permission android:name="android.permission.INTERNET"/>
+        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+        <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+        <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+        <!--This little bit is also used for the maps api for drawing-->
+        <uses-feature
+            android:glEsVersion="0x00020000"
+            android:required="true"/>
+
+B) Add the api key you obtain as a child of <application ... > tag
+   Side Note: In the "android:name..." line you do NOT change where it says "API_KEY" in "com.google.android.maps.v2.API_KEY" to your key! (Spent 4 hours wondering why my map wasnt showing because i did this.. yeah i know)
+              Only place your key in android:value="..."
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyAv1lruClrwpiI3PI-oyJ5U59F9XsdMxk8" />
+
+C) Add this metadata as a child of the <application ... > tag as well
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+2) Add the following line in the file "app/build.gradle" within the braces of "dependencies"
+
+compile 'com.google.android.gms:play-services-maps:6.5.87'
+
+3) Open the Android SDK Manager (Little icon in the toolbar with the Android dude and a blue box under it with a arrow pointing down, yaknow)
+   Scroll all the way down to "Extras" and install the "Google Play Services" package
+
+4) Hit the  "Sync project with Gradle Files" button (2 to the left of the SDK Manager icon)(Has the gradle logo with a down arrow)
+
+5) Add the following piece of XML code to the acitivies XML file that you wish to display the map on
+
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:name="com.google.android.gms.maps.MapFragment"
+                    android:id="@+id/map"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+6) The map should show when the application is run at this point. The following steps are used to configure the map
+A) In the Activity linked to this XML file add a class level variable: " private GoogleMap map; "
+B) Now in the Activies onCreate get a reference to the map by:
+    map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+C) Now you can do stuff to the map! (EG: map.setOnMapClickListener(...))
