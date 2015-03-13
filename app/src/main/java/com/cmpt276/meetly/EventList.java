@@ -3,6 +3,9 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +18,8 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.cmpt276.meetly.dummy.DummyContent;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -222,7 +227,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
                 .setConfiguration(config)
                 .build();
 
-        final Crouton crouton = Crouton.makeText(getActivity(), "Placeholder Location", style);
+        final Crouton crouton = Crouton.makeText(getActivity(), getLocation(), style);
         crouton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -231,6 +236,23 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         });
         crouton.setLifecycleCallback(callback);
         return crouton;
+    }
+
+    private String getLocation() {
+        // Instantiate a LocationManager.
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
+
+        // Criteria specifies the 'criteria' of how granular the location is
+        Criteria criteria = new Criteria();
+
+        // Get the name of the best provider. AKA Returns the name of the provider that best meets the given criteria.
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        // Get Current Location
+        Location myLocation = locationManager.getLastKnownLocation(provider);
+
+        // Store current location as a Latitude and Longitude
+        return "" + myLocation.getLatitude() + myLocation.getLongitude();
     }
 
     @Override
