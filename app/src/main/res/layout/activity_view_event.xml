@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:text="New Text"
             android:paddingBottom="20dp"
-            android:id="@+id/notes" />
+            android:id="@+id/duration" />
     </LinearLayout>
 
 </RelativeLayout>

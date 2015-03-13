@@ -14,9 +14,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_DATE = "date";
-    public static final String COLUMN_LOCATION = "location";
+    public static final String COLUMN_LOCLAT = "location";
+    public static final String COLUMN_LOCLONG = "location";
     public static final String COLUMN_ATTENDEES= "attendees";
-    public static final String COLUMN_NOTES = "notes";
+    public static final String COLUMN_DURATION = "duration";
 
     public static final String DATABASE_NAME = "MeetlyDB";
     public static final int DATABASE_VERSION = 1;
@@ -30,9 +31,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_TITLE + " text not null,"
             + COLUMN_DATE + " char(19),"
-            + COLUMN_LOCATION + " text,"
-            + COLUMN_ATTENDEES + " text,"
-            + COLUMN_NOTES + " text"
+            + COLUMN_LOCLAT + " location longitude,"
+            + COLUMN_LOCLONG + "location latitude"
+            + COLUMN_DURATION + " text"
             + ");";
 
     /**

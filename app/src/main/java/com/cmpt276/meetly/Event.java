@@ -1,17 +1,13 @@
 package com.cmpt276.meetly;
 
 import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.nfc.Tag;
 import android.util.Log;
 
-import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.ParseException;
-import java.text.ParsePosition;
+import com.google.android.gms.maps.model.LatLng;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 
@@ -20,12 +16,30 @@ public class Event {
     private long eventID;
     private String title;
     private Date date;
-    private String location;
+    private Double location_long;
+    private Double location_lat;
     private ArrayList<String> attendees;
-    private String notes;
+    private int duration;
 
     final private String TAG = "EventClass";
 
+
+    /**
+     * Event Constructor
+     * @param title
+     * @param date
+     * @param loc_long
+     * @param loc_lat
+     * @param duration
+     */
+    public Event(long eventID, String title, Date date, double loc_long, double loc_lat, int duration) {
+        this.eventID = eventID;
+        this.title = title;
+        this.date = date;
+        this.location_lat = loc_lat;
+        this.location_long = loc_long;
+        this.duration = duration;
+    }
 
     /**
      * Event Constructor
@@ -38,9 +52,7 @@ public class Event {
         this.eventID = eventID;
         this.title = title;
         this.date = date;
-        this.location = location;
         this.attendees = attendees;
-        this.notes = notes;
     }
 
     /**
@@ -51,9 +63,10 @@ public class Event {
         this.eventID = eventCopy.getID();
         this.title = eventCopy.getTitle();
         this.date = eventCopy.getDateAsDate();
-        this.location = eventCopy.getLocation();
-        this.attendees = eventCopy.getAttendees();
-        this.notes = eventCopy.getNotes();
+        ArrayList<Double> location = eventCopy.getLocation();
+        this.location_lat = location.get(0);
+        this.location_long = location.get(1);
+        this.duration = eventCopy.getDuration();
     }
 
     /**
@@ -65,9 +78,13 @@ public class Event {
         this.eventID = values.getAsLong(MySQLiteHelper.COLUMN_ID);
         this.title = values.getAsString(MySQLiteHelper.COLUMN_TITLE);
         this.date = EventsDataSource.stringToDate((values.getAsString(MySQLiteHelper.COLUMN_DATE)));
-        this.location = values.getAsString(MySQLiteHelper.COLUMN_LOCATION);
+
+        this.location_long = values.getAsDouble(MySQLiteHelper.COLUMN_LOCLONG);
+        this.location_lat = values.getAsDouble(MySQLiteHelper.COLUMN_LOCLAT);
+
+
         this.attendees = EventsDataSource.parseAttendees(values.getAsString(MySQLiteHelper.COLUMN_ATTENDEES));
-        this.notes = values.getAsString(MySQLiteHelper.COLUMN_NOTES);
+        this.duration = values.getAsInteger(MySQLiteHelper.COLUMN_DURATION);
     }
 
     /**
@@ -79,9 +96,9 @@ public class Event {
         this.eventID = -1;
         this.title = "";
         this.date = null;
-        this.location = "";
-        this.attendees = new ArrayList<String>();
-        this.notes = "";
+        this.location_lat = -1.0;
+        this.location_long = -1.0;
+        this.duration = -1;
     }
 
     /**
@@ -105,9 +122,9 @@ public class Event {
         Log.i(TAG, "\nEvent ID: " + eventID
             + "\nEvent title: " + title
             + "\nEvent date: " + sdf.format(date)
-            + "\nEvent location: " + location
+            + "\nEvent location: " + location_lat + ", " + location_long
             + "\nEvent Attendees: " + attendees.toString()
-            + "\nEvent notes: " + notes);
+            + "\nEvent duration: " + duration);
     }
 
     /**
@@ -120,9 +137,9 @@ public class Event {
         Log.i(TAG, "\nEvent ID: " + eventID
                 + "\nEvent title: " + title
                 + "\nEvent date: " + sdf.format(date)
-                + "\nEvent location: " + location
+                + "\nEvent location: " + location_lat + ", " + location_long
                 + "\nEvent Attendees: " + attendees.toString()
-                + "\nEvent notes: " + notes);
+                + "\nEvent duration: " + duration);
     }
 
     // Accessors
@@ -140,11 +157,13 @@ public class Event {
         return sdf.format(date);
     }
 
-    public String getLocation() {return location;}
+    public ArrayList<Double> getLocation() {
+        return new ArrayList<Double>(Arrays.asList(location_long,location_lat));
+    }
 
     public ArrayList<String> getAttendees() {return attendees;}
 
-    public String getNotes(){ return notes;}
+    public int getDuration(){ return duration;}
 
     public long getID() {return eventID;}
 
@@ -153,11 +172,14 @@ public class Event {
 
     public void setDate(Date date) { this.date = date;}
 
-    public void setLocation(String location) { this.location = location;}
+    public void setLocation(double loc_lat, double loc_long) {
+        this.location_lat = loc_lat;
+        this.location_long = loc_long;
+    }
 
     public void setAttendees(ArrayList<String> attendees) {this.attendees = attendees;}
 
-    public void setNotes(String notes){ this.notes = notes;}
+    public void setDuration(int duration){ this.duration = duration;}
 
     public void setID(long eventID) {this.eventID = eventID;}
 
