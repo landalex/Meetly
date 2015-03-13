@@ -18,5 +18,10 @@
     <string name="create_event_dateBtn">Choose Date</string>
     <string name="create_event_durationLabel">Duration</string>
     <string name="actionbar_add_event">Add Event</string>
+    <string name="fragment_card_edit_description">Edit event</string>
+    <string name="fragment_card_delete_description">Delete event</string>
+    <string name="fragment_card_invite_description">Invite people</string>
+    <string name="activity_main_actionbar_get_location">Get Location</string>
+    <string name="fragment_event_update_loading_text">Reticulating Splines...</string>
 
 </resources>

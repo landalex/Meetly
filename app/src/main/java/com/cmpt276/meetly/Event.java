@@ -125,8 +125,6 @@ public class Event {
                 + "\nEvent notes: " + notes);
     }
 
-
-
     // Accessors
     public String getTitle() {return title;}
 
