@@ -1,27 +1,38 @@
 package com.cmpt276.meetly;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
-
+import android.widget.Toast;
 
 
 import com.cmpt276.meetly.dummy.DummyContent;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import de.keyboardsurfer.android.widget.crouton.Configuration;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.LifecycleCallback;
+import de.keyboardsurfer.android.widget.crouton.Style;
+import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
+import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
+import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.recyclerview.internal.CardArrayRecyclerViewAdapter;
+import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 
 /**
  * Scroll bar (draggable), Swipe for options (View, edit, delete, invite)
@@ -30,25 +41,24 @@ import java.util.Map;
 public class EventList extends Fragment implements AbsListView.OnItemClickListener {
 
     private final String TAG = "EventListFragment";
-    private final String EVENT_TITLE = "text1";
-    private final String EVENT_DATE = "text2";
 
     private OnFragmentInteractionListener mListener;
-
-    /**
-     * The fragment's ListView/GridView.
-     */
-    private AbsListView mListView;
 
     /**
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private CardArrayRecyclerViewAdapter mCardArrayAdapter;
 
-    public static EventList newInstance(String param1, String param2) {
-        EventList fragment = new EventList();
-        return fragment;
+    /**
+     * The database helper
+     */
+    private EventsDataSource database;
+    private ArrayList<Card> cards = new ArrayList<>(0);
+    public boolean showingCrouton;
+
+    public static EventList newInstance() {
+        return new EventList();
     }
 
     /**
@@ -61,62 +71,167 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        String[] testArray = {"Test string 1", "Test string 2", "Test string 3"};
-
-        // TODO: Change Adapter to display your content
-//        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-//                android.R.layout.simple_list_item_2, android.R.id.text1, DummyContent.ITEMS);
-        createAdapter();
+        database = new EventsDataSource(getActivity());
+//        makeTestEvents();
     }
 
-    private void createAdapter() {
-        final String[] fromMapKey = {EVENT_TITLE, EVENT_DATE};
-        final int[] toLayoutId = {android.R.id.text1, android.R.id.text2};
-        List<Map<String, String>> eventList = getEventList();
-
-
-        mAdapter = new SimpleAdapter(getActivity(), eventList, android.R.layout.simple_list_item_2,
-                fromMapKey, toLayoutId);
-    }
-
-    private List getEventList() {
-        final List<Map<String, String>> eventList = new ArrayList<>();
-
-        ArrayList<Event> testEvents = getTestEvents();
-
-        for (Event event : testEvents) {
-            Map<String, String> eventMap = new HashMap<>();
-            eventMap.put(EVENT_TITLE, event.getTitle());
-            eventMap.put(EVENT_DATE, event.getDate());
-            eventList.add(eventMap);
+    private void makeTestEvents() {
+        for (int i = 1; i < 4; i++) {
+            database.createEvent("Test" + i, new Date(1430000000000l), "A place", new ArrayList<String>(), "Notes");
+            Log.i(TAG, "Event" + i + " added");
         }
-
-        return Collections.unmodifiableList(eventList);
-    }
-
-    private ArrayList getTestEvents() {
-        ArrayList<Event> testEvents = new ArrayList<>();
-        testEvents.add(new Event("Tims Run", new Date()));
-        testEvents.add(new Event("Lunch", new Date()));
-        testEvents.add(new Event("Dinner", new Date()));
-
-        return testEvents;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_item, container, false);
+        return inflater.inflate(R.layout.fragment_layout, container, false);
+    }
 
-        // Set the adapter
-        mListView = (AbsListView) view.findViewById(android.R.id.list);
-        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        // Set OnItemClickListener so we can be notified on item clicks
-        mListView.setOnItemClickListener(this);
+        createCardAdapter(cards);
+        configureRecyclerView();
 
-        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        new UpdateCards().execute();
+    }
+
+    private void configureRecyclerView() {
+        CardRecyclerView mRecyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
+        mRecyclerView.setHasFixedSize(false);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView.setAdapter(mCardArrayAdapter);
+    }
+
+    private void createCardAdapter(ArrayList<Card> cards) {
+        mCardArrayAdapter = new CardArrayRecyclerViewAdapter(getActivity(), cards);
+    }
+
+    private ArrayList<Card> makeCards(EventsDataSource database) {
+        List<Event> eventList = getEvents(database);
+        ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
+
+        IconSupplementalAction ic1 = new IconSupplementalAction(getActivity(), R.id.ic1);
+        ic1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+            @Override
+            public void onClick(Card card, View view) {
+                Toast.makeText(getActivity(), " Click on icon 1 ", Toast.LENGTH_SHORT).show();
+            }
+        });
+        actions.add(ic1);
+
+        IconSupplementalAction ic2 = new IconSupplementalAction(getActivity(), R.id.ic2);
+        ic2.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+            @Override
+            public void onClick(Card card, View view) {
+                Toast.makeText(getActivity(), " Click on icon 2 ", Toast.LENGTH_SHORT).show();
+            }
+        });
+        actions.add(ic2);
+
+        IconSupplementalAction ic3 = new IconSupplementalAction(getActivity(), R.id.ic3);
+        ic3.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+            @Override
+            public void onClick(Card card, View view) {
+                Toast.makeText(getActivity()," Click on icon 3 ", Toast.LENGTH_SHORT).show();
+            }
+        });
+        actions.add(ic3);
+
+        ArrayList<Card> cards = new ArrayList<>();
+        for (Event event: eventList) {
+            MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
+                    .setTextOverImage(event.getTitle())
+                    .setTitle(event.getDate())
+                    .setSubTitle(timeUntil(event.getDateAsDate()))
+                    .useDrawableId(R.drawable.card_picture)
+                    .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
+                    .build();
+            card.addCardHeader(new CardHeader(getActivity()));
+            cards.add(card);
+        }
+        return cards;
+    }
+
+    private String timeUntil(Date date) {
+        long now = new Date().getTime();
+        long eventTime = date.getTime();
+        long diff = eventTime - now;
+
+        if (diff <= 0) {
+            return "Happening now";
+        }
+
+        final long hoursInDay = TimeUnit.DAYS.toHours(1);
+        final long minutesInHour = TimeUnit.HOURS.toMinutes(1);
+
+        long daysUntil = TimeUnit.MILLISECONDS.toDays(diff);
+        long hoursUntil = TimeUnit.MILLISECONDS.toHours(diff) % hoursInDay;
+        long minutesUntil = TimeUnit.MILLISECONDS.toMinutes(diff) % minutesInHour;
+
+
+        return String.format("Happening in %02d days, %02d hours, and %02d minutes", daysUntil, hoursUntil, minutesUntil);
+    }
+
+    private ArrayList getTestEvents() {
+        ArrayList<Event> testEvents = new ArrayList<>();
+        ArrayList<String> attendees = new ArrayList<>();
+        attendees.add("Alex");
+        attendees.add("Hami");
+        attendees.add("Tina");
+        attendees.add("Jas");
+        testEvents.add(new Event(0, "Tims Run", new Date(2015, 3, 10), "Somewhere", attendees, "A note"));
+        testEvents.add(new Event(1, "Tims Run", new Date(2015, 3, 11), "Somewhere", attendees, "A note"));
+        testEvents.add(new Event(2, "Tims Run", new Date(2015, 3, 12), "Somewhere", attendees, "A note"));
+
+
+        return testEvents;
+    }
+
+    private List getEvents(EventsDataSource database) {
+        return database.getAllEvents();
+    }
+
+    public Crouton makeLocationCrouton() {
+        LifecycleCallback callback = new LifecycleCallback() {
+            @Override
+            public void onDisplayed() {
+                showingCrouton = true;
+            }
+
+            @Override
+            public void onRemoved() {
+                showingCrouton = false;
+            }
+        };
+        Configuration config = new Configuration.Builder()
+                .setDuration(Configuration.DURATION_INFINITE)
+                .setInAnimation(R.anim.abc_slide_in_top)
+                .setOutAnimation(R.anim.abc_slide_out_top)
+                .build();
+
+        Style style = new Style.Builder()
+                .setBackgroundColorValue(getResources().getColor(R.color.green))
+                .setHeight(250)
+                .setConfiguration(config)
+                .build();
+
+        final Crouton crouton = Crouton.makeText(getActivity(), "Placeholder Location", style);
+        crouton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                crouton.hide();
+            }
+        });
+        crouton.setLifecycleCallback(callback);
+        return crouton;
     }
 
     @Override
@@ -147,19 +262,6 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     }
 
     /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
-        }
-    }
-
-    /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
@@ -170,8 +272,37 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(String id);
     }
 
+    private class UpdateCards extends AsyncTask<Boolean, Void, Integer> {
+        EventsDataSource database = new EventsDataSource(getActivity());
+        ProgressDialog dialog;
+
+        protected void onPreExecute() {
+            this.dialog = new ProgressDialog(getActivity());
+            this.dialog.setIndeterminate(true);
+            this.dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
+            this.dialog.show();
+        }
+
+        @Override
+        protected Integer doInBackground(Boolean... params) {
+            cards.removeAll(cards);
+            cards.addAll(makeCards(this.database));
+            return 1;
+        }
+
+        protected void onProgressUpdate() {
+        }
+
+        @Override
+        protected void onPostExecute(Integer done) {
+            if (this.dialog.isShowing()) {
+                this.dialog.dismiss();
+            }
+                mCardArrayAdapter.notifyDataSetChanged();
+        }
+
+    }
 }
