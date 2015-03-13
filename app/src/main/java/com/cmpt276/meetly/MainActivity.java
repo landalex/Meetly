@@ -56,17 +56,12 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_delete_db) {
             onDeleteDBClick(getCurrentFocus());
             return true;
         } else if (id == R.id.action_add_event) {
-            if (newDS.createEvent("Test",
-                    new Date(2015, 4, 1),
-                    "A Place",
-                    new ArrayList<String>(),
-                    "This is a note") != null) {
-                Log.i(TAG, "Event created");
-            }
+            Intent intent = new Intent(this, CreateEvent.class);
+            startActivity(intent);
         } else if (id == R.id.action_get_location) {
             if (eventListFragment == null) {
                 eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
@@ -81,9 +76,6 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
                 locationCrouton.show();
                 Log.d(TAG, "show crouton");
             }
-        }
-        else if (id == R.id.action_delete_db) {
-            onDeleteDBClick(getCurrentFocus());
         }
 
         return super.onOptionsItemSelected(item);
