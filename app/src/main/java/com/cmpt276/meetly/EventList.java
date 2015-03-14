@@ -3,6 +3,7 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -161,6 +162,17 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
                     .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                     .build();
             card.addCardHeader(new CardHeader(getActivity()));
+
+            // Pass the event ID with the intent to ViewEvent
+            final long eventID = event.getID();
+            card.setOnClickListener(new Card.OnCardClickListener() {
+                @Override
+                public void onClick(Card card, View view) {
+                    Intent intent = new Intent(getActivity(), ViewEvent.class);
+                    intent.putExtra("eventID", eventID);
+                }
+            });
+
             cards.add(card);
         }
         return cards;

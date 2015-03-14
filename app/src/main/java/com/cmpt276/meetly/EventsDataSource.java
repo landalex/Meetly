@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.nfc.Tag;
 import android.util.Log;
 
 import java.io.File;
@@ -44,9 +45,10 @@ public class EventsDataSource {
      * Facilitates database connections and supports adding new events and fetching events
      * @param context Application context
      */
-    public EventsDataSource(Context context){
+    public EventsDataSource(Context context) {
         dbHelper = new MySQLiteHelper(context);
-;        //performTests();
+
+        //performTests();
  }
 
     /**
@@ -361,15 +363,15 @@ public class EventsDataSource {
         createEventTEST();
         //deleteEventTEST();
         //getEventTEST();
-    }*/
-    /*
+    }
+
     private void createTestProperties(){
         testArray.add("Sarge");
         testArray.add("Church");
         testArray.add("Tucker");
         testArray.add("Caboose");
-    }*/
-    /*
+    }
+
     private void createEventTEST(){
         Log.i(TAG, "<----------------------RUNNING CREATE EVENT TEST------------------>");
 
@@ -385,7 +387,7 @@ public class EventsDataSource {
         values.put(MySQLiteHelper.COLUMN_DATE, testEvent.getDate());
         values.put(MySQLiteHelper.COLUMN_LOCATION, testEvent.getLocation());
         values.put(MySQLiteHelper.COLUMN_ATTENDEES,testEvent.getAttendees().toString());
-        values.put(MySQLiteHelper.COLUMN_NOTES, testEvent.getDuration());
+        values.put(MySQLiteHelper.COLUMN_NOTES, testEvent.getNotes());
 
         deleteEvent(testEvent);
 
@@ -393,7 +395,7 @@ public class EventsDataSource {
 
         testEvent2.printEvent();
 
-        testEvent2.setDuration("event updates notes");
+        testEvent2.setNotes("event updates notes");
         updateEvent(testEvent2);
         Event testE = findEventByID(testEvent2.getID());
 

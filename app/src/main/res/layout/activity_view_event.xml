@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:text="@string/event_details"
         android:gravity="center_horizontal"
+        style="@style/MainHeadingTextStyle"
         android:id="@+id/ev"/>
 
     <LinearLayout
