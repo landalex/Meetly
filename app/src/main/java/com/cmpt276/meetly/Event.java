@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
-
+/**
+ * Holds information about an event, and provides functionality to get the event details in different formats
+ */
 
 public class Event {
     private long eventID;

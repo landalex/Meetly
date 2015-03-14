@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Provides a medium for interacting with the database
+ */
 
 public class EventsDataSource {
 

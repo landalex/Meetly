@@ -42,6 +42,7 @@ import it.gmariotti.cardslib.library.recyclerview.internal.CardArrayRecyclerView
 import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 
 /**
+ * Provides the events in a list of cards, with the ability to select events to view
  * Scroll bar (draggable), Swipe for options (View, edit, delete, invite)
  * Each item shows title, date/time and duration (location as well?)
  */

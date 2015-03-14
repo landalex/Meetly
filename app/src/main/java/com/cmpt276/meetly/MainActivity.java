@@ -22,6 +22,7 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 
 
 /**
+ * Holds the EventList fragment, and provides actionbar functionality like adding an event
  * Actionbar: Add event button, Location info, Location change button?
  */
 public class MainActivity extends ActionBarActivity implements EventList.OnFragmentInteractionListener{

@@ -14,6 +14,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 /**
+ * Displays the start animation and logo
  * Animation, ends with start screen (View or create events)
  */
 public class WelcomeScreen extends ActionBarActivity implements Animation.AnimationListener {
