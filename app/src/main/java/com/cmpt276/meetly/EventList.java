@@ -123,6 +123,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
     private ArrayList<Card> makeCards(EventsDataSource database) {
         List<Event> eventList = getEvents(database);
+        Log.i(TAG, "EventList made");
         ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
 
         IconSupplementalAction ic1 = new IconSupplementalAction(getActivity(), R.id.ic1);
@@ -153,6 +154,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         actions.add(ic3);
 
         ArrayList<Card> cards = new ArrayList<>();
+        Log.i(TAG, "EventList size: " + eventList.size());
         for (Event event: eventList) {
             MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                     .setTextOverImage(event.getTitle())
@@ -170,11 +172,13 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
                 public void onClick(Card card, View view) {
                     Intent intent = new Intent(getActivity(), ViewEvent.class);
                     intent.putExtra("eventID", eventID);
+                    startActivity(intent);
                 }
             });
 
             cards.add(card);
         }
+        Log.i(TAG, "Returning...");
         return cards;
     }
 
@@ -332,8 +336,11 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
         @Override
         protected Integer doInBackground(Boolean... params) {
+            Log.i(TAG, "doInBack Start");
             cards.removeAll(cards);
+            Log.i(TAG, "Remove cards");
             cards.addAll(makeCards(this.database));
+            Log.i(TAG, "doInBack Done");
             return 1;
         }
 

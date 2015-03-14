@@ -123,7 +123,6 @@ public class Event {
             + "\nEvent title: " + title
             + "\nEvent date: " + sdf.format(date)
             + "\nEvent location: " + location_lat + ", " + location_long
-            + "\nEvent Attendees: " + attendees.toString()
             + "\nEvent duration: " + duration);
     }
 

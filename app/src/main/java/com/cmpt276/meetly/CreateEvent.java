@@ -38,6 +38,8 @@ public class CreateEvent extends Activity {
 
     private final String TAG = "CreateEventActivity";
     private GoogleMap map;
+    private Integer[] hourAndMinuteArray = new Integer[]{0, 0};
+    private Integer[] date = new Integer[]{2015, 1, 1};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,75 +47,81 @@ public class CreateEvent extends Activity {
         setContentView(R.layout.activity_create_event);
 
         // Getting info from buttons and map
-        Integer[] time = chooseTimeButton();
-        Integer[] date = chooseDateButton();
+        chooseTimeButton();
+        chooseDateButton();
         final LatLng eventLocation = displayMap();
 
         // Getting name from field
         final EditText eventNameField = (EditText) findViewById(R.id.eventName);
-        DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-
-        // If the month is single digit
-        String tempMonth = "";
-        if (date[1] < 10){
-            tempMonth = "0" + date[1];
-        }else{
-            tempMonth = date[1] + "";
-        }
-
-        // If the day is single digit
-        String tempDay = "";
-        if (date[2] < 10){
-            tempDay = "0" + date[2];
-        }else{
-            tempDay = date[2] + "";
-        }
-
-        // If the hour is single digit
-        String tempHour = "";
-        if (time[0] < 10){
-            tempHour = "0" + time[0];
-        }else{
-            tempHour = time[0] + "";
-        }
-
-        // If the minute is single digit
-        String tempMinute = "";
-        if (time[1] < 10){
-            tempMinute = "0" + time[1];
-        }else{
-            tempMinute = time[1] + "";
-        }
-
-
-        // yyyy - mm - dd <> hh:mm:ss
-        String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
-
-        Log.e("TAG", str);
-
-        // Parsing the time and date into a Date object
-        Date eventDate = new Date();
-        try{
-            eventDate = sdf.parse(str);
-        }catch(ParseException e){
-            Log.e(TAG, "Error parsing time and date...");
-            e.printStackTrace();
-        }
 
 
         // Getting the duration
-//        final EditText durationField = (EditText) findViewById(R.id.durationField);
+        final EditText durationField = (EditText) findViewById(R.id.durationField);
 //        final int duration = Integer.parseInt(durationField.toString());
-        // TODO: Get the duration back as a int! toString gives garbage
 
         // Finally submitting the information
         Button submitBtn = (Button) findViewById(R.id.submitBtn);
-        final Date finalEventDate = eventDate;
+
+        //Log.i(TAG, ""+finalEventDate);
+
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // If the month is single digit
+                String tempMonth = "";
+                if (date[1] < 10){
+                    tempMonth = "0" + date[1];
+                }else{
+                    tempMonth = date[1] + "";
+                }
+
+                // If the day is single digit
+                String tempDay = "";
+                if (date[2] < 10){
+                    tempDay = "0" + date[2];
+                }else{
+                    tempDay = date[2] + "";
+                }
+
+
+
+                // If the hour is single digit
+                String tempHour = "";
+                if (hourAndMinuteArray[0] < 10){
+                    tempHour = "0" + hourAndMinuteArray[0];
+                }else{
+                    tempHour = hourAndMinuteArray[0] + "";
+                }
+
+                // If the minute is single digit
+                String tempMinute = "";
+                if (hourAndMinuteArray[1] < 10){
+                    tempMinute = "0" + hourAndMinuteArray[1];
+                }else{
+                    tempMinute = hourAndMinuteArray[1] + "";
+                }
+
+                // yyyy - mm - dd <> hh:mm:ss
+                String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
+
+                Log.e("TAG", str);
+                DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                // Parsing the time and date into a Date object
+                Date eventDate = new Date();
+                try{
+                    eventDate = sdf.parse(str);
+                }catch(ParseException e){
+                    Log.e(TAG, "Error parsing time and date...");
+                    e.printStackTrace();
+                }
+
+                final Date finalEventDate = eventDate;
+
+
                 EventsDataSource event = new EventsDataSource(CreateEvent.this);
-                event.createEvent(eventNameField.toString(), finalEventDate,eventLocation.latitude, eventLocation.longitude, 1);
+                event.createEvent(eventNameField.getText().toString(), finalEventDate,eventLocation.latitude, eventLocation.longitude, Integer.parseInt(durationField.getText().toString()));
+                finish();
             }
         });
 
@@ -169,11 +177,11 @@ public class CreateEvent extends Activity {
         return markerLocation.get(0);
     }
 
-    private Integer[] chooseTimeButton() {
+    private void chooseTimeButton() {
         final Button timeBtn = (Button) findViewById(R.id.chooseTime);
         final int INITIAL_HOUR = 12;
         final int INITIAL_MINUTE = 45;
-        final Integer[] time = {INITIAL_HOUR, INITIAL_MINUTE};
+        hourAndMinuteArray = new Integer[]{INITIAL_HOUR, INITIAL_MINUTE};
 
         timeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,8 +199,8 @@ public class CreateEvent extends Activity {
 
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                time[0] = hourOfDay;
-                                time[1] = minute;
+                                hourAndMinuteArray[0] = hourOfDay;
+                                hourAndMinuteArray[1] = minute;
 
                                 String amOrPm = "AM";
 
@@ -202,20 +210,22 @@ public class CreateEvent extends Activity {
                                 }
                                 String time = String.format("%d : %02d " + amOrPm, hourOfDay, minute);
                                 timeBtn.setText(time);
+                                Log.i(TAG, "Updated:" + time);
                             }
                         }, INITIAL_HOUR, INITIAL_MINUTE, false).show();
             }
         });
 
-        return time;
+        Log.i(TAG, "Returned:" + hourAndMinuteArray[0] + ":" + hourAndMinuteArray[1]);
+//        return hourAndMinuteArray;
     }
 
-    private Integer[] chooseDateButton() {
+    private void chooseDateButton() {
         final Button dateBtn = (Button) findViewById(R.id.chooseDate);
         final int INITIAL_YEAR = 2015;
         final int INITIAL_MONTH = 0;
         final int INITIAL_DAY = 1;
-        final Integer[] date = {INITIAL_YEAR, INITIAL_MONTH, INITIAL_DAY};
+        //date = {INITIAL_YEAR, INITIAL_MONTH, INITIAL_DAY};
 
         dateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -238,7 +248,7 @@ public class CreateEvent extends Activity {
             }
         });
 
-        return date;
+        //return dateOfEvent;
     }
 
 
