@@ -14,8 +14,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_DATE = "date";
-    public static final String COLUMN_LOCLAT = "location";
-    public static final String COLUMN_LOCLONG = "location";
+    public static final String COLUMN_LOCLAT = "latitude";
+    public static final String COLUMN_LOCLONG = "longitude";
     public static final String COLUMN_ATTENDEES= "attendees";
     public static final String COLUMN_DURATION = "duration";
 
@@ -31,9 +31,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_TITLE + " text not null,"
             + COLUMN_DATE + " char(19),"
-            + COLUMN_LOCLAT + " location longitude,"
-            + COLUMN_LOCLONG + "location latitude"
-            + COLUMN_DURATION + " text"
+            + COLUMN_LOCLAT + " double,"
+            + COLUMN_LOCLONG + " double,"
+            + COLUMN_DURATION + " integer"
             + ");";
 
     /**

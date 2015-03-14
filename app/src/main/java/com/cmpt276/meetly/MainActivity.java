@@ -27,7 +27,6 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 public class MainActivity extends ActionBarActivity implements EventList.OnFragmentInteractionListener{
 
     private final String TAG = "MainActivity";
-    private EventsDataSource newDS;
     private EventList eventListFragment;
     private Crouton locationCrouton;
 
@@ -36,7 +35,8 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        newDS = new EventsDataSource(getApplicationContext());
+        EventsDataSource eds = new EventsDataSource(getApplicationContext());
+
         openFragment(getCurrentFocus());
 
         }

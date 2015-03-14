@@ -80,13 +80,13 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         database = new EventsDataSource(getActivity());
 //        makeTestEvents();
     }
-
+    /*
     private void makeTestEvents() {
         for (int i = 1; i < 4; i++) {
             database.createEvent("Test" + i, new Date(1430000000000l), "A place", new ArrayList<String>(), "Notes");
             Log.i(TAG, "Event" + i + " added");
         }
-    }
+    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

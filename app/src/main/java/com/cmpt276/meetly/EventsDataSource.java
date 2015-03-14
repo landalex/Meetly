@@ -46,8 +46,7 @@ public class EventsDataSource {
      */
     public EventsDataSource(Context context){
         dbHelper = new MySQLiteHelper(context);
-
-        //performTests();
+;        //performTests();
  }
 
     /**
@@ -67,7 +66,7 @@ public class EventsDataSource {
      * @param loc_long notes  for event
      * @return a copy of the event added to the database
      */
-    public Event createEvent(String title, Date date, double loc_long, double loc_lat, int duration) {
+    public Event createEvent(String title, Date date, double loc_lat, double loc_long, int duration) {
         try{
             open();
         }catch (SQLException e){
@@ -85,6 +84,7 @@ public class EventsDataSource {
 
         //get row id and insert into database
         long insertID = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
+
 
         //get this record and create new event object
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns,
@@ -221,9 +221,19 @@ public class EventsDataSource {
      * @return A list of events
      */
     public List<Event> getAllEvents(){
-        database = dbHelper.getReadableDatabase();
-        List<Event> events;
-        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, null, null, null, null, null);
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        List<Event> events = new ArrayList<>(0);
+        Cursor resultSet;
+        try{
+            resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, null, null, null, null, null);
+        }catch (Exception e){
+            e.printStackTrace();
+            return events;
+        }
         events = buildEventsList(resultSet);
         resultSet.close();
         close();
@@ -294,7 +304,7 @@ public class EventsDataSource {
 
         double loc_lat = resultSet.getDouble(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LOCLAT));
         double loc_long = resultSet.getDouble(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LOCLONG));
-        event.setLocation(loc_lat,loc_long);
+        event.setLocation(loc_lat, loc_long);
         event.setDuration(resultSet.getInt(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_DURATION)));
         return event;
     }
@@ -453,7 +463,7 @@ public class EventsDataSource {
     /**
      * Inserts generic data for testing
      * @return
-     *
+     */
     private long insertData(){
         try{
             open();
@@ -470,13 +480,13 @@ public class EventsDataSource {
         Date date = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         values.put(MySQLiteHelper.COLUMN_DATE, dateFormat.format(date));
-        values.put(MySQLiteHelper.COLUMN_LOCATION, "locationTest");
-        values.put(MySQLiteHelper.COLUMN_ATTENDEES,arr.toString());
-        values.put(MySQLiteHelper.COLUMN_NOTES, "notesTest");
+        values.put(MySQLiteHelper.COLUMN_LOCLAT, 49);
+        values.put(MySQLiteHelper.COLUMN_LOCLONG, -123);
+        values.put(MySQLiteHelper.COLUMN_DURATION, 1);
         long id = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
         close();
         return id;
-    }*/
+    }
 
 
     /**
