@@ -1,0 +1,20 @@
+# Iteration 1 Reflection
+
+## Observations
+- Using version control in groups is powerful when it works right, but hitting merge conflicts and other Git issues severely hindered workflow.
+- Testing was not allocated enough time, as the night the iteration was due ended up being when all of the testing was done with all components put together.
+- Using Android's database is very powerful, but testing was again lacking. Code that will be used frequently should be tested rigourously before used.
+- Libraries are very helpful, but getting caught in documentation can be time consuming, so try to learn how things work and try to apply them rather than reading through tons of examples until you find an applicable one.
+- Using gitignore to its full potential is important, especially when using IDEs like Android Studio. A gitignore was automatically generated, but ended up not being pushed to the repo, so only one team member had it. By updating this and adding it to the central repository, all of the team members got the peace of mind from fewer useless merge conflicts.
+
+## Suggestions
+- Pull, push and merge more frequently. When making a branch for a feature, try to keep it up to date with the master, or merge it in to master more (if it doesn't break the build). This reduces merge conflicts. Use a pushing schedule to push to master, to avoid conflict with others' work.
+- When writing code, spend time writing basic tests and logs to help catch errors when they occur, rather than having to test retroactively.
+- Communicate more with teammates about changes you have made, and potential problems that may occur, ESPECIALLY if your code is incomplete or broken.
+
+
+## Keep Doing
+- Good commit messages
+- Meeting regularly
+- Building code that can be frequently reused (the database helper in particular)
+- Write high quality code (Good variable names, well encapsulted, follow convention)
