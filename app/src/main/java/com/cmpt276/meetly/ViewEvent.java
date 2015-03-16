@@ -3,6 +3,7 @@ package com.cmpt276.meetly;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -58,15 +59,15 @@ public class ViewEvent extends ActionBarActivity {
         textView.setText(thisEvent._12HRgetDate());
 
         textView = (TextView) findViewById(R.id.location);
-        textView.setText(thisEvent.getLocation());
 
-        textView = (TextView) findViewById(R.id.attendees);
-        String tempString = thisEvent.getAttendees().toString();
-        tempString = tempString.substring(1,tempString.length()-1);
+        textView.setText(thisEvent.getLocation().toString());
+
+        textView = (TextView) findViewById(R.id.location);
+        String tempString = thisEvent.getLocation().toString();
         textView.setText(tempString);
 
-        textView = (TextView) findViewById(R.id.notes);
-        textView.setText(thisEvent.getNotes());
+        textView = (TextView) findViewById(R.id.duration);
+        textView.setText("" + thisEvent.getDuration());
     }
 
     /**
@@ -76,9 +77,9 @@ public class ViewEvent extends ActionBarActivity {
         Intent in = getIntent();
         Bundle extras = in.getExtras();
         long id = extras.getLong("eventID");
-
+        Log.i(TAG, "" + id);
         EventsDataSource eds = new EventsDataSource(getApplicationContext());
         thisEvent = eds.findEventByID(id);
-        thisEvent.printEventS();
+        //thisEvent.printEventS();
     }
 }

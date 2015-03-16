@@ -42,6 +42,7 @@ import it.gmariotti.cardslib.library.recyclerview.internal.CardArrayRecyclerView
 import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 
 /**
+ * Provides the events in a list of cards, with the ability to select events to view
  * Scroll bar (draggable), Swipe for options (View, edit, delete, invite)
  * Each item shows title, date/time and duration (location as well?)
  */
@@ -81,13 +82,13 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         database = new EventsDataSource(getActivity());
 //        makeTestEvents();
     }
-
+    /*
     private void makeTestEvents() {
         for (int i = 1; i < 4; i++) {
             database.createEvent("Test" + i, new Date(1430000000000l), "A place", new ArrayList<String>(), "Notes");
             Log.i(TAG, "Event" + i + " added");
         }
-    }
+    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -123,6 +124,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
     private ArrayList<Card> makeCards(EventsDataSource database) {
         List<Event> eventList = getEvents(database);
+        Log.i(TAG, "EventList made");
         ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
 
         IconSupplementalAction ic1 = new IconSupplementalAction(getActivity(), R.id.ic1);
@@ -153,6 +155,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         actions.add(ic3);
 
         ArrayList<Card> cards = new ArrayList<>();
+        Log.i(TAG, "EventList size: " + eventList.size());
         for (Event event: eventList) {
             MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                     .setTextOverImage(event.getTitle())
@@ -170,11 +173,13 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
                 public void onClick(Card card, View view) {
                     Intent intent = new Intent(getActivity(), ViewEvent.class);
                     intent.putExtra("eventID", eventID);
+                    startActivity(intent);
                 }
             });
 
             cards.add(card);
         }
+        Log.i(TAG, "Returning...");
         return cards;
     }
 
@@ -332,8 +337,11 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
         @Override
         protected Integer doInBackground(Boolean... params) {
+            Log.i(TAG, "doInBack Start");
             cards.removeAll(cards);
+            Log.i(TAG, "Remove cards");
             cards.addAll(makeCards(this.database));
+            Log.i(TAG, "doInBack Done");
             return 1;
         }
 

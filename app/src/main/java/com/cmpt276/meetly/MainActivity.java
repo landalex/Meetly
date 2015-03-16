@@ -1,5 +1,6 @@
 package com.cmpt276.meetly;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -21,12 +22,12 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 
 
 /**
+ * Holds the EventList fragment, and provides actionbar functionality like adding an event
  * Actionbar: Add event button, Location info, Location change button?
  */
 public class MainActivity extends ActionBarActivity implements EventList.OnFragmentInteractionListener{
 
     private final String TAG = "MainActivity";
-    private EventsDataSource newDS;
     private EventList eventListFragment;
     private Crouton locationCrouton;
 
@@ -35,7 +36,8 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        newDS = new EventsDataSource(getApplicationContext());
+        EventsDataSource eds = new EventsDataSource(getApplicationContext());
+
         openFragment(getCurrentFocus());
 
         }

@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Provides a medium for interacting with the database
+ */
 
 public class EventsDataSource {
 
@@ -28,9 +31,9 @@ public class EventsDataSource {
     private String[] dbColumns = {MySQLiteHelper.COLUMN_ID,
             MySQLiteHelper.COLUMN_TITLE,
             MySQLiteHelper.COLUMN_DATE,
-            MySQLiteHelper.COLUMN_LOCATION,
-            MySQLiteHelper.COLUMN_ATTENDEES,
-            MySQLiteHelper.COLUMN_NOTES};
+            MySQLiteHelper.COLUMN_LOCLAT,
+            MySQLiteHelper.COLUMN_LOCLONG,
+            MySQLiteHelper.COLUMN_DURATION};
 
     //Testing properties
     private ArrayList<String> testArray = new ArrayList<String>();
@@ -47,9 +50,8 @@ public class EventsDataSource {
      */
     public EventsDataSource(Context context) {
         dbHelper = new MySQLiteHelper(context);
-
-        performTests();
-    }
+        //performTests();
+ }
 
     /**
      * @throws SQLException
@@ -64,12 +66,11 @@ public class EventsDataSource {
      * Create a new event and add to the database
      * @param title title for event
      * @param date date for event
-     * @param attendees attendees for event
-     * @param location location  for event
-     * @param notes notes  for event
+     * @param loc_lat location  for event
+     * @param loc_long notes  for event
      * @return a copy of the event added to the database
      */
-    public Event createEvent(String title, Date date, String location, ArrayList<String> attendees, String notes) {
+    public Event createEvent(String title, Date date, double loc_lat, double loc_long, int duration) {
         try{
             open();
         }catch (SQLException e){
@@ -81,18 +82,19 @@ public class EventsDataSource {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         values.put(MySQLiteHelper.COLUMN_DATE, sdf.format(date));
-        values.put(MySQLiteHelper.COLUMN_LOCATION, location);
-        values.put(MySQLiteHelper.COLUMN_ATTENDEES,attendees.toString());
-        values.put(MySQLiteHelper.COLUMN_NOTES, notes);
+        values.put(MySQLiteHelper.COLUMN_LOCLAT, loc_lat);
+        values.put(MySQLiteHelper.COLUMN_LOCLONG, loc_long);
+        values.put(MySQLiteHelper.COLUMN_DURATION, duration);
 
         //get row id and insert into database
         long insertID = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
+
 
         //get this record and create new event object
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns,
                 MySQLiteHelper.COLUMN_ID + " = " + insertID, null,null,null,null);
         resultSet.moveToFirst();
-        Event event = new Event(insertID,title, date, location, attendees, notes);
+        Event event = new Event(insertID,title, date, loc_lat, loc_long, duration);
         resultSet.close();
         close();
         return event;
@@ -105,6 +107,7 @@ public class EventsDataSource {
      * @return a copy of the event added to the database
      */
     public Event createEvent(ContentValues values){
+
 
         try {
             open();
@@ -165,12 +168,15 @@ public class EventsDataSource {
             e.printStackTrace();
         }
 
-        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns,MySQLiteHelper.COLUMN_ID + " = " + eventID,null,null,null,null);
+        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_ID + " = " + eventID,null,null,null,null);
 
         if(resultSet.getCount() == 0){
             Log.e(TAG, "Error attempting to retrieve record from database. The ID \"" + eventID + "\" does not match any record in the database");
             return null;
         }
+
+        resultSet.moveToFirst();
+        Log.i(TAG, "" + resultSet.getLong(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_ID)));
         return getEventFromCursor(resultSet);
     }
 
@@ -196,37 +202,54 @@ public class EventsDataSource {
     }
 
     /**
+     * TODO: switch location to 2 doubles and match with MYSQLITEHelper
      * Retrieve all events in a given location
      * @param location The location to retrieve events from
      * @return  A list containing the events at this location
      *          Returns null if no events in the database on this date
-     */
+     *
     public List<Event> findEventsByLocation(String location){
         database = dbHelper.getReadableDatabase();
         List<Event> events;
-        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns,MySQLiteHelper.COLUMN_LOCATION
+        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns,MySQLiteHelper.COLUMN_
                 + " = " + location,null,null,null,"date");
 
         if(resultSet.getCount() == 0){
-            Log.e(TAG, "Error attempting to retrieve records from database. There are not events in this location");
+            Log.e(TAG, "Error attempting to retrieve records from database. There are no events in this location");
             return null;
         }
 
         events = buildEventsList(resultSet);
         return events;
-    }
+    }*/
 
     /**
      * Gets all the events in the database and returns them in a list of events
      * @return A list of events
      */
     public List<Event> getAllEvents(){
-        database = dbHelper.getReadableDatabase();
-        List<Event> events;
-        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, null, null, null, null, null);
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        List<Event> events = new ArrayList<>(0);
+        Cursor resultSet;
+        Log.i(TAG, "Attempting to get all events in the database...");
+        try{
+            resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, null, null, null, null, null);
+        }catch (Exception e){
+            Log.e(TAG, "Failed to extract any events");
+            e.printStackTrace();
+            return events;
+        }
+        Log.i(TAG, "retrieved all events form the database with " + resultSet.getCount() + " records. Building l=events list");
+
+        //if(events.size())
         events = buildEventsList(resultSet);
         resultSet.close();
         close();
+        Log.i(TAG, "finished getAllEvents...");
         return events;
     }
 
@@ -247,9 +270,11 @@ public class EventsDataSource {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_TITLE, event.getTitle());
         values.put(MySQLiteHelper.COLUMN_DATE, event.getDate());
-        values.put(MySQLiteHelper.COLUMN_LOCATION, event.getLocation());
+        ArrayList<Double> location = event.getLocation();
+        values.put(MySQLiteHelper.COLUMN_LOCLAT, location.get(0));
+        values.put(MySQLiteHelper.COLUMN_LOCLONG, location.get(1));
         values.put(MySQLiteHelper.COLUMN_ATTENDEES,event.getAttendees().toString());
-        values.put(MySQLiteHelper.COLUMN_NOTES, event.getNotes());
+        values.put(MySQLiteHelper.COLUMN_DURATION, event.getDuration());
 
         try{
             database.update(MySQLiteHelper.TABLE_EVENTS, values,MySQLiteHelper.COLUMN_ID + " = " + event.getID(),null);
@@ -269,11 +294,26 @@ public class EventsDataSource {
         List<Event> events = new ArrayList<Event>();
 
         resultSet.moveToFirst();
-        while(!resultSet.isAfterLast()){
+/*
+        for(int i = 0; i < resultSet.getCount(); i++){
             Event event = getEventFromCursor(resultSet);
+            Log.i(TAG, "" + event.getID());
             events.add(event);
             resultSet.moveToNext();
-        }
+        }*/
+
+        do{
+            Event event = getEventFromCursor(resultSet);
+            Log.i(TAG, "" + event.getID());
+            events.add(event);
+        }while(resultSet.moveToNext());
+
+        /*
+        do{
+            Event event = getEventFromCursor(resultSet);
+            events.add(event);
+        }while(resultSet.moveToNext());*/
+        Log.i(TAG, "Finished building events list with size: " + events.size());
         return events;
     }
 
@@ -284,14 +324,15 @@ public class EventsDataSource {
      * @return The Event from the database cursor points to
      */
     private Event getEventFromCursor(Cursor resultSet){
-        resultSet.moveToFirst();
         Event event = new Event();
         event.setID(resultSet.getLong(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_ID)));
         event.setTitle(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_TITLE)));
         event.setDate(stringToDate(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_DATE))));
-        event.setLocation(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LOCATION)));
-        event.setAttendees(parseAttendees(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_ATTENDEES))));
-        event.setNotes(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_NOTES)));
+
+        double loc_lat = resultSet.getDouble(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LOCLAT));
+        double loc_long = resultSet.getDouble(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LOCLONG));
+        event.setLocation(loc_lat, loc_long);
+        event.setDuration(resultSet.getInt(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_DURATION)));
         return event;
     }
 
@@ -325,27 +366,28 @@ public class EventsDataSource {
 
     TESTING METHODS FOR EVENTSDATASOURCE,EVENTS AND DATABASE INTERACTION
 
-     */
+
+    */
 
     /**
      * Put this in constructor, and call a test inside its body after creating properties
-     */
+     *
     private void performTests() {
         try{
             open();
         }catch (SQLException e){
             e.printStackTrace();
         }
-        insertData();
-        insertData();
-        insertData();
+        //insertData();
+        //insertData();
+        //insertData();
         createTestProperties();
 
         //tests
-        EDSTEST();
+        //EDSTEST();
         createEventTEST();
-        deleteEventTEST();
-        getEventTEST();
+        //deleteEventTEST();
+        //getEventTEST();
     }
 
     private void createTestProperties(){
@@ -382,7 +424,7 @@ public class EventsDataSource {
         updateEvent(testEvent2);
         Event testE = findEventByID(testEvent2.getID());
 
-        testE.printEvent();*/
+        testE.printEvent();
     }
 
     private void deleteEventTEST(){
@@ -443,7 +485,7 @@ public class EventsDataSource {
                 + " records");
         Log.i(TAG, "Size of database is currently: " + size);
         close();
-    }
+    }*/
 
     /**
      * Inserts generic data for testing
@@ -465,9 +507,9 @@ public class EventsDataSource {
         Date date = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         values.put(MySQLiteHelper.COLUMN_DATE, dateFormat.format(date));
-        values.put(MySQLiteHelper.COLUMN_LOCATION, "locationTest");
-        values.put(MySQLiteHelper.COLUMN_ATTENDEES,arr.toString());
-        values.put(MySQLiteHelper.COLUMN_NOTES, "notesTest");
+        values.put(MySQLiteHelper.COLUMN_LOCLAT, 49);
+        values.put(MySQLiteHelper.COLUMN_LOCLONG, -123);
+        values.put(MySQLiteHelper.COLUMN_DURATION, 6);
         long id = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
         close();
         return id;
@@ -477,11 +519,11 @@ public class EventsDataSource {
     /**
      * Creates raw sql query for all records in table
      * @return
-     */
+     *
     public String getData(){
         String sqlCmd = "select * from " + MySQLiteHelper.TABLE_EVENTS;
         Log.i(TAG, "getData sql query created!!");
         return sqlCmd;
-    }
+    }*/
 
 }

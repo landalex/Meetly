@@ -23,5 +23,6 @@
     <string name="fragment_card_invite_description">Invite people</string>
     <string name="activity_main_actionbar_get_location">Get Location</string>
     <string name="fragment_event_update_loading_text">Reticulating Splines...</string>
+    <string name="create_event_submitBtn">Create</string>
 
 </resources>

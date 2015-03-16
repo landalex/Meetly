@@ -9,6 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.cmpt276.meetly.R;
 
+/**
+ * Parent class to be inherited from
+ */
+
 public class Parent extends ActionBarActivity {
 
     private final String TAG = "ParentActivity";
