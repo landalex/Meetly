@@ -50,7 +50,8 @@ public class EventsDataSource {
      */
     public EventsDataSource(Context context) {
         dbHelper = new MySQLiteHelper(context);
-        //performTests();
+        // performTests();
+        // insertData();
  }
 
     /**
