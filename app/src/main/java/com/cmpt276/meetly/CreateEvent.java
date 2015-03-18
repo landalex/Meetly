@@ -119,9 +119,8 @@ public class CreateEvent extends Activity {
 
                 final Date finalEventDate = eventDate;
 
-
                 EventsDataSource event = new EventsDataSource(CreateEvent.this);
-                event.createEvent(eventNameField.getText().toString(), finalEventDate,eventLocation.latitude, eventLocation.longitude, Integer.parseInt(durationField.getText().toString()));
+                event.createEvent(eventNameField.getText().toString(), finalEventDate,eventLocation, Integer.parseInt(durationField.getText().toString()));
                 finish();
             }
         });

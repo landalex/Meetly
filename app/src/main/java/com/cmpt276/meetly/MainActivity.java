@@ -36,7 +36,6 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        EventsDataSource eds = new EventsDataSource(getApplicationContext());
 
         openFragment(getCurrentFocus());
 
@@ -59,7 +58,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_delete_db) {
-            onDeleteDBClick(getCurrentFocus());
+            onUpgradeDBClick(getCurrentFocus());
             return true;
         } else if (id == R.id.action_add_event) {
             Intent intent = new Intent(this, CreateEvent.class);
@@ -103,11 +102,10 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     }
 
     /* For QuickDelete of database*/
-    public void onDeleteDBClick(View view){
+    public void onUpgradeDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        dbHelper.close();
-        dbHelper.deleteDatabase(database, getApplicationContext());
+        dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
     }
 
     @Override
