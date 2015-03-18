@@ -1,0 +1,44 @@
+# Task List Iteration 2
+
+## Logging In and Logging Out
+- Log in/log out to central server from events screen
+- Display username on events screen when logged in
+- Persistent sessions (user stays logged in)
+- Dialog to notify user if login failed, allow them to try again or dismiss
+
+## Sharing a Planned Event - Alex
+- List events as unshared if they are not shared, shared if they are
+- Ability to share events with central server if user logged in
+
+## Sharing a Spontaneous - Alex
+- Ability to share events as spontaneous events
+- Broadcast to users nearby currently running the app
+- List event as "spontaneous" on the events screen
+
+## Editing a Planned Event
+- Edit an existing event from the original creation screen (ie. use CreateEvent)
+- Submit changes to central server, save event locally
+- A user cannot change an event they did not create
+- Server can decline to update the event, event does not get changed
+
+## Internationalization
+- All strings have a translated equivalent
+- Choose one non-English language to support (I vote for pig latin or klingon)
+
+
+# Possible Extra Helper Classes
+
+## Server Helper - Alex
+- Log in/Log out
+- Publish/modify event
+
+## WiFi Direct Helper (I have not researched this, am just brainstorming functionality)
+### Sending data
+- Search for other devices
+- Connect to a device
+- Share event with device
+### Receiving data
+- Listen for other devices that are sharing
+- Receive event data
+- Relay event to other devices nearby?
+	For example, a device receives an event, then searches for devices around it, and sends the event to those devices too. Events should have a unique ID from the server so that other devices can reject broadcasted events if they are in range of multiple devices ( relaying shouldn't create duplicate events on phones that receive the event from more than one device)
