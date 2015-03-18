@@ -1,13 +1,14 @@
 package com.cmpt276.meetly;
 
 import android.content.ContentValues;
+import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -18,43 +19,31 @@ public class Event {
     private long eventID;
     private String title;
     private Date date;
-    private Double location_long;
-    private Double location_lat;
+    private LatLng eventLocation;
+/*
     private ArrayList<String> attendees;
+*/
     private int duration;
 
     final private String TAG = "EventClass";
 
 
-    /**
-     * Event Constructor
-     * @param title
-     * @param date
-     * @param loc_long
-     * @param loc_lat
-     * @param duration
-     */
-    public Event(long eventID, String title, Date date, double loc_long, double loc_lat, int duration) {
-        this.eventID = eventID;
-        this.title = title;
-        this.date = date;
-        this.location_lat = loc_lat;
-        this.location_long = loc_long;
-        this.duration = duration;
-    }
+
+/// Event Constructors ///
 
     /**
-     * Event Constructor
+     * Event Constructor using LatLng
      * @param title
      * @param date
      * @param location
-     * @param notes
+     * @param duration
      */
-    public Event(long eventID, String title, Date date, String location, ArrayList<String> attendees, String notes) {
+    public Event(long eventID, String title, Date date, LatLng location, int duration) {
         this.eventID = eventID;
         this.title = title;
         this.date = date;
-        this.attendees = attendees;
+        eventLocation = new LatLng(location.latitude,location.longitude);
+        this.duration = duration;
     }
 
     /**
@@ -64,10 +53,8 @@ public class Event {
     public Event(Event eventCopy) {
         this.eventID = eventCopy.getID();
         this.title = eventCopy.getTitle();
-        this.date = eventCopy.getDateAsDate();
-        ArrayList<Double> location = eventCopy.getLocation();
-        this.location_lat = location.get(0);
-        this.location_long = location.get(1);
+        this.date = eventCopy.getDate();
+        eventLocation = eventCopy.eventLocation;
         this.duration = eventCopy.getDuration();
     }
 
@@ -77,20 +64,32 @@ public class Event {
      * @param values The values to create the event with
      */
     public Event(ContentValues values) {
-        this.eventID = values.getAsLong(MySQLiteHelper.COLUMN_ID);
-        this.title = values.getAsString(MySQLiteHelper.COLUMN_TITLE);
-        this.date = EventsDataSource.stringToDate((values.getAsString(MySQLiteHelper.COLUMN_DATE)));
+        eventID = values.getAsLong(MySQLiteHelper.COLUMN_ID);
+        title = values.getAsString(MySQLiteHelper.COLUMN_TITLE);
+        String dateAsString = (values.getAsString(MySQLiteHelper.COLUMN_DATE));
 
-        this.location_long = values.getAsDouble(MySQLiteHelper.COLUMN_LOCLONG);
-        this.location_lat = values.getAsDouble(MySQLiteHelper.COLUMN_LOCLAT);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/mm/dd hh:mm");
 
+        try{
+            date = sdf.parse(dateAsString);
+        }catch (ParseException e){
+            Log.e(TAG, "Failed to parse " + dateAsString + " into a date object");
+            e.printStackTrace();
+        }
 
-        this.attendees = EventsDataSource.parseAttendees(values.getAsString(MySQLiteHelper.COLUMN_ATTENDEES));
-        this.duration = values.getAsInteger(MySQLiteHelper.COLUMN_DURATION);
+        eventLocation = new LatLng(
+                values.getAsDouble(MySQLiteHelper.COLUMN_LOCLAT)
+               ,values.getAsDouble(MySQLiteHelper.COLUMN_LOCLAT)
+        );
+
+/*
+        attendees = EventsDataSource.parseAttendees(values.getAsString(MySQLiteHelper.COLUMN_ATTENDEES));
+*/
+        duration = values.getAsInteger(MySQLiteHelper.COLUMN_DURATION);
     }
 
     /**
-     * Event Constructor
+     * Event Default Value Constructor
      * Gives properties default values
      * The event is unusable in this state until its properties have been assigned
      */
@@ -98,71 +97,39 @@ public class Event {
         this.eventID = -1;
         this.title = "";
         this.date = null;
-        this.location_lat = -1.0;
-        this.location_long = -1.0;
+        eventLocation = null;
         this.duration = -1;
-    }
-
-    /**
-     * Event Constructor (created by Alex)
-     * @param title
-     * @param date
-     */
-    public Event(String title, Date date) {
-        this.title = title;
-        this.date = date;
-    }
-
-    /**
-     * Prints out event details to logcat (24HR time)
-     * @return
-     */
-    public void printEvent(){
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-
-        Log.i(TAG, "\nEvent ID: " + eventID
-            + "\nEvent title: " + title
-            + "\nEvent date: " + sdf.format(date)
-            + "\nEvent location: " + location_lat + ", " + location_long
-            + "\nEvent duration: " + duration);
     }
 
     /**
      * Prints out event details to logcat (12HR time)
      * @return
      */
-    public void printEventS(){
+    public void printEvent(){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm a");
 
         Log.i(TAG, "\nEvent ID: " + eventID
                 + "\nEvent title: " + title
                 + "\nEvent date: " + sdf.format(date)
-                + "\nEvent location: " + location_lat + ", " + location_long
+                + "\nEvent location: " + eventLocation.latitude + ", " + eventLocation.longitude
+/*
                 + "\nEvent Attendees: " + attendees.toString()
+*/
                 + "\nEvent duration: " + duration);
     }
 
     // Accessors
     public String getTitle() {return title;}
 
-    public Date getDateAsDate() {return date;}
+    public Date getDate() {return date;}
 
-    public String getDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        return sdf.format(this.date);
+    public LatLng getLocation() {
+        return eventLocation;
     }
 
-    public String _12HRgetDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm a");
-        return sdf.format(date);
-    }
-
-    public ArrayList<Double> getLocation() {
-        return new ArrayList<Double>(Arrays.asList(location_long,location_lat));
-    }
-
+/*
     public ArrayList<String> getAttendees() {return attendees;}
+*/
 
     public int getDuration(){ return duration;}
 
@@ -173,12 +140,9 @@ public class Event {
 
     public void setDate(Date date) { this.date = date;}
 
-    public void setLocation(double loc_lat, double loc_long) {
-        this.location_lat = loc_lat;
-        this.location_long = loc_long;
-    }
+    public void setLocation(LatLng location) { eventLocation = location;}
 
-    public void setAttendees(ArrayList<String> attendees) {this.attendees = attendees;}
+    /*public void setAttendees(ArrayList<String> attendees) {this.attendees = attendees;}*/
 
     public void setDuration(int duration){ this.duration = duration;}
 

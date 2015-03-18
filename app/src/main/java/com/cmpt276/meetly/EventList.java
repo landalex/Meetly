@@ -159,8 +159,8 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         for (Event event: eventList) {
             MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                     .setTextOverImage(event.getTitle())
-                    .setTitle(event.getDate())
-                    .setSubTitle(timeUntil(event.getDateAsDate()))
+                    .setTitle(event.getDate().toString())
+                    .setSubTitle(timeUntil(event.getDate()))
                     .useDrawableId(R.drawable.card_picture)
                     .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                     .build();
@@ -203,6 +203,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         return String.format("Happening in %02d days, %02d hours, and %02d minutes", daysUntil, hoursUntil, minutesUntil);
     }
 
+
     private ArrayList getTestEvents() {
         ArrayList<Event> testEvents = new ArrayList<>();
         ArrayList<String> attendees = new ArrayList<>();
@@ -210,9 +211,10 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         attendees.add("Hami");
         attendees.add("Tina");
         attendees.add("Jas");
-        testEvents.add(new Event(0, "Tims Run", new Date(2015, 3, 10), "Somewhere", attendees, "A note"));
-        testEvents.add(new Event(1, "Tims Run", new Date(2015, 3, 11), "Somewhere", attendees, "A note"));
-        testEvents.add(new Event(2, "Tims Run", new Date(2015, 3, 12), "Somewhere", attendees, "A note"));
+        LatLng testLocation = new LatLng(-21,58);
+        testEvents.add(new Event(0, "Tims Run", new Date(2015, 3, 10), testLocation,5));
+        testEvents.add(new Event(1, "Tims Run", new Date(2015, 3, 11), testLocation,5));
+        testEvents.add(new Event(2, "Tims Run", new Date(2015, 3, 12), testLocation,5));
 
 
         return testEvents;

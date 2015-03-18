@@ -56,7 +56,7 @@ public class ViewEvent extends ActionBarActivity {
         textView.setText(thisEvent.getTitle());
 
         textView = (TextView) findViewById(R.id.date);
-        textView.setText(thisEvent._12HRgetDate());
+        textView.setText(thisEvent.getDate().toString());
 
         textView = (TextView) findViewById(R.id.location);
 
