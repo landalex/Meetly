@@ -1,4 +1,5 @@
 # Task List Iteration 2
+Scrum master: Alex Land
 
 ## Logging In and Logging Out
 - Log in/log out to central server from events screen
