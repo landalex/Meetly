@@ -52,81 +52,70 @@ public class CreateEvent extends Activity {
         chooseDateButton();
         final LatLng eventLocation = displayMap();
 
-        // Getting name from field
+        // Getting name and duration from their fields
         final EditText eventNameField = (EditText) findViewById(R.id.eventName);
-
-
-        // Getting the duration
         final EditText durationField = (EditText) findViewById(R.id.durationField);
-//        final int duration = Integer.parseInt(durationField.toString());
 
-        // Finally submitting the information
+        // Getting a reference to the submit button
+        submitButton(eventLocation, eventNameField, durationField);
+
+
+
+    }
+
+    private void submitButton(final LatLng eventLocation, final EditText eventNameField, final EditText durationField) {
         Button submitBtn = (Button) findViewById(R.id.submitBtn);
-
-        //Log.i(TAG, ""+finalEventDate);
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // If the month is single digit
-                String tempMonth = "";
-                if (date[1] < 10){
-                    tempMonth = "0" + date[1];
-                }else{
-                    tempMonth = date[1] + "";
-                }
-
-                // If the day is single digit
-                String tempDay = "";
-                if (date[2] < 10){
-                    tempDay = "0" + date[2];
-                }else{
-                    tempDay = date[2] + "";
-                }
-
-
-
-                // If the hour is single digit
-                String tempHour = "";
-                if (hourAndMinuteArray[0] < 10){
-                    tempHour = "0" + hourAndMinuteArray[0];
-                }else{
-                    tempHour = hourAndMinuteArray[0] + "";
-                }
-
-                // If the minute is single digit
-                String tempMinute = "";
-                if (hourAndMinuteArray[1] < 10){
-                    tempMinute = "0" + hourAndMinuteArray[1];
-                }else{
-                    tempMinute = hourAndMinuteArray[1] + "";
-                }
-
-                // yyyy - mm - dd <> hh:mm:ss
-                String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
-
-                Log.e("TAG", str);
-                DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                // Parsing the time and date into a Date object
-                Date eventDate = new Date();
-                try{
-                    eventDate = sdf.parse(str);
-                }catch(ParseException e){
-                    Log.e(TAG, "Error parsing time and date...");
-                    e.printStackTrace();
-                }
-
-                final Date finalEventDate = eventDate;
+                final Date finalEventDate = formatEventTimeAndDate();
 
                 EventsDataSource event = new EventsDataSource(CreateEvent.this);
-                event.createEvent(eventNameField.getText().toString(), finalEventDate,eventLocation, Integer.parseInt(durationField.getText().toString()));
+                event.createEvent(eventNameField.getText().toString(), finalEventDate, eventLocation, Integer.parseInt(durationField.getText().toString()));
                 finish();
             }
         });
+    }
 
+    private Date formatEventTimeAndDate() {
+        // If the month is single digit
+        String tempMonth = leftPadDateOrTime(date[1]);
 
+        // If the day is single digit
+        String tempDay = leftPadDateOrTime(date[2]);
 
+        // If the hour is single digit
+        String tempHour = leftPadDateOrTime(hourAndMinuteArray[0]);
+
+        // If the minute is single digit
+        String tempMinute = leftPadDateOrTime(hourAndMinuteArray[1]);
+
+        // yyyy - mm - dd <> hh:mm:ss
+        String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
+
+        DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+        // Parsing the time and date into a Date object
+        Date eventDate = new Date();
+        try{
+            eventDate = sdf.parse(str);
+        } catch(ParseException e) {
+            Log.e(TAG, "Error parsing time and date...");
+            e.printStackTrace();
+        }
+
+        return eventDate;
+    }
+
+    private String leftPadDateOrTime(int dateAndTimeDigit) {
+        String newPaddedDigit;
+        if (dateAndTimeDigit < 10){
+            newPaddedDigit = "0" + dateAndTimeDigit;
+        }else{
+            newPaddedDigit = dateAndTimeDigit + "";
+        }
+        return newPaddedDigit;
     }
 
 
@@ -135,26 +124,15 @@ public class CreateEvent extends Activity {
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         map.setMyLocationEnabled(true);
 
-
         // Getting the users location and moving our camera there:
-
-        // Instantiate a LocationManager.
-        LocationManager locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
-
-        // Criteria specifies the 'criteria' of how granular the location is
-        Criteria criteria = new Criteria();
-
-        // Get the name of the best provider. AKA Returns the name of the provider that best meets the given criteria.
-        String provider = locationManager.getBestProvider(criteria, true);
-
-        // Get Current Location
-        Location myLocation = locationManager.getLastKnownLocation(provider);
+        Location myLocation = getCurrentLocation();
 
         // Store current location as a Latitude and Longitude
         LatLng myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
         // Zoom the view into the users location
-        CameraUpdate myLocationCamera = CameraUpdateFactory.newLatLngZoom(myLatLng, 12);
+        final int ZOOM_LEVEL = 12;
+        CameraUpdate myLocationCamera = CameraUpdateFactory.newLatLngZoom(myLatLng, ZOOM_LEVEL);
         map.animateCamera(myLocationCamera);
 
 
@@ -175,6 +153,20 @@ public class CreateEvent extends Activity {
         });
 
         return markerLocation.get(0);
+    }
+
+    private Location getCurrentLocation() {
+        // Instantiate a LocationManager.
+        LocationManager locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+
+        // Criteria specifies the 'criteria' of how granular the location is
+        Criteria criteria = new Criteria();
+
+        // Get the name of the best provider. AKA Returns the name of the provider that best meets the given criteria.
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        // Get Current Location
+        return locationManager.getLastKnownLocation(provider);
     }
 
     private void chooseTimeButton() {
