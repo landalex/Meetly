@@ -46,22 +46,13 @@ import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
  * Scroll bar (draggable), Swipe for options (View, edit, delete, invite)
  * Each item shows title, date/time and duration (location as well?)
  */
-public class EventList extends Fragment implements AbsListView.OnItemClickListener {
+public class EventList extends Fragment {
 
     private final String TAG = "EventListFragment";
 
     private OnFragmentInteractionListener mListener;
 
-    /**
-     * The Adapter which will be used to populate the ListView/GridView with
-     * Views.
-     */
     private CardArrayRecyclerViewAdapter mCardArrayAdapter;
-
-    /**
-     * The database helper
-     */
-    private EventsDataSource database;
     private ArrayList<Card> cards = new ArrayList<>(0);
     public boolean showingCrouton;
 
@@ -79,16 +70,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        database = new EventsDataSource(getActivity());
-//        makeTestEvents();
     }
-    /*
-    private void makeTestEvents() {
-        for (int i = 1; i < 4; i++) {
-            database.createEvent("Test" + i, new Date(1430000000000l), "A place", new ArrayList<String>(), "Notes");
-            Log.i(TAG, "Event" + i + " added");
-        }
-    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -102,7 +84,6 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
         createCardAdapter(cards);
         configureRecyclerView();
-
     }
 
     @Override
@@ -124,9 +105,38 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
     private ArrayList<Card> makeCards(EventsDataSource database) {
         List<Event> eventList = getEvents(database);
-        Log.i(TAG, "EventList made");
-        ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
+        ArrayList<BaseSupplementalAction> actions = makeCardActions();
 
+        ArrayList<Card> cards = new ArrayList<>();
+        for (Event event: eventList) {
+            MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
+                    .setTextOverImage(event.getTitle())
+                    .setTitle(event.getDate().toString())
+                    .setSubTitle(timeUntil(event.getDate()) + "\n" + "Unshared")
+                    .useDrawableId(R.drawable.card_picture)
+                    .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
+                    .build();
+            card.addCardHeader(new CardHeader(getActivity()));
+
+            // Pass the event ID with the intent to ViewEvent
+            final long eventID = event.getID();
+            card.setOnClickListener(new Card.OnCardClickListener() {
+                @Override
+                public void onClick(Card card, View view) {
+                    Intent intent = new Intent(getActivity(), ViewEvent.class);
+                    intent.putExtra("eventID", eventID);
+                    startActivity(intent);
+                }
+            });
+
+            cards.add(card);
+        }
+        Log.i(TAG, "Cards generated.");
+        return cards;
+    }
+
+    private ArrayList<BaseSupplementalAction> makeCardActions() {
+        ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
         IconSupplementalAction ic1 = new IconSupplementalAction(getActivity(), R.id.ic1);
         ic1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
@@ -153,34 +163,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
             }
         });
         actions.add(ic3);
-
-        ArrayList<Card> cards = new ArrayList<>();
-        Log.i(TAG, "EventList size: " + eventList.size());
-        for (Event event: eventList) {
-            MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
-                    .setTextOverImage(event.getTitle())
-                    .setTitle(event.getDate().toString())
-                    .setSubTitle(timeUntil(event.getDate()))
-                    .useDrawableId(R.drawable.card_picture)
-                    .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
-                    .build();
-            card.addCardHeader(new CardHeader(getActivity()));
-
-            // Pass the event ID with the intent to ViewEvent
-            final long eventID = event.getID();
-            card.setOnClickListener(new Card.OnCardClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Intent intent = new Intent(getActivity(), ViewEvent.class);
-                    intent.putExtra("eventID", eventID);
-                    startActivity(intent);
-                }
-            });
-
-            cards.add(card);
-        }
-        Log.i(TAG, "Returning...");
-        return cards;
+        return actions;
     }
 
     private String timeUntil(Date date) {
@@ -199,25 +182,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         long hoursUntil = TimeUnit.MILLISECONDS.toHours(diff) % hoursInDay;
         long minutesUntil = TimeUnit.MILLISECONDS.toMinutes(diff) % minutesInHour;
 
-
         return String.format("Happening in %02d days, %02d hours, and %02d minutes", daysUntil, hoursUntil, minutesUntil);
-    }
-
-
-    private ArrayList getTestEvents() {
-        ArrayList<Event> testEvents = new ArrayList<>();
-        ArrayList<String> attendees = new ArrayList<>();
-        attendees.add("Alex");
-        attendees.add("Hami");
-        attendees.add("Tina");
-        attendees.add("Jas");
-        LatLng testLocation = new LatLng(-21,58);
-        testEvents.add(new Event(0, "Tims Run", new Date(2015, 3, 10), testLocation,5));
-        testEvents.add(new Event(1, "Tims Run", new Date(2015, 3, 11), testLocation,5));
-        testEvents.add(new Event(2, "Tims Run", new Date(2015, 3, 12), testLocation,5));
-
-
-        return testEvents;
     }
 
     private List getEvents(EventsDataSource database) {
@@ -261,7 +226,7 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
     private String getLocation() {
         String location = "Not available";
-        // Instantiate a LocationManager.
+
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
 
         // Criteria specifies the 'criteria' of how granular the location is
@@ -270,14 +235,11 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         // Get the name of the best provider. AKA Returns the name of the provider that best meets the given criteria.
         String provider = locationManager.getBestProvider(criteria, true);
 
-        // Get Current Location
         Location myLocation = locationManager.getLastKnownLocation(provider);
-
-        // Store current location as a Latitude and Longitude
         Geocoder geocoder = new Geocoder(getActivity());
         try {
             List<Address> addresses = geocoder.getFromLocation(myLocation.getLatitude(), myLocation.getLongitude(), 5);
-            location = addresses.get(0).getLocality();
+            location = addresses.get(0).getLocality() + ", " + addresses.get(0).getAdminArea();
         }
         catch (Exception e) {
             Log.e(TAG, "geocoder.getFromLocation failed");
@@ -303,15 +265,6 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
     }
 
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (null != mListener) {
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-        }
-    }
-
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -326,6 +279,10 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
         public void onFragmentInteraction(String id);
     }
 
+    /**
+     * Inner class to allow for updating cards in the background (using the AsyncTask interface)
+     */
+
     private class UpdateCards extends AsyncTask<Boolean, Void, Integer> {
         EventsDataSource database = new EventsDataSource(getActivity());
         ProgressDialog dialog;
@@ -339,15 +296,11 @@ public class EventList extends Fragment implements AbsListView.OnItemClickListen
 
         @Override
         protected Integer doInBackground(Boolean... params) {
-            Log.i(TAG, "doInBack Start");
+            Log.i(TAG, "Updating cards...");
             cards.removeAll(cards);
-            Log.i(TAG, "Remove cards");
             cards.addAll(makeCards(this.database));
-            Log.i(TAG, "doInBack Done");
+            Log.i(TAG, "Card update finished.");
             return 1;
-        }
-
-        protected void onProgressUpdate() {
         }
 
         @Override
