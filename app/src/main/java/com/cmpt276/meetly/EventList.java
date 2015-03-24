@@ -16,13 +16,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.cmpt276.meetly.dummy.DummyContent;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
+import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +55,8 @@ public class EventList extends Fragment {
     private CardArrayRecyclerViewAdapter mCardArrayAdapter;
     private ArrayList<Card> cards = new ArrayList<>(0);
     public boolean showingCrouton;
+    private FloatingActionMenu floatingActionMenu;
+    private FloatingActionButton floatingActionButton;
 
     public static EventList newInstance() {
         return new EventList();

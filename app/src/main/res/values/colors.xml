@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="green" type="color">#4CAF50</item>
+    <color name="green">#4CAF50</color>
+    <color name="green_pressed">#6fcc73</color>
+    <color name="white">#FFFFFF</color>
+    <color name="white_pressed">#f1f1f1</color>
+    <color name="black_semi_transparent">#B2000000</color>
 </resources>
