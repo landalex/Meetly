@@ -305,6 +305,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 int token = testServer.login(mEmail, mPassword, getApplicationContext());
                 if(token != -1){
                     editor.putInt(MainActivity.MEETLY_PREFERENCES_USERTOKEN, token);
+                    editor.putString(MainActivity.MEETLY_PREFERENCES_USERNAME,mEmail);
                     editor.apply();
                 }
             }catch (MeetlyTestServer.FailedLoginException e){

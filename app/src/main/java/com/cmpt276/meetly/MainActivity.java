@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 
@@ -27,7 +28,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     public static final String MEETLY_PREFERENCES = "Meetly_Prefs";
     public static final String MEETLY_PREFERENCES_USERTOKEN = "user_token"; //int
     public static final String MEETLY_PREFERENCES_FIRSTRUN = "first_run"; //boolean
-    public static final String MEETLY_PREFERENCES_USERNAME = "first_run"; //string
+    public static final String MEETLY_PREFERENCES_USERNAME = "username"; //string
 
 
     @Override
@@ -43,12 +44,23 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     private void setMeetlySharedPrefs() {
         SharedPreferences settings = getSharedPreferences(MEETLY_PREFERENCES, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        if(settings.getBoolean(MEETLY_PREFERENCES_FIRSTRUN, true)){
+        Log.i(TAG, "First run?: " + settings.getBoolean(MEETLY_PREFERENCES_FIRSTRUN, false));
+        if(!settings.getBoolean(MEETLY_PREFERENCES_FIRSTRUN, false)){
             editor.putInt(MEETLY_PREFERENCES_USERTOKEN, -1);
             editor.putString(MEETLY_PREFERENCES_USERNAME, "Not Logged In");
-            editor.putBoolean(MEETLY_PREFERENCES_FIRSTRUN, false);
-            editor.apply();
+            editor.putBoolean(MEETLY_PREFERENCES_FIRSTRUN, true);
+            editor.commit();
         }
+    }
+
+    private void showPrefs(){
+        SharedPreferences settings = getSharedPreferences(MEETLY_PREFERENCES, MODE_PRIVATE);
+        Log.i(TAG, "Currently logged in as: " + settings.getString(MEETLY_PREFERENCES_USERNAME,"not logged in")
+            + " with token: " + settings.getInt(MEETLY_PREFERENCES_USERTOKEN,-1));
+
+        Toast.makeText(getApplicationContext(), "Hello, " + settings.getString(MEETLY_PREFERENCES_USERNAME, "not logged in")
+            , Toast.LENGTH_SHORT).show();
+
     }
 
 
@@ -102,6 +114,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     /* For opening event list on MainActivity */
     public void openFragment(View view) {
+        showPrefs();
         getFragmentManager().beginTransaction().replace(android.R.id.content, EventList.newInstance(), "EventListFragment").commit();
     }
 

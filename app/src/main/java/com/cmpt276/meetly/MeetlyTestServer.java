@@ -27,6 +27,10 @@ public class MeetlyTestServer implements IMeetlyServer{
 
     private Context context;
 
+    //test credentials
+    //username: admin@sfu.ca
+    //password: password
+
     /**
      * Logs a user into the central server. This method takes a username and
      * a password. If the user already exists in the data base then:
@@ -51,11 +55,9 @@ public class MeetlyTestServer implements IMeetlyServer{
 
 
         //first, check if account exists
-        //if yes, return int
-        //if no, throw failedloginexception
         try{
             resultSet = database.query(MySQLiteHelper.TABLE_USERS,dbColumns,
-                    MySQLiteHelper.COLUMN_USERNAME + " = " + username, null, null, null,null);
+                    MySQLiteHelper.COLUMN_USERNAME + " = '" + username + "'", null, null, null,null);
         }catch (RuntimeException e){
             e.printStackTrace();
             return -1;
