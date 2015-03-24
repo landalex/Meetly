@@ -24,11 +24,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     private EventList eventListFragment;
     private Crouton locationCrouton;
 
-    //for currently logged in user
-    public static final String MEETLY_PREFERENCES = "Meetly_Prefs";
-    public static final String MEETLY_PREFERENCES_USERTOKEN = "user_token"; //int
-    public static final String MEETLY_PREFERENCES_FIRSTRUN = "first_run"; //boolean
-    public static final String MEETLY_PREFERENCES_USERNAME = "username"; //string
+
 
 
     @Override
@@ -42,26 +38,18 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         }
 
     private void setMeetlySharedPrefs() {
-        SharedPreferences settings = getSharedPreferences(MEETLY_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        Log.i(TAG, "First run?: " + settings.getBoolean(MEETLY_PREFERENCES_FIRSTRUN, false));
-        if(!settings.getBoolean(MEETLY_PREFERENCES_FIRSTRUN, false)){
-            editor.putInt(MEETLY_PREFERENCES_USERTOKEN, -1);
-            editor.putString(MEETLY_PREFERENCES_USERNAME, "Not Logged In");
-            editor.putBoolean(MEETLY_PREFERENCES_FIRSTRUN, true);
+        Log.i(TAG, "First run?: " + settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false));
+        if(!settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false)){
+            editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
+            editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, "Not Logged In");
+            editor.putBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true);
             editor.commit();
         }
     }
 
-    private void showPrefs(){
-        SharedPreferences settings = getSharedPreferences(MEETLY_PREFERENCES, MODE_PRIVATE);
-        Log.i(TAG, "Currently logged in as: " + settings.getString(MEETLY_PREFERENCES_USERNAME,"not logged in")
-            + " with token: " + settings.getInt(MEETLY_PREFERENCES_USERTOKEN,-1));
 
-        Toast.makeText(getApplicationContext(), "Hello, " + settings.getString(MEETLY_PREFERENCES_USERNAME, "not logged in")
-            , Toast.LENGTH_SHORT).show();
-
-    }
 
 
     @Override
@@ -114,7 +102,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     /* For opening event list on MainActivity */
     public void openFragment(View view) {
-        showPrefs();
+        Meetly.showPrefs(getApplicationContext());
         getFragmentManager().beginTransaction().replace(android.R.id.content, EventList.newInstance(), "EventListFragment").commit();
     }
 

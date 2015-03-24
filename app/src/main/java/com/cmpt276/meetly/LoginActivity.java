@@ -282,39 +282,26 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 //            try {
 //                // Simulate network access.
 //                Thread.sleep(2000);
-//                testServer = new MeetlyTestServer();
 //            } catch (InterruptedException e) {
 //                return false;
 //            }
 
-
-//            for (String credential : testServer.CREDENTIALS) {
-//                String[] pieces = credential.split(":");
-//                if (pieces[0].equals(mEmail)) {
-//                    // Account exists, return true if the password matches.
-//                    return pieces[1].equals(mPassword);
-//                }
-//            }
-
             testServer = new MeetlyTestServer();
-            SharedPreferences settings = getSharedPreferences(MainActivity.MEETLY_PREFERENCES, MODE_PRIVATE);
+            SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
             SharedPreferences.Editor editor = settings.edit();
 
             //for now, registering new accounts only
             try{
                 int token = testServer.login(mEmail, mPassword, getApplicationContext());
                 if(token != -1){
-                    editor.putInt(MainActivity.MEETLY_PREFERENCES_USERTOKEN, token);
-                    editor.putString(MainActivity.MEETLY_PREFERENCES_USERNAME,mEmail);
+                    editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, token);
+                    editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME,mEmail);
                     editor.apply();
                 }
             }catch (MeetlyTestServer.FailedLoginException e){
                 e.printStackTrace();
                 return false;
             }
-
-
-            // TODO: register the new account here.
             return true;
         }
 
