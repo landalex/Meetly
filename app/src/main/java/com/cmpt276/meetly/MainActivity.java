@@ -1,22 +1,14 @@
 package com.cmpt276.meetly;
 
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.database.sqlite.SQLiteDatabase;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 
@@ -31,15 +23,33 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     private EventList eventListFragment;
     private Crouton locationCrouton;
 
+    //for currently logged in user
+    public static final String MEETLY_PREFERENCES = "Meetly_Prefs";
+    public static final String MEETLY_PREFERENCES_USERTOKEN = "user_token"; //int
+    public static final String MEETLY_PREFERENCES_FIRSTRUN = "first_run"; //boolean
+    public static final String MEETLY_PREFERENCES_USERNAME = "first_run"; //string
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        setMeetlySharedPrefs();
         openFragment(getCurrentFocus());
 
         }
+
+    private void setMeetlySharedPrefs() {
+        SharedPreferences settings = getSharedPreferences(MEETLY_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        if(settings.getBoolean(MEETLY_PREFERENCES_FIRSTRUN, true)){
+            editor.putInt(MEETLY_PREFERENCES_USERTOKEN, -1);
+            editor.putString(MEETLY_PREFERENCES_USERNAME, "Not Logged In");
+            editor.putBoolean(MEETLY_PREFERENCES_FIRSTRUN, false);
+            editor.apply();
+        }
+    }
 
 
     @Override
@@ -62,6 +72,9 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
             return true;
         } else if (id == R.id.action_add_event) {
             Intent intent = new Intent(this, CreateEvent.class);
+            startActivity(intent);
+        } else if (id == R.id.action_login){
+            Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         } else if (id == R.id.action_get_location) {
             if (eventListFragment == null) {
@@ -87,21 +100,12 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     }
 
-    public void goToViewEvent(){
-        EventsDataSource eds = new EventsDataSource(getApplicationContext());
-
-        Event someEvent = eds.findEventByID(5);
-        Intent intent = new Intent(getApplicationContext(),ViewEvent.class);
-        intent.putExtra("eventID",someEvent.getID());
-        startActivity(intent);
-    }
-
     /* For opening event list on MainActivity */
     public void openFragment(View view) {
         getFragmentManager().beginTransaction().replace(android.R.id.content, EventList.newInstance(), "EventListFragment").commit();
     }
 
-    /* For QuickDelete of database*/
+    /* For Upgrade of database*/
     public void onUpgradeDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
