@@ -37,17 +37,21 @@
             android:id="@+id/create_normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/white"
+            fab:fab_colorNormal="@color/green"
+            fab:fab_colorPressed="@color/green_pressed"
             fab:fab_title="@string/label_fab_menu_create"
-            fab:fab_colorPressed="@color/white_pressed"/>
+            fab:fab_size="mini"
+            fab:fab_icon="@drawable/ic_add_white"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/create_spontaneous"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/white"
+            fab:fab_colorNormal="@color/green"
+            fab:fab_colorPressed="@color/green_pressed"
             fab:fab_title="@string/label_fab_menu_create_spont"
-            fab:fab_colorPressed="@color/white_pressed"/>
+            fab:fab_size="mini"
+            fab:fab_icon="@drawable/ic_add_white"/>
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 

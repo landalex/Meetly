@@ -24,12 +24,9 @@
     <string name="activity_main_actionbar_get_location">Get Location</string>
     <string name="fragment_event_update_loading_text">Reticulating Splines...</string>
     <string name="create_event_submitBtn">Create</string>
-<<<<<<< HEAD
     <string name="label_fab_menu_create">Event</string>
     <string name="label_fab_menu_create_spont">Spontaneous Event</string>
-=======
     <string name="app_login" > Login</string>
     <string name="app_signup">Signup</string>
->>>>>>> 65bb6cc7600db2bd668847ae401aa1d82b2f4578
 
 </resources>

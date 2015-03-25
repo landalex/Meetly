@@ -21,9 +21,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
-import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,8 +53,6 @@ public class EventList extends Fragment {
     private CardArrayRecyclerViewAdapter mCardArrayAdapter;
     private ArrayList<Card> cards = new ArrayList<>(0);
     public boolean showingCrouton;
-    private FloatingActionMenu floatingActionMenu;
-    private FloatingActionButton floatingActionButton;
 
     public static EventList newInstance() {
         return new EventList();
