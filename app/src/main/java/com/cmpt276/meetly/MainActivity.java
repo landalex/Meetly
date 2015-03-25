@@ -1,22 +1,24 @@
 package com.cmpt276.meetly;
 
-import android.content.ContentValues;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.database.sqlite.SQLiteDatabase;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collection;
+import java.util.Iterator;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 
@@ -30,17 +32,53 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     private final String TAG = "MainActivity";
     private EventList eventListFragment;
     private Crouton locationCrouton;
+    private final IntentFilter intentFilter = new IntentFilter();
+    private boolean wifiP2pEnabled;
+    private BroadcastReceiver mReceiver;
+    private WifiP2pHelper wifiP2pHelper;
+    private WifiP2pDeviceList wifiPeers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
+        mReceiver = wifiP2pHelper.getReceiver();
+
+        setMeetlySharedPrefs();
         openFragment(getCurrentFocus());
+
+        wifiP2pHelper.getWifiPeers();
+        wifiPeers = wifiP2pHelper.getPeersList();
+
+
+        connectionTest();
 
         }
 
+    protected void setIsWifiP2pEnabled(boolean wifiP2pEnabled) {
+        this.wifiP2pEnabled = wifiP2pEnabled;
+    }
+
+    public void connectionTest() {
+        WifiP2pDevice device = wifiPeers.getDeviceList().iterator().next();
+        if (device != null) {
+            wifiP2pHelper.connectToPeer(device);
+        }
+    }
+
+    private void setMeetlySharedPrefs() {
+        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        Log.i(TAG, "First run?: " + settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false));
+        if(!settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false)){
+            editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
+            editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, "Not Logged In");
+            editor.putBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true);
+            editor.commit();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -62,6 +100,9 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
             return true;
         } else if (id == R.id.action_add_event) {
             Intent intent = new Intent(this, CreateEvent.class);
+            startActivity(intent);
+        } else if (id == R.id.action_login){
+            Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         } else if (id == R.id.action_get_location) {
             if (eventListFragment == null) {
@@ -87,25 +128,29 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     }
 
-    public void goToViewEvent(){
-        EventsDataSource eds = new EventsDataSource(getApplicationContext());
-
-        Event someEvent = eds.findEventByID(5);
-        Intent intent = new Intent(getApplicationContext(),ViewEvent.class);
-        intent.putExtra("eventID",someEvent.getID());
-        startActivity(intent);
-    }
-
     /* For opening event list on MainActivity */
     public void openFragment(View view) {
+        Meetly.showPrefs(getApplicationContext());
         getFragmentManager().beginTransaction().replace(android.R.id.content, EventList.newInstance(), "EventListFragment").commit();
     }
 
-    /* For QuickDelete of database*/
+    /* For Upgrade of database*/
     public void onUpgradeDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
     }
 
     @Override

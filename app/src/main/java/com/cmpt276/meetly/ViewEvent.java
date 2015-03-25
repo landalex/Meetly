@@ -2,11 +2,24 @@ package com.cmpt276.meetly;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
+import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
+import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
+import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardHeader;
 
 /**
  * Fields: Name, Location, Date/Time, Time to event start, People, Notes,
@@ -68,6 +81,26 @@ public class ViewEvent extends ActionBarActivity {
 
         textView = (TextView) findViewById(R.id.duration);
         textView.setText("" + thisEvent.getDuration());
+    }
+
+
+    private String timeUntil(Date date) {
+        long now = new Date().getTime();
+        long eventTime = date.getTime();
+        long diff = eventTime - now;
+
+        if (diff <= 0) {
+            return "Happening now";
+        }
+
+        final long hoursInDay = TimeUnit.DAYS.toHours(1);
+        final long minutesInHour = TimeUnit.HOURS.toMinutes(1);
+
+        long daysUntil = TimeUnit.MILLISECONDS.toDays(diff);
+        long hoursUntil = TimeUnit.MILLISECONDS.toHours(diff) % hoursInDay;
+        long minutesUntil = TimeUnit.MILLISECONDS.toMinutes(diff) % minutesInHour;
+
+        return String.format("Happening in %02d days, %02d hours, and %02d minutes", daysUntil, hoursUntil, minutesUntil);
     }
 
     /**
