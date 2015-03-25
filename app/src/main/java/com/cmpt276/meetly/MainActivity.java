@@ -53,7 +53,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         wifiPeers = wifiP2pHelper.getPeersList();
 
 
-        connectionTest();
+//        connectionTest();
 
         }
 
