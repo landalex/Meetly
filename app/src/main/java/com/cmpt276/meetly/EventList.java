@@ -295,7 +295,7 @@ public class EventList extends Fragment {
 
         Style style = new Style.Builder()
                 .setBackgroundColorValue(getResources().getColor(R.color.green))
-                .setHeight(250)
+                .setHeight(150)
                 .setConfiguration(config)
                 .build();
 

@@ -112,9 +112,6 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         if (id == R.id.action_delete_db) {
             onUpgradeDBClick(getCurrentFocus());
             return true;
-        } else if (id == R.id.action_add_event) {
-            Intent intent = new Intent(this, CreateEvent.class);
-            startActivity(intent);
         } else if (id == R.id.action_login){
             SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
             boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
