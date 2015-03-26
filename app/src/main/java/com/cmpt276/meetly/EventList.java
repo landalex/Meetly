@@ -137,7 +137,7 @@ public class EventList extends Fragment {
             MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                     .setTextOverImage(event.getTitle())
                     .setTitle(event.getDate().toString())
-                    .setSubTitle(timeUntil(event.getDate()) + "\n" + "Unshared")
+                    .setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_unshared))
                     .useDrawableId(R.drawable.card_picture)
                     .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                     .build();
@@ -200,6 +200,8 @@ public class EventList extends Fragment {
 //                                                                event.getDuration(), location.latitude, location.longitude);
 //                        event.setSharedID(sharedEventID);
 //                        db.updateEvent(event);
+//                        MaterialLargeImageCard mCard = (MaterialLargeImageCard) card;
+//                        mCard.setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_shared));
 //                    }
 //                    catch (IMeetlyServer.FailedPublicationException e) {
 //                        Log.e(TAG, "Failed to publish event: " + event.getTitle());
