@@ -75,6 +75,7 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Meetly" />
+
         </activity>
         <!-- //Meetly Activity -->
         <activity
