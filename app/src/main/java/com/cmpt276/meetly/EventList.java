@@ -1,8 +1,11 @@
 package com.cmpt276.meetly;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Address;
@@ -17,10 +20,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -82,7 +84,29 @@ public class EventList extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         createCardAdapter(cards);
+        createFloatingActionButtonListeners();
         configureRecyclerView();
+    }
+
+    private void createFloatingActionButtonListeners() {
+        final FloatingActionsMenu menu = (FloatingActionsMenu)getActivity().findViewById(R.id.create_action_menu);
+        getActivity().findViewById(R.id.create_normal).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu.collapse();
+                Intent intent = new Intent(getActivity(), CreateEvent.class);
+                startActivity(intent);
+            }
+        });
+
+        getActivity().findViewById(R.id.create_spontaneous).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu.collapse();
+                Intent intent = new Intent(getActivity(), CreateEvent.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -104,10 +128,12 @@ public class EventList extends Fragment {
 
     private ArrayList<Card> makeCards(EventsDataSource database) {
         List<Event> eventList = getEvents(database);
-        ArrayList<BaseSupplementalAction> actions = makeCardActions();
 
         ArrayList<Card> cards = new ArrayList<>();
         for (Event event: eventList) {
+            final long eventID = event.getID();
+            ArrayList<BaseSupplementalAction> actions = makeCardActions(eventID);
+
             MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                     .setTextOverImage(event.getTitle())
                     .setTitle(event.getDate().toString())
@@ -118,7 +144,6 @@ public class EventList extends Fragment {
             card.addCardHeader(new CardHeader(getActivity()));
 
             // Pass the event ID with the intent to ViewEvent
-            final long eventID = event.getID();
             card.setOnClickListener(new Card.OnCardClickListener() {
                 @Override
                 public void onClick(Card card, View view) {
@@ -134,35 +159,95 @@ public class EventList extends Fragment {
         return cards;
     }
 
-    private ArrayList<BaseSupplementalAction> makeCardActions() {
+    private ArrayList<BaseSupplementalAction> makeCardActions(final long eventID) {
         ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
-        IconSupplementalAction ic1 = new IconSupplementalAction(getActivity(), R.id.ic1);
-        ic1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+        IconSupplementalAction editEvent = new IconSupplementalAction(getActivity(), R.id.editEvent);
+        editEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Toast.makeText(getActivity(), " Click on icon 1 ", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), EditEvent.class);
+                intent.putExtra("eventID", eventID);
+                startActivity(intent);
             }
         });
-        actions.add(ic1);
+        actions.add(editEvent);
 
-        IconSupplementalAction ic2 = new IconSupplementalAction(getActivity(), R.id.ic2);
-        ic2.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+        IconSupplementalAction deleteEvent = new IconSupplementalAction(getActivity(), R.id.deleteEvent);
+        deleteEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Toast.makeText(getActivity(), " Click on icon 2 ", Toast.LENGTH_SHORT).show();
+                EventsDataSource db = new EventsDataSource(getActivity());
+                db.deleteEvent(db.findEventByID(eventID));
+                new UpdateCards().execute();
             }
         });
-        actions.add(ic2);
+        actions.add(deleteEvent);
 
-        IconSupplementalAction ic3 = new IconSupplementalAction(getActivity(), R.id.ic3);
-        ic3.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+        IconSupplementalAction shareEvent = new IconSupplementalAction(getActivity(), R.id.shareEvent);
+        shareEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Toast.makeText(getActivity()," Click on icon 3 ", Toast.LENGTH_SHORT).show();
+                String username = null;
+                int userToken = -1;
+                boolean loggedIn = checkLoggedIn(username, userToken);
+                if (loggedIn) {
+                    EventsDataSource db = new EventsDataSource(getActivity());
+                    Event event = db.findEventByID(eventID);
+                    MeetlyTestServer server = new MeetlyTestServer();
+                    LatLng location = event.getLocation();
+//                    try {
+//                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), event.getDate(),
+//                                                                event.getDuration(), location.latitude, location.longitude);
+//                        event.setSharedID(sharedEventID);
+//                        db.updateEvent(event);
+//                    }
+//                    catch (IMeetlyServer.FailedPublicationException e) {
+//                        Log.e(TAG, "Failed to publish event: " + event.getTitle());
+//                    }
+                }
+
+                else {
+                    AlertDialog dialog = makeLoginAlertDialog(getString(R.string.main_not_logged_in),
+                            getString(R.string.main_not_logged_in_message), getString(R.string.app_login), getString(R.string.dialog_cancel));
+                    dialog.show();
+
+                }
             }
         });
-        actions.add(ic3);
+        actions.add(shareEvent);
         return actions;
+    }
+
+    private AlertDialog makeLoginAlertDialog(String title, String message, String positiveButtonLabel, String negativeButtonLabel) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(positiveButtonLabel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+        builder.setNegativeButton(negativeButtonLabel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        return builder.create();
+    }
+
+    private boolean checkLoggedIn(String username, int userToken) {
+        SharedPreferences preferences = getActivity().getSharedPreferences(Meetly.MEETLY_PREFERENCES, Context.MODE_PRIVATE);
+        boolean loggedIn = preferences.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+        if (loggedIn) {
+            username = preferences.getString(Meetly.MEETLY_PREFERENCES_USERNAME,
+                        getResources().getText(R.string.main_defaultLoginMessage).toString());
+            userToken = preferences.getInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
+        }
+
+        return loggedIn;
     }
 
     private String timeUntil(Date date) {

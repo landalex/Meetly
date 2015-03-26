@@ -1,12 +1,16 @@
 package com.cmpt276.meetly;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.nsd.NsdManager;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +22,9 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 
@@ -38,8 +44,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     private WifiP2pHelper wifiP2pHelper;
     private WifiP2pDeviceList wifiPeers;
     private Menu actionBarMenu;
-
-
+    private WifiP2pManager mManager;
 
 
     @Override
@@ -52,17 +57,18 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
         mReceiver = wifiP2pHelper.getReceiver();
+        mManager = wifiP2pHelper.getManager();
 
-        setMeetlySharedPrefs();
         openFragment(getCurrentFocus());
 
-        wifiP2pHelper.getWifiPeers();
-        wifiPeers = wifiP2pHelper.getPeersList();
+//        wifiP2pHelper.getWifiPeers();
+//        wifiPeers = wifiP2pHelper.getPeersList();
 
 
 //        connectionTest();
 
         }
+
 
     protected void setIsWifiP2pEnabled(boolean wifiP2pEnabled) {
         this.wifiP2pEnabled = wifiP2pEnabled;
