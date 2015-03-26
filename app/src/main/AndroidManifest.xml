@@ -66,8 +66,7 @@
         <activity
             android:name=".WelcomeScreen"
             android:label="@string/app_name"
-            android:noHistory="true">
-
+            android:noHistory="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -77,7 +76,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Meetly" />
-
         </activity>
         <!-- //Meetly Activity -->
         <activity
@@ -94,6 +92,10 @@
             android:label="@string/title_activity_login"
             android:noHistory="true"
             android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
+            android:name=".EditEvent"
+            android:label="@string/title_activity_edit_event" >
         </activity>
     </application>
 

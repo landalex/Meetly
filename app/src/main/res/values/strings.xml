@@ -31,6 +31,7 @@
     <string name="login_cancel">Cancel</string>
     <string name="no_location_found">Not available</string>
     <string name="password_required">A password is required</string>
+    <string name="title_activity_edit_event">EditEvent</string>
 
 
 </resources>

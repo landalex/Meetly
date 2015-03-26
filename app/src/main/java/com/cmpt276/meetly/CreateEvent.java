@@ -3,6 +3,7 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -59,8 +60,6 @@ public class CreateEvent extends Activity {
 
         // Getting a reference to the submit button
         submitButton(eventNameField, durationField);
-
-
 
     }
 
