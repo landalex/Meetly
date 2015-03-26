@@ -48,7 +48,7 @@ public class MeetlyTestServer implements IMeetlyServer{
      */
     public int login(String username, String password, Context context) throws FailedLoginException{
         //TODO: remove context for final
-        Log.i(TAG, "Attempting login to MeetlyTestServer...");
+        Log.i(TAG, "Attempting menu_login to MeetlyTestServer...");
         dbHelper = new MySQLiteHelper(context);;
         database = dbHelper.getWritableDatabase();
         Cursor resultSet;

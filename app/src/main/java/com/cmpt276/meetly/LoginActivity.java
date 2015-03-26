@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -26,13 +27,14 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
- * A login screen that offers login via email/password.
+ * A menu_login screen that offers menu_login via email/password.
  */
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
@@ -41,7 +43,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     MeetlyTestServer testServer;
 
     /**
-     * Keep track of the login task to ensure we can cancel it if requested.
+     * Keep track of the menu_login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
 
@@ -57,7 +59,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Set up the login form.
+        // Set up the menu_login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -91,9 +93,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
+     * Attempts to sign in or register the account specified by the menu_login form.
      * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
+     * errors are presented and no actual menu_login attempt is made.
      */
     public void attemptLogin() {
         if (mAuthTask != null) {
@@ -106,7 +108,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
-        // Store values at the time of the login attempt.
+        // Store values at the time of the menu_login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
@@ -115,7 +117,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         //Check for a password
         if(TextUtils.isEmpty(password)){
-            mPasswordView.setError("A password is required");
+            mPasswordView.setError(getString(R.string.password_required));
             focusView = mPasswordView;
             cancel = true;
             Log.i(TAG, "No password was entered");
@@ -127,6 +129,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             focusView = mPasswordView;
             cancel = true;
             Log.i(TAG, "Password was invalid");
+        }else{
+            Log.i(TAG, "Password was valid!");
         }
 
         Log.i(TAG, "Completed password validation");
@@ -142,19 +146,21 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             focusView = mEmailView;
             cancel = true;
             Log.i(TAG, "Email address entered was invalid");
+        }else{
+            Log.i(TAG, "Email address was valid!");
         }
 
         Log.i(TAG, "Finished checking credentials for validity. Pass?: " + !cancel);
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
+            // There was an error; don't attempt menu_login and focus the first
             // form field with an error.
             Log.i(TAG, "Error occured. Login not attempted");
             focusView.requestFocus();
         } else {
             // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            Log.i(TAG, "No errors occured. Attempting login.");
+            // perform the user menu_login attempt.
+            Log.i(TAG, "No errors occured. Attempting menu_login.");
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
@@ -172,7 +178,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     }
 
     /**
-     * Shows the progress UI and hides the login form.
+     * Shows the progress UI and hides the menu_login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void showProgress(final boolean show) {
@@ -262,7 +268,16 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
+     * Cancels login and returns to main screen
+     * @param view the view that invoked this
+     */
+    public void onLoginCancel(View view){
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Represents an asynchronous menu_login/registration task used to authenticate
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
@@ -290,18 +305,23 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
             SharedPreferences.Editor editor = settings.edit();
 
+            int token;
             //for now, registering new accounts only
             try{
-                int token = testServer.login(mEmail, mPassword, getApplicationContext());
-                if(token != -1){
-                    editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, token);
-                    editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME,mEmail);
-                    editor.apply();
-                }
+                token = testServer.login(mEmail, mPassword, getApplicationContext());
             }catch (MeetlyTestServer.FailedLoginException e){
                 e.printStackTrace();
                 return false;
             }
+
+            //load user info to local shared preferences
+            if(token != -1){
+                editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, token);
+                editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, mEmail);
+                editor.putBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, true);
+                editor.apply();
+            }
+
             return true;
         }
 
@@ -311,6 +331,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             showProgress(false);
 
             if (success) {
+                SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+                Toast.makeText(getApplicationContext(),"Logged in as " + settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, "error"), Toast.LENGTH_LONG).show();
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
@@ -323,6 +345,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             mAuthTask = null;
             showProgress(false);
         }
+
+
     }
 }
 

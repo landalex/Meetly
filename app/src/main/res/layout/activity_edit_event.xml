@@ -23,19 +23,12 @@
                 android:text="@string/create_event_eventNameLabel"
                 android:layout_gravity="center_horizontal"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TEMP BTN TO TEST EDITEVENT (Try me if you have 3 events)"
-                android:id="@+id/gotoedit"
-                android:layout_gravity="center_horizontal" />
-
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
-                android:id="@+id/eventName" />
+                android:id="@+id/editEventName" />
         </LinearLayout>
 
         <LinearLayout
@@ -95,19 +88,42 @@
                         android:layout_marginTop="25dp"
                         android:focusable="false" />
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:id="@+id/textView3"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="10dp"
+                        android:focusable="false"
+                        android:textSize="15sp"
+                        android:textAlignment="center"
+                        android:text="@string/edit_event_currentEventDataHeader" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:id="@+id/currentEventDate"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="10dp"
+                        android:focusable="false"
+                        android:textSize="15dp"
+                        android:textAlignment="center" />
+
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/create_event_timeBtn"
-                        android:id="@+id/chooseTime"
+                        android:text="@string/edit_event_timeBtn"
+                        android:id="@+id/editChooseTime"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="10dp" />
 
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/create_event_dateBtn"
-                        android:id="@+id/chooseDate"
+                        android:text="@string/edit_event_dateBtn"
+                        android:id="@+id/editChooseDate"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="10dp" />
                 </LinearLayout>
@@ -132,7 +148,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="textMultiLine"
                         android:ems="10"
-                        android:id="@+id/durationField"
+                        android:id="@+id/editDurationField"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="10dp"
                         android:text="0" />
@@ -140,8 +156,8 @@
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/create_event_submitBtn"
-                        android:id="@+id/submitBtn"
+                        android:text="@string/edit_event_saveBtn"
+                        android:id="@+id/saveBtn"
                         android:layout_gravity="center_horizontal" />
                 </LinearLayout>
 

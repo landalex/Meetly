@@ -20,12 +20,30 @@ public class Meetly extends ActionBarActivity {
     public static final String MEETLY_PREFERENCES_USERTOKEN = "user_token"; //int
     public static final String MEETLY_PREFERENCES_FIRSTRUN = "first_run"; //boolean
     public static final String MEETLY_PREFERENCES_USERNAME = "username"; //string
-    public static final String defaultUMessage = "not logged in";
+    public static final String MEETLY_PREFERENCES_ISLOGGEDIN = "is_logged_in"; //string
+    public static final String defaultUMessage = "not logged in"; //boolean
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parent);
+    }
+
+    /**
+     * Sets shared preferences for meetly application
+     */
+    public static void setMeetlySharedPrefs(Context context) {
+        SharedPreferences settings = context.getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        Log.i(TAG, "First run?: " + settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true));
+
+        if(settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)){
+            editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
+            editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, "Not Logged In");
+            editor.putBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false);
+            editor.putBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+            editor.commit();
+        }
     }
 
     /**

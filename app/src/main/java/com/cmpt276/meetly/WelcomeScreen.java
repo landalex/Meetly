@@ -7,14 +7,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.app.ActionBar;
 
 /**
  * Displays the start animation and logo
+ * User taps anywhere to skip splash screen
  * Animation, ends with start screen (View or create events)
  */
 public class WelcomeScreen extends ActionBarActivity implements Animation.AnimationListener {
@@ -75,11 +78,23 @@ public class WelcomeScreen extends ActionBarActivity implements Animation.Animat
         return super.onOptionsItemSelected(item);
     }
 
-    public void onSkipIntro(View view){
-        Log.i(TAG, "Skipping intro");
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int eventAction = event.getAction();
 
-        // Launch MainActivity for testing EventList and EventsDataSource
-        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        switch (eventAction) {
+            case MotionEvent.ACTION_DOWN:
+                // Finger touches the screen
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                finish();
+
+            case MotionEvent.ACTION_MOVE:
+                // Finger moves on the screen
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                finish();
+        }
+
+        return super.onTouchEvent(event);
     }
 
     @Override

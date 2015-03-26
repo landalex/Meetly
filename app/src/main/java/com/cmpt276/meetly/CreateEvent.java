@@ -3,6 +3,7 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -29,11 +30,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Allows user to specifiy details about an event, and create the event in the database
- * Fields: Name, Location (Open map), Date/Time (Use the circle thingy), People (Open contacts), Notes (1000 characters?)
+ * Allows user to specify details about an event, and create the event in the database
  */
-
-// TODO: Commit to database
 
 public class CreateEvent extends Activity {
 
@@ -41,6 +39,7 @@ public class CreateEvent extends Activity {
     private GoogleMap map;
     private Integer[] hourAndMinuteArray = new Integer[]{0, 0};
     private Integer[] date = new Integer[]{2015, 1, 1};
+    private LatLng eventLatLong = new LatLng(49, -122);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,20 +49,30 @@ public class CreateEvent extends Activity {
         // Getting info from buttons and map
         chooseTimeButton();
         chooseDateButton();
-        final LatLng eventLocation = displayMap();
+        displayMap();
 
         // Getting name and duration from their fields
         final EditText eventNameField = (EditText) findViewById(R.id.eventName);
         final EditText durationField = (EditText) findViewById(R.id.durationField);
 
         // Getting a reference to the submit button
-        submitButton(eventLocation, eventNameField, durationField);
+        submitButton(eventNameField, durationField);
 
-
+        // TODO: For Testing EditEvent - Delete Later
+        Button gotoedit = (Button) findViewById(R.id.gotoedit);
+        final long eventID = 3;
+        gotoedit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CreateEvent.this, EditEvent.class);
+                intent.putExtra("eventID", eventID);
+                startActivity(intent);
+            }
+        });
 
     }
 
-    private void submitButton(final LatLng eventLocation, final EditText eventNameField, final EditText durationField) {
+    private void submitButton(final EditText eventNameField, final EditText durationField) {
         Button submitBtn = (Button) findViewById(R.id.submitBtn);
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +81,7 @@ public class CreateEvent extends Activity {
                 final Date finalEventDate = formatEventTimeAndDate();
 
                 EventsDataSource event = new EventsDataSource(CreateEvent.this);
-                event.createEvent(eventNameField.getText().toString(), finalEventDate, eventLocation, Integer.parseInt(durationField.getText().toString()));
+                event.createEvent(eventNameField.getText().toString(), finalEventDate, eventLatLong, Integer.parseInt(durationField.getText().toString()));
                 finish();
             }
         });
@@ -119,19 +128,16 @@ public class CreateEvent extends Activity {
     }
 
 
-    private LatLng displayMap() {
+    private void displayMap() {
         // Map Setup
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         map.setMyLocationEnabled(true);
 
         // Getting the users location and moving our camera there:
-        Location myLocation = getCurrentLocation();
-
-        // Store current location as a Latitude and Longitude
-        LatLng myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+        LatLng myLatLng = getCurrentLocation();
 
         // Zoom the view into the users location
-        final int ZOOM_LEVEL = 12;
+        final int ZOOM_LEVEL = 11;
         CameraUpdate myLocationCamera = CameraUpdateFactory.newLatLngZoom(myLatLng, ZOOM_LEVEL);
         map.animateCamera(myLocationCamera);
 
@@ -149,24 +155,29 @@ public class CreateEvent extends Activity {
                 finalMap.clear();
                 Marker eventMarker = finalMap.addMarker(new MarkerOptions().position(new LatLng(latLng.latitude, latLng.longitude)).title("Event"));
                 markerLocation.add(0, eventMarker.getPosition());
+                eventLatLong = markerLocation.get(0);
             }
         });
 
-        return markerLocation.get(0);
     }
 
-    private Location getCurrentLocation() {
+    private LatLng getCurrentLocation() {
         // Instantiate a LocationManager.
         LocationManager locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 
         // Criteria specifies the 'criteria' of how granular the location is
-        Criteria criteria = new Criteria();
-
         // Get the name of the best provider. AKA Returns the name of the provider that best meets the given criteria.
-        String provider = locationManager.getBestProvider(criteria, true);
+        String provider = locationManager.getBestProvider(new Criteria(), true);
 
         // Get Current Location
-        return locationManager.getLastKnownLocation(provider);
+        Location myLocation = locationManager.getLastKnownLocation(provider);
+
+        // If the GPS is turned off return a default value.
+        if (myLocation == null) {
+            return new LatLng(49, -122);
+        } else {
+            return new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+        }
     }
 
     private void chooseTimeButton() {
