@@ -187,8 +187,8 @@ public class EventList extends Fragment {
         shareEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                String username = null;
-                int userToken = -1;
+                String username = "";
+                Integer userToken = -1;
                 boolean loggedIn = checkLoggedIn(username, userToken);
                 if (loggedIn) {
                     EventsDataSource db = new EventsDataSource(getActivity());
@@ -240,7 +240,7 @@ public class EventList extends Fragment {
         return builder.create();
     }
 
-    private boolean checkLoggedIn(String username, int userToken) {
+    private boolean checkLoggedIn(String username, Integer userToken) {
         SharedPreferences preferences = getActivity().getSharedPreferences(Meetly.MEETLY_PREFERENCES, Context.MODE_PRIVATE);
         boolean loggedIn = preferences.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
         if (loggedIn) {
@@ -268,7 +268,10 @@ public class EventList extends Fragment {
         long hoursUntil = TimeUnit.MILLISECONDS.toHours(diff) % hoursInDay;
         long minutesUntil = TimeUnit.MILLISECONDS.toMinutes(diff) % minutesInHour;
 
-        return String.format(getString(R.string.eventlist_timeuntil_formatted_string), daysUntil, hoursUntil, minutesUntil);
+        return String.format(getString(R.string.eventlist_timeuntil_formatted_string_1) + "%02d"
+                + getString(R.string.eventlist_timeuntil_formatted_string_2) + "%02d"
+                + getString(R.string.eventlist_timeuntil_formatted_string_3) + "%02d"
+                + getString(R.string.eventlist_timeuntil_formatted_string_4), daysUntil, hoursUntil, minutesUntil);
     }
 
     private List getEvents(EventsDataSource database) {
@@ -313,7 +316,7 @@ public class EventList extends Fragment {
     private String getLocation() {
         String location = getString(R.string.no_location_found);
 
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Activity.LOCATION_SERVICE);
 
         // Criteria specifies the 'criteria' of how granular the location is
         Criteria criteria = new Criteria();

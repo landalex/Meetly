@@ -43,7 +43,10 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="eventlist_card_unshared">Unshared</string>
     <string name="eventlist_card_shared">Shared</string>
-    <string name="eventlist_timeuntil_formatted_string">Happening in %02d days, %02d hours, and %02d minutes</string>
+    <string name="eventlist_timeuntil_formatted_string_1">Happening in </string>
+    <string name="eventlist_timeuntil_formatted_string_2"> days, </string>
+    <string name="eventlist_timeuntil_formatted_string_3"> hours, and </string>
+    <string name="eventlist_timeuntil_formatted_string_4"> minutes</string>
     <string name="eventlist_timeuntil_now">Happening now</string>
 
 </resources>

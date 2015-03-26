@@ -1,30 +1,18 @@
 package com.cmpt276.meetly;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.nsd.NsdManager;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.Toast;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 
@@ -39,12 +27,9 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     private EventList eventListFragment;
     private Crouton locationCrouton;
     private final IntentFilter intentFilter = new IntentFilter();
-    private boolean wifiP2pEnabled;
     private BroadcastReceiver mReceiver;
     private WifiP2pHelper wifiP2pHelper;
-    private WifiP2pDeviceList wifiPeers;
     private Menu actionBarMenu;
-    private WifiP2pManager mManager;
 
 
     @Override
@@ -57,41 +42,11 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
         mReceiver = wifiP2pHelper.getReceiver();
-        mManager = wifiP2pHelper.getManager();
 
         openFragment(getCurrentFocus());
 
-//        wifiP2pHelper.getWifiPeers();
-//        wifiPeers = wifiP2pHelper.getPeersList();
-
-
-//        connectionTest();
-
         }
 
-
-    protected void setIsWifiP2pEnabled(boolean wifiP2pEnabled) {
-        this.wifiP2pEnabled = wifiP2pEnabled;
-    }
-
-    public void connectionTest() {
-        WifiP2pDevice device = wifiPeers.getDeviceList().iterator().next();
-        if (device != null) {
-            wifiP2pHelper.connectToPeer(device);
-        }
-    }
-
-    private void setMeetlySharedPrefs() {
-        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        Log.i(TAG, "First run?: " + settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false));
-        if(!settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false)){
-            editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
-            editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, "Not Logged In");
-            editor.putBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true);
-            editor.commit();
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

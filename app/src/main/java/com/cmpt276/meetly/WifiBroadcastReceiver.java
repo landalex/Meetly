@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.util.Log;
 
 /**
  * Handles different Wifi P2P intents, extends from Broadcast Receiver for more functionality
@@ -32,10 +33,9 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
             // the Activity.
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-                mActivity.setIsWifiP2pEnabled(true);
-
+                Log.i("WiFi P2P", "Enabled");
             } else {
-                mActivity.setIsWifiP2pEnabled(false);
+                Log.i("WiFi P2P", "Not enabled");
             }
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
 
