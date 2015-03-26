@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by AlexLand on 15-03-25.
+ * Registers Wifi P2P service, and discovers devices nearby running the service
  */
 public class WifiP2pHelper {
     private final String TAG = "WifiP2pHelper";

@@ -258,7 +258,7 @@ public class EventList extends Fragment {
         long diff = eventTime - now;
 
         if (diff <= 0) {
-            return "Happening now";
+            return getString(R.string.eventlist_timeuntil_now);
         }
 
         final long hoursInDay = TimeUnit.DAYS.toHours(1);
@@ -268,7 +268,7 @@ public class EventList extends Fragment {
         long hoursUntil = TimeUnit.MILLISECONDS.toHours(diff) % hoursInDay;
         long minutesUntil = TimeUnit.MILLISECONDS.toMinutes(diff) % minutesInHour;
 
-        return String.format("Happening in %02d days, %02d hours, and %02d minutes", daysUntil, hoursUntil, minutesUntil);
+        return String.format(getString(R.string.eventlist_timeuntil_formatted_string), daysUntil, hoursUntil, minutesUntil);
     }
 
     private List getEvents(EventsDataSource database) {
