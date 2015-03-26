@@ -88,10 +88,33 @@
                         android:layout_marginTop="25dp"
                         android:focusable="false" />
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:id="@+id/textView3"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="10dp"
+                        android:focusable="false"
+                        android:textSize="15sp"
+                        android:textAlignment="center"
+                        android:text="@string/edit_event_currentEventDataHeader" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:id="@+id/currentEventDate"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="10dp"
+                        android:focusable="false"
+                        android:textSize="15dp"
+                        android:textAlignment="center" />
+
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/create_event_timeBtn"
+                        android:text="@string/edit_event_timeBtn"
                         android:id="@+id/editChooseTime"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="10dp" />
@@ -99,7 +122,7 @@
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/create_event_dateBtn"
+                        android:text="@string/edit_event_dateBtn"
                         android:id="@+id/editChooseDate"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="10dp" />
@@ -133,7 +156,7 @@
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/create_event_submitBtn"
+                        android:text="@string/edit_event_saveBtn"
                         android:id="@+id/submitBtn"
                         android:layout_gravity="center_horizontal" />
                 </LinearLayout>

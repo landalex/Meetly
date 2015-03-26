@@ -61,6 +61,18 @@ public class CreateEvent extends Activity {
         // Getting a reference to the submit button
         submitButton(eventNameField, durationField);
 
+        // TODO: For Testing EditEvent - Delete Later
+        Button gotoedit = (Button) findViewById(R.id.gotoedit);
+        final long eventID = 3;
+        gotoedit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CreateEvent.this, EditEvent.class);
+                intent.putExtra("eventID", eventID);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void submitButton(final EditText eventNameField, final EditText durationField) {

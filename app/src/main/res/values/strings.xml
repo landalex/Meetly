@@ -32,6 +32,9 @@
     <string name="no_location_found">Not available</string>
     <string name="password_required">A password is required</string>
     <string name="title_activity_edit_event">EditEvent</string>
-
+    <string name="edit_event_timeBtn">Choose New Time</string>
+    <string name="edit_event_dateBtn">Choose New Date</string>
+    <string name="edit_event_saveBtn">Save Changes</string>
+    <string name="edit_event_currentEventDataHeader">Current Event Date:</string>
 
 </resources>
