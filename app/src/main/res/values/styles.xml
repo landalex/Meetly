@@ -11,9 +11,9 @@
         <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
 
-        <!-- ActionBar styles -->
+    <!-- ActionBar styles -->
     <style name="MyActionBar"
-    parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/green</item>
         <!-- Support library compatibility -->
         <item name="background">@color/green</item>

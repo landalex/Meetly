@@ -227,7 +227,7 @@ public class EventList extends Fragment {
     }
 
     private String getLocation() {
-        String location = "Not available";
+        String location = getString(R.string.no_location_found);
 
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
 
