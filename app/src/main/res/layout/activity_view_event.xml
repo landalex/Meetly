@@ -7,20 +7,11 @@
     tools:context="com.cmpt276.meetly.ViewEvent">
 
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/event_details"
-        android:gravity="center_horizontal"
-        style="@style/MainHeadingTextStyle"
-        android:id="@+id/ev"/>
-
     <LinearLayout
         android:orientation="vertical"
         android:gravity="center_horizontal"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@+id/ev"
         android:paddingTop="50dp"
         android:layout_alignParentStart="true">
 

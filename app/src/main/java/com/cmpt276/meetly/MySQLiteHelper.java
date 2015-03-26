@@ -25,7 +25,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static int DATABASE_SIZE = 0;
     public static int DATABASE_NEXT_RECORD = DATABASE_SIZE++;
 
-    // EventsDataSource creation sql statement
+    // database table sql statement for events
     private static final String DATABASE_CREATE = "create table "
             + TABLE_EVENTS + "("
             + COLUMN_ID + " integer primary key autoincrement, "
@@ -34,6 +34,19 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + COLUMN_LOCLAT + " double,"
             + COLUMN_LOCLONG + " double,"
             + COLUMN_DURATION + " integer"
+            + ");";
+
+    // database table sql statement for users in test meetly server
+    public static final String TABLE_USERS = "users";
+    public static final String COLUMN_UID = "_id";
+    public static final String COLUMN_USERNAME = "username";
+    public static final String COLUMN_PASS = "password";
+
+    private static final String DATABASE_CREATETEST = "create table "
+            + TABLE_USERS + "("
+            + COLUMN_UID + " integer primary key autoincrement, "
+            + COLUMN_USERNAME + " text not null unique, "
+            + COLUMN_PASS + " text not null"
             + ");";
 
     /**
@@ -47,6 +60,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(DATABASE_CREATE);
+        database.execSQL(DATABASE_CREATETEST);
     }
 
     /**
@@ -61,6 +75,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         onCreate(db);
     }
 

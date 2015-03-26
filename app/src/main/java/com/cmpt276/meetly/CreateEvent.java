@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Allows user to specifiy details about an event, and create the event in the database
+ * Allows user to specify details about an event, and create the event in the database
  * Fields: Name, Location (Open map), Date/Time (Use the circle thingy), People (Open contacts), Notes (1000 characters?)
  */
 
