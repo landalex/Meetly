@@ -26,5 +26,8 @@
     <string name="create_event_submitBtn">Create</string>
     <string name="app_login" > Login</string>
     <string name="app_signup">Signup</string>
+    <string name="main_loggedin">Logged in as </string>
+    <string name="main_defaultLoginMessage">Anonymous</string>
+    <string name="login_cancel">Cancel</string>
 
 </resources>

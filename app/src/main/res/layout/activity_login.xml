@@ -35,6 +35,14 @@
                 android:layout_marginTop="16dp" android:text="@string/action_sign_in"
                 android:textStyle="bold" />
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/login_cancel"
+                android:id="@+id/cancel"
+                android:onClick="onLoginCancel"
+                android:layout_gravity="right" />
+
         </LinearLayout>
     </ScrollView>
 

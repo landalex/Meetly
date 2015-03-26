@@ -7,8 +7,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -23,7 +25,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     private final String TAG = "MainActivity";
     private EventList eventListFragment;
     private Crouton locationCrouton;
-
+    private Menu actionBarMenu;
 
 
 
@@ -32,30 +34,17 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setMeetlySharedPrefs();
+        Meetly.setMeetlySharedPrefs(getApplicationContext());
+        Meetly.showPrefs(getApplicationContext());
         openFragment(getCurrentFocus());
 
         }
-
-    private void setMeetlySharedPrefs() {
-        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        Log.i(TAG, "First run?: " + settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false));
-        if(!settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false)){
-            editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
-            editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, "Not Logged In");
-            editor.putBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true);
-            editor.commit();
-        }
-    }
-
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        actionBarMenu = menu;
         return true;
     }
 
@@ -74,8 +63,16 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
             Intent intent = new Intent(this, CreateEvent.class);
             startActivity(intent);
         } else if (id == R.id.action_login){
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
+            SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+            boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+
+            //if logged in, ask user if they want to log out
+            if(isLoggedIn){
+                showLogOut();
+            }else{
+                goToLoginScreen();
+            }
+
         } else if (id == R.id.action_get_location) {
             if (eventListFragment == null) {
                 eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
@@ -95,6 +92,76 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         return super.onOptionsItemSelected(item);
     }
 
+    /*
+     * Changes the menu_login menu item text depending if user is logged in or not
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+
+        MenuItem menuItem = actionBarMenu.findItem(R.id.action_login);
+
+        //if logged in, show user name
+        if(isLoggedIn) {
+            menuItem = actionBarMenu.findItem(R.id.action_login);
+            String menuString = (getResources().getText(R.string.main_loggedin) + " " + settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, getResources().getText(R.string.main_defaultLoginMessage).toString()));
+            menuItem.setTitle(menuString);
+
+        } else {
+            //show default menu_login message
+            menuItem.setTitle(getResources().getString(R.string.app_login));
+
+            //turn off popupMenu for logging out
+            findViewById(R.id.logOut).setClickable(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+
+
+    private void goToLoginScreen(){
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Shows option of logging user out of Meetly
+     */
+    public void showLogOut(){
+        PopupMenu popupMenu = new PopupMenu(this,findViewById(R.id.logOut));
+        // This activity implements OnMenuItemClickListener
+        popupMenu.setOnMenuItemClickListener(
+                new PopupMenu.OnMenuItemClickListener(){
+                     @Override
+                     public boolean onMenuItemClick(MenuItem item) {
+                         logOut();
+                         return true;
+                     }
+                 }
+        );
+        //MenuInflater inflater = popupMenu.getMenuInflater();
+        //inflater.inflate(R.menu.menu_login, popupMenu.getMenu());
+        popupMenu.inflate(R.menu.menu_login);
+        popupMenu.show();
+    }
+
+    private void logOut(){
+        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES,  MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, getResources().getString(R.string.main_defaultLoginMessage));
+        editor.putBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+        editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
+        editor.commit();
+        Toast.makeText(getApplicationContext(), "You have been successfully logged out", Toast.LENGTH_LONG).show();
+        // Refresh main activity upon close of dialog box
+        Intent refresh = new Intent(this, MainActivity.class);
+        startActivity(refresh);
+        this.finish(); //
+    }
+
+
     @Override
     public void onFragmentInteraction(String id) {
 
@@ -102,7 +169,6 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     /* For opening event list on MainActivity */
     public void openFragment(View view) {
-        Meetly.showPrefs(getApplicationContext());
         getFragmentManager().beginTransaction().replace(android.R.id.content, EventList.newInstance(), "EventListFragment").commit();
     }
 
