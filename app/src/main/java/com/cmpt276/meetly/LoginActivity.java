@@ -117,7 +117,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         //Check for a password
         if(TextUtils.isEmpty(password)){
-            mPasswordView.setError("A password is required");
+            mPasswordView.setError(getString(R.string.password_required));
             focusView = mPasswordView;
             cancel = true;
             Log.i(TAG, "No password was entered");

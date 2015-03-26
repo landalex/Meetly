@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_tagline">Laissez-nous Meetly</string>
+    <string name="skip_splash_screen">Passer écran de démarrage</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="title_activity_create_event">Créer un événement</string>
+    <string name="title_activity_view_event">Voir l\'événementt</string>
+    <string name="title_activity_welcome_screen">écran d\'accueil</string>
+    <string name="title_activity_parent">mère</string>
+    <string name="title_activity_database">Base de données</string>
+    <string name="event_details">Détails de l\'événement</string>
+    <string name="create_event_eventNameLabel">Nom de l\'événement</string>
+    <string name="create_event_locationLabel">Emplacement</string>
+    <string name="create_event_dateTimeLabel">Date et heure</string>
+    <string name="create_event_timeBtn">Choisissez Temps</string>
+    <string name="create_event_dateBtn">Choisir une date</string>
+    <string name="create_event_durationLabel">Durée</string>
+    <string name="actionbar_add_event">Ajouter événement</string>
+    <string name="fragment_card_edit_description">Modifier l\'événement</string>
+    <string name="fragment_card_delete_description">Supprimer l\'événement</string>
+    <string name="fragment_card_invite_description">Invitez les gens</string>
+    <string name="activity_main_actionbar_get_location">Obtenez Localisation</string>
+    <string name="fragment_event_update_loading_text">Réticulation splines...</string>
+    <string name="create_event_submitBtn">Créer</string>
+    <string name="no_location_found">Pas disponible</string>
+    <string name="app_login">S\'identifier</string>
+    <string name="action_sign_in">Inscrivez-vous ou inscrivez</string>
+    <string name="app_signup">Signer</string>
+    <string name="prompt_password">Mot de passe</string>
+    <string name="password_required">Un mot de passe est nécessaire</string>
+    <string name="error_invalid_password">Ce mot de passe est trop court</string>
+    <string name="error_field_required">Ce champ est obligatoire</string>
+    <string name="error_invalid_email">Cette adresse email est invalide</string>
+
+
+</resources>
