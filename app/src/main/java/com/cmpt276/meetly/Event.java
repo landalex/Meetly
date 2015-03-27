@@ -20,7 +20,7 @@ public class Event {
     private String title;
     private Date date;
     private LatLng eventLocation;
-    public final static SimpleDateFormat EVENT_SDF = new SimpleDateFormat("yyyy-mm-dd hh:mm a", Locale.CANADA);
+    public final static SimpleDateFormat EVENT_SDF = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CANADA);
 /*
     private ArrayList<String> attendees;
 */

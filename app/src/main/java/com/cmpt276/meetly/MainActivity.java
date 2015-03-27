@@ -186,7 +186,8 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     public void onUpgradeDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
+        //dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
+        MySQLiteHelper.deleteDatabase(database, getApplicationContext());
     }
 
     @Override

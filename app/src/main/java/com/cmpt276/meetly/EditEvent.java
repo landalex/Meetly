@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-
+/**
+ * This class allows you edit an event thats passed in
+ */
 public class EditEvent extends Activity {
     private final String TAG = "EditEventActivity";
 
@@ -158,7 +160,7 @@ public class EditEvent extends Activity {
         String tempMinute = leftPadDateOrTime(hourAndMinuteArray[1]);
 
         // yyyy - mm - dd <> hh:mm:ss
-        String str = date[0] + "-" + tempMonth + "-" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
+        String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
 
         DateFormat sdf = Event.EVENT_SDF;
 
@@ -203,7 +205,7 @@ public class EditEvent extends Activity {
                 new DatePickerDialog(EditEvent.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        dateBtn.setText(monthOfYear + 1 + "-" + dayOfMonth + "-" + year);       // Months are 0-indexed, Days are 1-indexed
+                        dateBtn.setText(monthOfYear + 1 + "/" + dayOfMonth + "/" + year);       // Months are 0-indexed, Days are 1-indexed
                         date[0] = year;
                         date[1] = monthOfYear;
                         date[2] = dayOfMonth;

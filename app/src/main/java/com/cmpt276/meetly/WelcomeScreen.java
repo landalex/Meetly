@@ -59,9 +59,6 @@ public class WelcomeScreen extends ActionBarActivity implements Animation.Animat
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int eventAction = event.getAction();
-        MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        MySQLiteHelper.deleteDatabase(database, getApplicationContext());
         switch (eventAction) {
             case MotionEvent.ACTION_DOWN:
                 // Finger touches the screen

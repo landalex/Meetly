@@ -2,8 +2,11 @@ package com.cmpt276.meetly;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import java.sql.SQLException;
 
 /**
  * This class is responsible for creating the Meetly Database
@@ -11,7 +14,7 @@ import android.util.Log;
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "MeetlyDB";
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 1;
 
     public static final String TABLE_EVENTS = "events";
     public static final String COLUMN_ID = "_id";
@@ -48,7 +51,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + ");";
 
 
-    public static final String TABLE_SERVER_EVENTS = "events";
+    public static final String TABLE_SERVER_EVENTS = "server_events";
     public static final String COLUMN_USERTOKEN = "userToken";
     public static final String COLUMN_START_TIME = "startTime";
     public static final String COLUMN_END_TIME = "endTime";
@@ -76,9 +79,14 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        database.execSQL(DATABASE_CREATE);
-        database.execSQL(DATABASE_CREATE_TEST);
-        database.execSQL(DATABASE_CREATE_SERVER);
+        try{
+            database.execSQL(DATABASE_CREATE);
+            database.execSQL(DATABASE_CREATE_TEST);
+            database.execSQL(DATABASE_CREATE_SERVER);
+        }catch (SQLiteException e){
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -95,7 +103,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVER_EVENTS);
-        onCreate(db);
+        //onCreate(db);
     }
 
     /**

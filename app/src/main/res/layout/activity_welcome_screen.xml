@@ -44,5 +44,15 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="95dp"
         android:visibility="gone" />
+<!--
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update"
+        android:id="@+id/button"
+        android:layout_below="@+id/appName"
+        android:layout_alignParentEnd="true"
+        android:onClick="onUpgradeDBClick2"/>-->
 
 </RelativeLayout>

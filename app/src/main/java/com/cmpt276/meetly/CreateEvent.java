@@ -90,8 +90,7 @@ public class CreateEvent extends Activity {
         String tempMinute = leftPadDateOrTime(hourAndMinuteArray[1]);
 
         // yyyy - mm - dd <> hh:mm:ss
-        String str = date[0] + "-" + tempMonth + "-" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
-
+        String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
         DateFormat sdf = Event.EVENT_SDF;
 
         // Parsing the time and date into a Date object
@@ -233,7 +232,7 @@ public class CreateEvent extends Activity {
                 new DatePickerDialog(CreateEvent.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        dateBtn.setText(monthOfYear + 1 + "-" + dayOfMonth + "-" + year);       // Months are 0-indexed, Days are 1-indexed
+                        dateBtn.setText(monthOfYear + 1 + "/" + dayOfMonth + "/" + year);       // Months are 0-indexed, Days are 1-indexed
                         date[0] = year;
                         date[1] = monthOfYear;
                         date[2] = dayOfMonth;
