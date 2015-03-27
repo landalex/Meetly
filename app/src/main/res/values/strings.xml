@@ -24,6 +24,8 @@
     <string name="activity_main_actionbar_get_location">Get Location</string>
     <string name="fragment_event_update_loading_text">Reticulating Splines...</string>
     <string name="create_event_submitBtn">Create</string>
+    <string name="label_fab_menu_create">Event</string>
+    <string name="label_fab_menu_create_spont">Spontaneous Event</string>
     <string name="app_login">Login</string>
     <string name="app_signup">Signup</string>
     <string name="main_loggedin">Logged in as </string>
@@ -36,5 +38,15 @@
     <string name="edit_event_dateBtn">Choose New Date</string>
     <string name="edit_event_saveBtn">Save Changes</string>
     <string name="edit_event_currentEventDataHeader">Current Event Date:</string>
+    <string name="main_not_logged_in">Not Logged In</string>
+    <string name="main_not_logged_in_message">You must be logged in to share an event</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="eventlist_card_unshared">Unshared</string>
+    <string name="eventlist_card_shared">Shared</string>
+    <string name="eventlist_timeuntil_formatted_string_1">Happening in </string>
+    <string name="eventlist_timeuntil_formatted_string_2"> days, </string>
+    <string name="eventlist_timeuntil_formatted_string_3"> hours, and </string>
+    <string name="eventlist_timeuntil_formatted_string_4"> minutes</string>
+    <string name="eventlist_timeuntil_now">Happening now</string>
 
 </resources>

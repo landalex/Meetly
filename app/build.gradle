@@ -27,15 +27,19 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     //Core card library
+    compile 'com.github.gabrielemariotti.cards:cardslib-core:2.0.1'
     //Optional for built-in cards
+    compile 'com.github.gabrielemariotti.cards:cardslib-cards:2.0.1'
     //Optional for RecyclerView
+    compile 'com.github.gabrielemariotti.cards:cardslib-recyclerview:2.0.1'
     //Crouton
-    //compile 'com.google.android.gms:play-services:6.5.87'
+    compile 'de.keyboardsurfer.android.widget:crouton:1.8.5@aar'
+
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:recyclerview-v7:22.0.0'
-    compile 'com.github.gabrielemariotti.cards:cardslib-core:2.0.1'
-    compile 'com.github.gabrielemariotti.cards:cardslib-cards:2.0.1'
-    compile 'com.github.gabrielemariotti.cards:cardslib-recyclerview:2.0.1'
-    compile 'de.keyboardsurfer.android.widget:crouton:1.8.5@aar'
+
     compile 'com.google.android.gms:play-services:6.5.87'
+
+    compile 'com.getbase:floatingactionbutton:1.9.0'
+
 }

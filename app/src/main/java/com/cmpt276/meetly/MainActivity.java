@@ -1,13 +1,14 @@
 package com.cmpt276.meetly;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -25,8 +26,10 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     private final String TAG = "MainActivity";
     private EventList eventListFragment;
     private Crouton locationCrouton;
+    private final IntentFilter intentFilter = new IntentFilter();
+    private BroadcastReceiver mReceiver;
+    private WifiP2pHelper wifiP2pHelper;
     private Menu actionBarMenu;
-
 
 
     @Override
@@ -36,9 +39,14 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         setContentView(R.layout.activity_main);
         Meetly.setMeetlySharedPrefs(getApplicationContext());
         Meetly.showPrefs(getApplicationContext());
+
+        wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
+        mReceiver = wifiP2pHelper.getReceiver();
+
         openFragment(getCurrentFocus());
 
         }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -59,9 +67,6 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         if (id == R.id.action_delete_db) {
             onUpgradeDBClick(getCurrentFocus());
             return true;
-        } else if (id == R.id.action_add_event) {
-            Intent intent = new Intent(this, CreateEvent.class);
-            startActivity(intent);
         } else if (id == R.id.action_login){
             SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
             boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
@@ -169,6 +174,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
     /* For opening event list on MainActivity */
     public void openFragment(View view) {
+        Meetly.showPrefs(getApplicationContext());
         getFragmentManager().beginTransaction().replace(android.R.id.content, EventList.newInstance(), "EventListFragment").commit();
     }
 
@@ -177,6 +183,18 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
     }
 
     @Override
