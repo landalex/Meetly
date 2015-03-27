@@ -39,8 +39,8 @@ public class EditEvent extends Activity {
     private GoogleMap map;
     private EventsDataSource database;
     private Calendar calender = Calendar.getInstance();
-    private Integer[] date;// = new Integer[]{2015, 1, 1};
-    private Integer[] hourAndMinuteArray;// = new Integer[]{0, 0};
+    private Integer[] date;
+    private Integer[] hourAndMinuteArray;
     private LatLng eventLatLong;
 
 
@@ -69,7 +69,7 @@ public class EditEvent extends Activity {
         eventLatLong = event.getLocation();
         calender.setTime(event.getDate());
         date = new Integer[]{calender.get(Calendar.YEAR), calender.get(Calendar.MONTH), calender.get(Calendar.DAY_OF_MONTH)};
-        hourAndMinuteArray = new Integer[]{calender.get(Calendar.HOUR), calender.get(Calendar.MINUTE)};
+        hourAndMinuteArray = new Integer[]{calender.get(Calendar.HOUR_OF_DAY), calender.get(Calendar.MINUTE)};
 
         displayMap();
         chooseDateButton();
@@ -105,6 +105,7 @@ public class EditEvent extends Activity {
                 event.setTitle(newTitle);
                 event.setDate(newDate);
                 event.setDuration(newDuration);
+                event.setLocation(eventLatLong);
 
                 database.updateEvent(event);
                 finish();
@@ -125,6 +126,8 @@ public class EditEvent extends Activity {
         CameraUpdate myLocationCamera = CameraUpdateFactory.newLatLngZoom(myLatLng, ZOOM_LEVEL);
         map.animateCamera(myLocationCamera);
 
+        // Setting a marker to the event location
+        map.addMarker(new MarkerOptions().position(myLatLng));
 
         // Setting a marker to the user selected location
         final ArrayList<LatLng> markerLocation = new ArrayList<LatLng>();     // Work around to having final variables in an inner anon class
