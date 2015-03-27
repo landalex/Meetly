@@ -37,6 +37,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Meetly.setMeetlySharedPrefs(getApplicationContext());
         Meetly.showPrefs(getApplicationContext());
 
@@ -125,13 +126,13 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     }
 
 
-
+    /* Switches to Login activity */
     private void goToLoginScreen(){
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
 
-    /**
+    /*
      * Shows option of logging user out of Meetly
      */
     public void showLogOut(){
@@ -152,6 +153,9 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         popupMenu.show();
     }
 
+    /*
+     * Removes current username and token preferences from app memory
+     */
     private void logOut(){
         SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES,  MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();

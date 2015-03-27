@@ -1,6 +1,7 @@
 package com.cmpt276.meetly;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -58,7 +59,9 @@ public class WelcomeScreen extends ActionBarActivity implements Animation.Animat
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int eventAction = event.getAction();
-
+        MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        MySQLiteHelper.deleteDatabase(database, getApplicationContext());
         switch (eventAction) {
             case MotionEvent.ACTION_DOWN:
                 // Finger touches the screen
@@ -74,6 +77,13 @@ public class WelcomeScreen extends ActionBarActivity implements Animation.Animat
         return super.onTouchEvent(event);
     }
 
+    /**
+     * adb shell
+     run-as com.your.packagename
+     cp /data/data/com.your.pacakagename/
+     * /
+     * @param animation
+     */
     @Override
     public void onAnimationStart(Animation animation) {
 

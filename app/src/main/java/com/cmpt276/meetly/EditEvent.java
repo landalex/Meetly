@@ -4,11 +4,8 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -26,7 +23,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -107,7 +103,7 @@ public class EditEvent extends Activity {
                 event.setDuration(newDuration);
                 event.setLocation(eventLatLong);
 
-                database.updateEvent(event);
+                database.updateDatabaseEvent(event);
                 finish();
             }
         });
@@ -162,9 +158,9 @@ public class EditEvent extends Activity {
         String tempMinute = leftPadDateOrTime(hourAndMinuteArray[1]);
 
         // yyyy - mm - dd <> hh:mm:ss
-        String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
+        String str = date[0] + "-" + tempMonth + "-" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
 
-        DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        DateFormat sdf = Event.EVENT_SDF;
 
         // Parsing the time and date into a Date object
         Date eventDate = new Date();
@@ -207,7 +203,7 @@ public class EditEvent extends Activity {
                 new DatePickerDialog(EditEvent.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        dateBtn.setText(monthOfYear + 1 + "/" + dayOfMonth + "/" + year);       // Months are 0-indexed, Days are 1-indexed
+                        dateBtn.setText(monthOfYear + 1 + "-" + dayOfMonth + "-" + year);       // Months are 0-indexed, Days are 1-indexed
                         date[0] = year;
                         date[1] = monthOfYear;
                         date[2] = dayOfMonth;

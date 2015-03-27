@@ -61,7 +61,7 @@ public class ViewEvent extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
+    /*
      * Sends event details to view screen to display to user
      */
     private void showEvent(){
@@ -103,7 +103,7 @@ public class ViewEvent extends ActionBarActivity {
         return String.format("Happening in %02d days, %02d hours, and %02d minutes", daysUntil, hoursUntil, minutesUntil);
     }
 
-    /**
+    /*
      * Retrieves event passed by previous activity
      */
     private void getEventToView(){

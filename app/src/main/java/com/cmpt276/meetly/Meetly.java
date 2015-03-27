@@ -11,6 +11,12 @@ import android.widget.Toast;
  * Meetly class to be inherited from
  */
 
+/**
+ * TODO: make sure month is updated to database (incorrect formatting?)
+ * TODO: implement start and end date to get duration
+ * TODO: add sharedEventID to Event
+ */
+
 public class Meetly extends ActionBarActivity {
 
     private static final String TAG = "ParentActivity";
