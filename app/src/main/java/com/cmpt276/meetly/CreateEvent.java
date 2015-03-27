@@ -39,7 +39,7 @@ public class CreateEvent extends Activity {
     private GoogleMap map;
     private Integer[] hourAndMinuteArray = new Integer[]{0, 0};
     private Integer[] date = new Integer[]{2015, 1, 1};
-    private LatLng eventLatLong = new LatLng(49, -122);
+    private LatLng eventLatLong = new LatLng(49.176872923625645, -122.8456462919712);      // Intersection of King George and 96
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +103,8 @@ public class CreateEvent extends Activity {
             e.printStackTrace();
         }
 
+        Log.i("Date", eventDate.toString());
+        Log.i("SDF ", str);
         return eventDate;
     }
 

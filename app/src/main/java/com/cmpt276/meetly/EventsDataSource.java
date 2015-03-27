@@ -71,7 +71,6 @@ public class EventsDataSource {
         //build record pairs
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_TITLE, title);
-
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         values.put(MySQLiteHelper.COLUMN_DATE, sdf.format(date));
         values.put(MySQLiteHelper.COLUMN_LOCLAT, location.latitude);
@@ -292,7 +291,7 @@ public class EventsDataSource {
 
         //attempt to get date from string
         String dateAsString = resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_DATE));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/DD hh:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         try{
             event.setDate(sdf.parse(dateAsString));
         }catch (ParseException e){
