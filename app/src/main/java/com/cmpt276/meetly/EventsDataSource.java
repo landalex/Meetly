@@ -144,7 +144,7 @@ public class EventsDataSource {
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_ID + " = " + eventID,null,null,null,null);
 
         if(resultSet.getCount() == 0){
-            throw new RuntimeException("Error attempting to retrieve record from database. The ID \"\" + eventID + \"\" does not match any record in the database");
+            throw new RuntimeException("Error attempting to retrieve record from database. The ID \"" + eventID + "\" does not match any record in the database");
         }
 
         resultSet.moveToFirst();

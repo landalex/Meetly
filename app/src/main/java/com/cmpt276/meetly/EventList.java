@@ -37,6 +37,7 @@ import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
 import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
 import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
 import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.internal.CardHeader;
 import it.gmariotti.cardslib.library.recyclerview.internal.CardArrayRecyclerViewAdapter;
 import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
@@ -55,6 +56,7 @@ public class EventList extends Fragment {
     private CardArrayRecyclerViewAdapter mCardArrayAdapter;
     private ArrayList<Card> cards = new ArrayList<>(0);
     public boolean showingCrouton;
+    private List<Event> eventList = new ArrayList<>(0);
 
     public static EventList newInstance() {
         return new EventList();
@@ -86,6 +88,9 @@ public class EventList extends Fragment {
         createCardAdapter(cards);
         createFloatingActionButtonListeners();
         configureRecyclerView();
+
+        UpdateCards updater = new UpdateCards();
+        updater.execute(updater.CREATE_MODE, 0);
     }
 
     private void createFloatingActionButtonListeners() {
@@ -112,7 +117,10 @@ public class EventList extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        new UpdateCards().execute();
+        if (getEvents(new EventsDataSource(getActivity())).size() > eventList.size()) {
+            UpdateCards updater = new UpdateCards();
+            updater.execute(updater.ADD_MODE, eventList.size());
+        }
     }
 
     private void configureRecyclerView() {
@@ -127,46 +135,55 @@ public class EventList extends Fragment {
     }
 
     private ArrayList<Card> makeCards(EventsDataSource database) {
-        List<Event> eventList = getEvents(database);
+        eventList = getEvents(database);
 
+        Log.d(TAG, "eventList size: " + eventList.size());
         ArrayList<Card> cards = new ArrayList<>();
+        ArrayList<BaseSupplementalAction> actions = makeCardActions(database);
         for (Event event: eventList) {
-            final long eventID = event.getID();
-            ArrayList<BaseSupplementalAction> actions = makeCardActions(eventID);
-
-            MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
-                    .setTextOverImage(event.getTitle())
-                    .setTitle(event.getDate().toString())
-                    .setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_unshared))
-                    .useDrawableId(R.drawable.card_picture)
-                    .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
-                    .build();
-            card.addCardHeader(new CardHeader(getActivity()));
-
-            // Pass the event ID with the intent to ViewEvent
-            card.setOnClickListener(new Card.OnCardClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Intent intent = new Intent(getActivity(), ViewEvent.class);
-                    intent.putExtra("eventID", eventID);
-                    startActivity(intent);
-                }
-            });
-
+            MaterialLargeImageCard card = makeMaterialLargeImageCard(actions, event);
             cards.add(card);
         }
         Log.i(TAG, "Cards generated.");
         return cards;
     }
 
-    private ArrayList<BaseSupplementalAction> makeCardActions(final long eventID) {
+    private MaterialLargeImageCard makeMaterialLargeImageCard(ArrayList<BaseSupplementalAction> actions, Event event) {
+        final long eventID = event.getID();
+        Log.d(TAG, "eventID: " + eventID);
+
+        MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
+                .setTextOverImage(event.getTitle())
+                .setTitle(event.getDate().toString())
+                .setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_unshared))
+                .useDrawableId(R.drawable.card_picture)
+                .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
+                .build();
+        card.addCardHeader(new CardHeader(getActivity()));
+
+        card.setId("" + eventID);
+
+        Log.d(TAG, "Header: " + card.getId());
+        // Pass the event ID with the intent to ViewEvent
+        card.setOnClickListener(new Card.OnCardClickListener() {
+            @Override
+            public void onClick(Card card, View view) {
+                Intent intent = new Intent(getActivity(), ViewEvent.class);
+                intent.putExtra("eventID", eventID);
+                startActivity(intent);
+            }
+        });
+        return card;
+    }
+
+    private ArrayList<BaseSupplementalAction> makeCardActions(final EventsDataSource db) {
         ArrayList<BaseSupplementalAction> actions = new ArrayList<>();
         IconSupplementalAction editEvent = new IconSupplementalAction(getActivity(), R.id.editEvent);
         editEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
                 Intent intent = new Intent(getActivity(), EditEvent.class);
-                intent.putExtra("eventID", eventID);
+                intent.putExtra("eventID", Long.parseLong(card.getId()));
                 startActivity(intent);
             }
         });
@@ -176,10 +193,12 @@ public class EventList extends Fragment {
         deleteEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                EventsDataSource db = new EventsDataSource(getActivity());
-                db.deleteEvent(db.findEventByID(eventID));
-                new UpdateCards().execute();
-            }
+                Log.d(TAG, "" + Long.parseLong(card.getId()));
+                db.deleteEvent(db.findEventByID(Long.parseLong(card.getId())));
+                int index = cards.indexOf(card);
+//                cards.remove(card);
+                UpdateCards updater = new UpdateCards();
+                updater.execute(updater.REMOVE_MODE, index);            }
         });
         actions.add(deleteEvent);
 
@@ -192,7 +211,7 @@ public class EventList extends Fragment {
                 boolean loggedIn = checkLoggedIn(username, userToken);
                 if (loggedIn) {
                     EventsDataSource db = new EventsDataSource(getActivity());
-                    Event event = db.findEventByID(eventID);
+                    Event event = db.findEventByID(Long.parseLong(card.getId()));
                     MeetlyTestServer server = new MeetlyTestServer();
                     LatLng location = event.getLocation();
 //                    try {
@@ -372,7 +391,11 @@ public class EventList extends Fragment {
      * Inner class to allow for updating cards in the background (using the AsyncTask interface)
      */
 
-    private class UpdateCards extends AsyncTask<Boolean, Void, Integer> {
+    private class UpdateCards extends AsyncTask<Integer, Void, Integer[]> {
+        public final int ADD_MODE = 1;
+        public final int REMOVE_MODE = 2;
+        public final int EDIT_MODE = 3;
+        public final int CREATE_MODE = 0;
         EventsDataSource database = new EventsDataSource(getActivity());
         ProgressDialog dialog;
 
@@ -384,20 +407,52 @@ public class EventList extends Fragment {
         }
 
         @Override
-        protected Integer doInBackground(Boolean... params) {
-            Log.i(TAG, "Updating cards...");
-            cards.removeAll(cards);
-            cards.addAll(makeCards(this.database));
-            Log.i(TAG, "Card update finished.");
-            return 1;
+        protected Integer[] doInBackground(Integer... params) {
+            if (params[0] == CREATE_MODE) {
+                Log.i(TAG, "Creating cards...");
+                cards.clear();
+                cards.addAll(makeCards(this.database));
+            }
+            else if (params[0] == ADD_MODE) {
+                Log.i(TAG, "Adding card at index: " + params[1]);
+                eventList = getEvents(database);
+                MaterialLargeImageCard card = makeMaterialLargeImageCard(makeCardActions(database), eventList.get(params[1]));
+                cards.add(card);
+                params[1] = cards.indexOf(card);
+            }
+            else if (params[0] == REMOVE_MODE) {
+                Log.i(TAG, "Removing card at index: " + params[1]);
+                cards.remove(params[1].intValue());
+            }
+            else if (params[0] == EDIT_MODE) {
+                Log.i(TAG, "Refreshing card at index: " + params[1]);
+            }
+
+            return params;
         }
 
         @Override
-        protected void onPostExecute(Integer done) {
+        protected void onPostExecute(Integer[] result) {
             if (this.dialog.isShowing()) {
                 this.dialog.dismiss();
             }
+
+            if (result[0] == CREATE_MODE) {
+                Log.i(TAG, "Card update finished.");
                 mCardArrayAdapter.notifyDataSetChanged();
+            }
+            else if (result[0] == ADD_MODE) {
+                Log.i(TAG, "Card added at index: " + result[1]);
+                mCardArrayAdapter.notifyItemInserted(result[1]);
+            }
+            else if (result[0] == REMOVE_MODE) {
+                Log.i(TAG, "Card removed at index: " + result[1]);
+                mCardArrayAdapter.notifyItemRemoved(result[1]);
+            }
+            else if (result[0] == EDIT_MODE) {
+                Log.i(TAG, "Card refreshed at index: " + result[1]);
+                mCardArrayAdapter.notifyItemChanged(result[1]);
+            }
         }
 
     }
