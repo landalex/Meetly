@@ -41,7 +41,7 @@
                 android:text="@string/login_cancel"
                 android:id="@+id/cancel"
                 android:onClick="onLoginCancel"
-                android:layout_gravity="right" />
+                android:layout_gravity="center_horizontal" />
 
         </LinearLayout>
     </ScrollView>
