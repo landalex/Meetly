@@ -60,7 +60,7 @@ public class CreateEvent extends Activity {
 
         // TODO: For Testing EditEvent - Delete Later
         Button gotoedit = (Button) findViewById(R.id.gotoedit);
-        final long eventID = 3;
+        final long eventID = 1;
         gotoedit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,7 +89,7 @@ public class CreateEvent extends Activity {
 
     private Date formatEventTimeAndDate() {
         // If the month is single digit
-        String tempMonth = leftPadDateOrTime(date[1]);
+        String tempMonth = leftPadDateOrTime(date[1] + 1);
 
         // If the day is single digit
         String tempDay = leftPadDateOrTime(date[2]);

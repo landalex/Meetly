@@ -16,7 +16,7 @@
     <string name="create_event_dateTimeLabel">Date and Time</string>
     <string name="create_event_timeBtn">Choose Time</string>
     <string name="create_event_dateBtn">Choose Date</string>
-    <string name="create_event_durationLabel">Duration</string>
+    <string name="create_event_durationLabel">Duration (Hours)</string>
     <string name="actionbar_add_event">Add Event</string>
     <string name="fragment_card_edit_description">Edit event</string>
     <string name="fragment_card_delete_description">Delete event</string>

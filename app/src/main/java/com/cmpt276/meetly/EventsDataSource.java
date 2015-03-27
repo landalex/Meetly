@@ -237,7 +237,8 @@ public class EventsDataSource {
         //build record pairs
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_TITLE, event.getTitle());
-        values.put(MySQLiteHelper.COLUMN_DATE, event.getDate().toString());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        values.put(MySQLiteHelper.COLUMN_DATE, sdf.format(event.getDate()));
         values.put(MySQLiteHelper.COLUMN_LOCLAT, event.getLocation().latitude);
         values.put(MySQLiteHelper.COLUMN_LOCLONG, event.getLocation().longitude);
         values.put(MySQLiteHelper.COLUMN_DURATION, event.getDuration());
