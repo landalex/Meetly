@@ -48,5 +48,6 @@
     <string name="eventlist_timeuntil_formatted_string_3"> hours, and </string>
     <string name="eventlist_timeuntil_formatted_string_4"> minutes</string>
     <string name="eventlist_timeuntil_now">Happening now</string>
+    <string name="skip_splash_screen">Skip splash screen</string>
 
 </resources>
