@@ -58,18 +58,6 @@ public class CreateEvent extends Activity {
         // Getting a reference to the submit button
         submitButton(eventNameField, durationField);
 
-        // TODO: For Testing EditEvent - Delete Later
-        Button gotoedit = (Button) findViewById(R.id.gotoedit);
-        final long eventID = 1;
-        gotoedit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(CreateEvent.this, EditEvent.class);
-                intent.putExtra("eventID", eventID);
-                startActivity(intent);
-            }
-        });
-
     }
 
     private void submitButton(final EditText eventNameField, final EditText durationField) {
@@ -82,6 +70,7 @@ public class CreateEvent extends Activity {
 
                 EventsDataSource event = new EventsDataSource(CreateEvent.this);
                 event.createEvent(eventNameField.getText().toString(), finalEventDate, eventLatLong, Integer.parseInt(durationField.getText().toString()));
+                Log.i("Final Event Going in: ", finalEventDate.toString());
                 finish();
             }
         });
@@ -174,7 +163,7 @@ public class CreateEvent extends Activity {
 
         // If the GPS is turned off return a default value.
         if (myLocation == null) {
-            return new LatLng(49, -122);
+            return new LatLng(49.176872923625645, -122.8456462919712);      // Intersection of King George and 96
         } else {
             return new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
         }
