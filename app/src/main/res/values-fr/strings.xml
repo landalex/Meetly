@@ -52,6 +52,10 @@
     <string name="eventlist_timeuntil_formatted_string_3"> heure, et </string>
     <string name="eventlist_timeuntil_formatted_string_4"> procès-verbal</string>
     <string name="eventlist_timeuntil_now">Passe maintenant</string>
+    <string name="action_sign_in_short">Se connecter</string>
+    <string name="error_incorrect_password">Ce mot de passe est incorrect</string>
+    <string name="prompt_email">Email</string>
+    <string name="title_activity_login">Se connecter</string>
 
 
 </resources>
