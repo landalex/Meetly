@@ -49,5 +49,11 @@
     <string name="eventlist_timeuntil_formatted_string_4"> minutes</string>
     <string name="eventlist_timeuntil_now">Happening now</string>
     <string name="skip_splash_screen">Skip splash screen</string>
+    <string name="activity_create_save">Confirm Event</string>
+    <string name="activity_create_discard">Discard Event</string>
+    <string name="activity_create_discard_dialog_title">Discard Changes?</string>
+    <string name="activity_create_discard_dialog_message">Are you sure you want to discard this event? All changes will be lost.</string>
+    <string name="activity_create_discard_dialog_positive">Yeah</string>
+    <string name="activity_create_discard_dialog_negative">No, I didn\'t mean it!</string>
 
 </resources>

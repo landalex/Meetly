@@ -1,14 +1,20 @@
 package com.cmpt276.meetly;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -33,13 +39,14 @@ import java.util.Date;
  * Allows user to specify details about an event, and create the event in the database
  */
 
-public class CreateEvent extends Activity {
+public class CreateEvent extends ActionBarActivity {
 
     private final String TAG = "CreateEventActivity";
     private GoogleMap map;
     private Integer[] hourAndMinuteArray = new Integer[]{0, 0};
     private Integer[] date = new Integer[]{2015, 1, 1};
     private LatLng eventLatLong = new LatLng(49.176872923625645, -122.8456462919712);      // Intersection of King George and 96
+    private Menu actionBarMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -242,6 +249,56 @@ public class CreateEvent extends Activity {
         });
 
         //return dateOfEvent;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_create_event, menu);
+        actionBarMenu = menu;
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.action_save) {
+            findViewById(R.id.submitBtn).callOnClick();
+        }
+        else if (id == R.id.action_discard) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.activity_create_discard_dialog_title));
+            builder.setMessage(getString(R.string.activity_create_discard_dialog_message));
+            builder.setPositiveButton(getString(R.string.activity_create_discard_dialog_positive), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    finish();
+                }
+            });
+            builder.setNegativeButton(getString(R.string.activity_create_discard_dialog_negative), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /*
+     * Changes the menu_login menu item text depending if user is logged in or not
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return super.onPrepareOptionsMenu(menu);
     }
 
 

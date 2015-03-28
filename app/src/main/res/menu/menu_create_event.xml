@@ -1,6 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context="com.cmpt276.meetly.CreateEvent">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_save" android:title="@string/activity_create_save"
+        android:orderInCategory="1" app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_save_white" />
+    <item android:id="@+id/action_discard" android:title="@string/activity_create_discard"
+        android:orderInCategory="1" app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_clear_white" />
 </menu>
