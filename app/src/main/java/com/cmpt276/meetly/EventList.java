@@ -449,6 +449,7 @@ public class EventList extends Fragment implements RecyclerViewClickListener{
             else if (params[0] == REMOVE_MODE) {
                 Log.i(TAG, "Removing card at index: " + params[1]);
                 cards.remove(params[1].intValue());
+                eventList.remove(params[1].intValue());
                 for (int i = params[1]; i < cards.size(); i++) {
                     Long oldPos = Long.parseLong(cards.get(i).getId());
                     Long newPos = oldPos - 1;
