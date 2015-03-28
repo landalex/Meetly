@@ -23,21 +23,21 @@ public class RecyclerViewAdapter extends CardArrayRecyclerViewAdapter {
     private static RecyclerViewClickListener itemListener;
 
 
-    public RecyclerViewAdapter(Context context, List<Card> cardsList, RecyclerViewClickListener itemListener) {
+    public RecyclerViewAdapter(Context context, List<Card> cardsList) {
         super(context, cardsList);
         this.context = context;
-        this.itemListener = itemListener;
+//        this.itemListener = itemListener;
     }
 
 
     //ViewHolder class implement OnClickListener,
     //set clicklistener to itemView and,
     //send message back to Activity/Fragment
-    public static class ItemViewHolder extends CardViewHolder implements View.OnClickListener {
+    public static class ItemViewHolder extends CardViewHolder {
 
         public ItemViewHolder(View convertView) {
             super(convertView);
-            convertView.setOnClickListener(this);
+//            convertView.setOnClickListener(this);
             if (convertView instanceof CardViewNative) {
                 CardViewNative cardView = (CardViewNative) convertView;
                 cardView.getCard().setId("" + this.getPosition());
@@ -46,9 +46,9 @@ public class RecyclerViewAdapter extends CardArrayRecyclerViewAdapter {
         }
 
 
-        @Override
-        public void onClick(View v) {
-            itemListener.recyclerViewListClicked(v, this.getPosition());
-        }
+//        @Override
+//        public void onClick(View v) {
+//            itemListener.recyclerViewListClicked(v, this.getPosition());
+//        }
     }
 }

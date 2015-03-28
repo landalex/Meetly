@@ -47,7 +47,7 @@ import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
  * Scroll bar (draggable), Swipe for options (View, edit, delete, invite)
  * Each item shows title, date/time and duration (location as well?)
  */
-public class EventList extends Fragment implements RecyclerViewClickListener{
+public class EventList extends Fragment {
 
     private final String TAG = "EventListFragment";
 
@@ -150,13 +150,13 @@ public class EventList extends Fragment implements RecyclerViewClickListener{
         mRecyclerView.setAdapter(mCardArrayAdapter);
     }
 
-    @Override
-    public void recyclerViewListClicked(View v, int position){
-        clickedEventPosition = position;
-    }
+//    @Override
+//    public void recyclerViewListClicked(View v, int position){
+//        clickedEventPosition = position;
+//    }
 
     private void createCardAdapter(ArrayList<Card> cards) {
-        mCardArrayAdapter = new RecyclerViewAdapter(getActivity(), cards, this);
+        mCardArrayAdapter = new RecyclerViewAdapter(getActivity(), cards);
     }
 
     private ArrayList<Card> makeCards(EventsDataSource database) {
@@ -241,7 +241,8 @@ public class EventList extends Fragment implements RecyclerViewClickListener{
                 boolean loggedIn = checkLoggedIn(username, userToken);
                 if (loggedIn) {
                     EventsDataSource db = new EventsDataSource(getActivity());
-                    Event event = db.findEventByID(Long.parseLong(card.getId()));
+                    Long eventIndex = Long.parseLong(card.getId());
+                    Event event = db.findEventByID(eventList.get(eventIndex.intValue()).getID());
                     MeetlyTestServer server = new MeetlyTestServer();
                     LatLng location = event.getLocation();
 //                    try {
