@@ -15,40 +15,12 @@ import it.gmariotti.cardslib.library.view.CardView;
 import it.gmariotti.cardslib.library.view.CardViewNative;
 
 /**
- * Created by AlexLand on 15-03-27.
+ * RecyclerViewAdapter provided for potential modifications to the adapter in the future.
  */
 public class RecyclerViewAdapter extends CardArrayRecyclerViewAdapter {
 
-    private Context context;
-    private static RecyclerViewClickListener itemListener;
-
-
     public RecyclerViewAdapter(Context context, List<Card> cardsList) {
         super(context, cardsList);
-        this.context = context;
-//        this.itemListener = itemListener;
     }
 
-
-    //ViewHolder class implement OnClickListener,
-    //set clicklistener to itemView and,
-    //send message back to Activity/Fragment
-    public static class ItemViewHolder extends CardViewHolder {
-
-        public ItemViewHolder(View convertView) {
-            super(convertView);
-//            convertView.setOnClickListener(this);
-            if (convertView instanceof CardViewNative) {
-                CardViewNative cardView = (CardViewNative) convertView;
-                cardView.getCard().setId("" + this.getPosition());
-                Log.d("ItemViewHolder", "Set ID");
-            }
-        }
-
-
-//        @Override
-//        public void onClick(View v) {
-//            itemListener.recyclerViewListClicked(v, this.getPosition());
-//        }
-    }
 }

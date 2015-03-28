@@ -37,9 +37,7 @@ import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
 import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
 import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
 import it.gmariotti.cardslib.library.internal.Card;
-import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.internal.CardHeader;
-import it.gmariotti.cardslib.library.recyclerview.internal.CardArrayRecyclerViewAdapter;
 import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 
 /**
@@ -57,7 +55,6 @@ public class EventList extends Fragment {
     private ArrayList<Card> cards = new ArrayList<>(0);
     public boolean showingCrouton;
     private List<Event> eventList = new ArrayList<>(0);
-    private int clickedEventPosition;
     ProgressDialog dialog = null;
 
 
@@ -65,17 +62,7 @@ public class EventList extends Fragment {
         return new EventList();
     }
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public EventList() {
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -150,11 +137,6 @@ public class EventList extends Fragment {
         mRecyclerView.setAdapter(mCardArrayAdapter);
     }
 
-//    @Override
-//    public void recyclerViewListClicked(View v, int position){
-//        clickedEventPosition = position;
-//    }
-
     private void createCardAdapter(ArrayList<Card> cards) {
         mCardArrayAdapter = new RecyclerViewAdapter(getActivity(), cards);
     }
@@ -224,9 +206,6 @@ public class EventList extends Fragment {
                 Long eventIndexParsed = Long.parseLong(card.getId());
                 int eventIndex = eventIndexParsed.intValue();
                 db.deleteEvent(db.findEventByID(eventList.get(eventIndex).getID()));
-                Log.d(TAG, "eventID: " + eventList.get(eventIndex).getID());
-//                int index = cards.indexOf(card);
-//                cards.remove(card);
                 UpdateCards updater = new UpdateCards();
                 updater.execute(updater.REMOVE_MODE, eventIndex);            }
         });
@@ -367,11 +346,7 @@ public class EventList extends Fragment {
         String location = getString(R.string.no_location_found);
 
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Activity.LOCATION_SERVICE);
-
-        // Criteria specifies the 'criteria' of how granular the location is
         Criteria criteria = new Criteria();
-
-        // Get the name of the best provider. AKA Returns the name of the provider that best meets the given criteria.
         String provider = locationManager.getBestProvider(criteria, true);
 
         Location myLocation = locationManager.getLastKnownLocation(provider);
