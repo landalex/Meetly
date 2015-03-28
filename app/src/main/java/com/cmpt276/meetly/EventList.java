@@ -47,16 +47,19 @@ import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
  * Scroll bar (draggable), Swipe for options (View, edit, delete, invite)
  * Each item shows title, date/time and duration (location as well?)
  */
-public class EventList extends Fragment {
+public class EventList extends Fragment implements RecyclerViewClickListener{
 
     private final String TAG = "EventListFragment";
 
     private OnFragmentInteractionListener mListener;
 
-    private CardArrayRecyclerViewAdapter mCardArrayAdapter;
+    private RecyclerViewAdapter mCardArrayAdapter;
     private ArrayList<Card> cards = new ArrayList<>(0);
     public boolean showingCrouton;
     private List<Event> eventList = new ArrayList<>(0);
+    private int clickedEventPosition;
+    ProgressDialog dialog = null;
+
 
     public static EventList newInstance() {
         return new EventList();
@@ -89,6 +92,10 @@ public class EventList extends Fragment {
         createFloatingActionButtonListeners();
         configureRecyclerView();
 
+        dialog = new ProgressDialog(getActivity());
+        dialog.setIndeterminate(true);
+        dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
+
         UpdateCards updater = new UpdateCards();
         updater.execute(updater.CREATE_MODE, 0);
     }
@@ -117,9 +124,22 @@ public class EventList extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (getEvents(new EventsDataSource(getActivity())).size() > eventList.size()) {
+        if (getEvents(new EventsDataSource(getActivity())).size() - eventList.size() == 1
+                && eventList.size() != 1) {
             UpdateCards updater = new UpdateCards();
             updater.execute(updater.ADD_MODE, eventList.size());
+        }
+        else {
+            UpdateCards updater = new UpdateCards();
+            updater.execute(updater.CREATE_MODE, eventList.size());
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (dialog != null) {
+            dialog.dismiss();
         }
     }
 
@@ -130,8 +150,13 @@ public class EventList extends Fragment {
         mRecyclerView.setAdapter(mCardArrayAdapter);
     }
 
+    @Override
+    public void recyclerViewListClicked(View v, int position){
+        clickedEventPosition = position;
+    }
+
     private void createCardAdapter(ArrayList<Card> cards) {
-        mCardArrayAdapter = new CardArrayRecyclerViewAdapter(getActivity(), cards);
+        mCardArrayAdapter = new RecyclerViewAdapter(getActivity(), cards, this);
     }
 
     private ArrayList<Card> makeCards(EventsDataSource database) {
@@ -140,15 +165,17 @@ public class EventList extends Fragment {
         Log.d(TAG, "eventList size: " + eventList.size());
         ArrayList<Card> cards = new ArrayList<>();
         ArrayList<BaseSupplementalAction> actions = makeCardActions(database);
+        int eventIndex = 0;
         for (Event event: eventList) {
-            MaterialLargeImageCard card = makeMaterialLargeImageCard(actions, event);
+            MaterialLargeImageCard card = makeMaterialLargeImageCard(actions, event, eventIndex);
             cards.add(card);
+            eventIndex++;
         }
         Log.i(TAG, "Cards generated.");
         return cards;
     }
 
-    private MaterialLargeImageCard makeMaterialLargeImageCard(ArrayList<BaseSupplementalAction> actions, Event event) {
+    private MaterialLargeImageCard makeMaterialLargeImageCard(ArrayList<BaseSupplementalAction> actions, Event event, int eventIndex) {
         final long eventID = event.getID();
         Log.d(TAG, "eventID: " + eventID);
 
@@ -161,7 +188,7 @@ public class EventList extends Fragment {
                 .build();
         card.addCardHeader(new CardHeader(getActivity()));
 
-        card.setId("" + eventID);
+        card.setId("" + eventIndex);
 
         Log.d(TAG, "Header: " + card.getId());
         // Pass the event ID with the intent to ViewEvent
@@ -183,7 +210,8 @@ public class EventList extends Fragment {
             @Override
             public void onClick(Card card, View view) {
                 Intent intent = new Intent(getActivity(), EditEvent.class);
-                intent.putExtra("eventID", Long.parseLong(card.getId()));
+                Long eventIndex = Long.parseLong(card.getId());
+                intent.putExtra("eventID", eventIndex.intValue());
                 startActivity(intent);
             }
         });
@@ -193,12 +221,14 @@ public class EventList extends Fragment {
         deleteEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Log.d(TAG, "" + Long.parseLong(card.getId()));
-                db.deleteEvent(db.findEventByID(Long.parseLong(card.getId())));
-                int index = cards.indexOf(card);
+                Long eventIndexParsed = Long.parseLong(card.getId());
+                int eventIndex = eventIndexParsed.intValue();
+                db.deleteEvent(db.findEventByID(eventList.get(eventIndex).getID()));
+                Log.d(TAG, "eventID: " + eventList.get(eventIndex).getID());
+//                int index = cards.indexOf(card);
 //                cards.remove(card);
                 UpdateCards updater = new UpdateCards();
-                updater.execute(updater.REMOVE_MODE, index);            }
+                updater.execute(updater.REMOVE_MODE, eventIndex);            }
         });
         actions.add(deleteEvent);
 
@@ -397,13 +427,9 @@ public class EventList extends Fragment {
         public final int EDIT_MODE = 3;
         public final int CREATE_MODE = 0;
         EventsDataSource database = new EventsDataSource(getActivity());
-        ProgressDialog dialog;
 
         protected void onPreExecute() {
-            this.dialog = new ProgressDialog(getActivity());
-            this.dialog.setIndeterminate(true);
-            this.dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
-            this.dialog.show();
+            dialog.show();
         }
 
         @Override
@@ -416,13 +442,18 @@ public class EventList extends Fragment {
             else if (params[0] == ADD_MODE) {
                 Log.i(TAG, "Adding card at index: " + params[1]);
                 eventList = getEvents(database);
-                MaterialLargeImageCard card = makeMaterialLargeImageCard(makeCardActions(database), eventList.get(params[1]));
+                MaterialLargeImageCard card = makeMaterialLargeImageCard(makeCardActions(database), eventList.get(params[1]), params[1]);
                 cards.add(card);
                 params[1] = cards.indexOf(card);
             }
             else if (params[0] == REMOVE_MODE) {
                 Log.i(TAG, "Removing card at index: " + params[1]);
                 cards.remove(params[1].intValue());
+                for (int i = params[1]; i < cards.size(); i++) {
+                    Long oldPos = Long.parseLong(cards.get(i).getId());
+                    Long newPos = oldPos - 1;
+                    cards.get(i).setId("" + newPos);
+                }
             }
             else if (params[0] == EDIT_MODE) {
                 Log.i(TAG, "Refreshing card at index: " + params[1]);
@@ -433,8 +464,8 @@ public class EventList extends Fragment {
 
         @Override
         protected void onPostExecute(Integer[] result) {
-            if (this.dialog.isShowing()) {
-                this.dialog.dismiss();
+            if (dialog.isShowing()) {
+                dialog.dismiss();
             }
 
             if (result[0] == CREATE_MODE) {
