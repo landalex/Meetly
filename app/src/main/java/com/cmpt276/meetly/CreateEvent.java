@@ -39,7 +39,7 @@ public class CreateEvent extends Activity {
     private GoogleMap map;
     private Integer[] hourAndMinuteArray = new Integer[]{0, 0};
     private Integer[] date = new Integer[]{2015, 1, 1};
-    private LatLng eventLatLong = new LatLng(49, -122);
+    private LatLng eventLatLong = new LatLng(49.176872923625645, -122.8456462919712);      // Intersection of King George and 96
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,18 +58,6 @@ public class CreateEvent extends Activity {
         // Getting a reference to the submit button
         submitButton(eventNameField, durationField);
 
-        // TODO: For Testing EditEvent - Delete Later
-        Button gotoedit = (Button) findViewById(R.id.gotoedit);
-        final long eventID = 3;
-        gotoedit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(CreateEvent.this, EditEvent.class);
-                intent.putExtra("eventID", eventID);
-                startActivity(intent);
-            }
-        });
-
     }
 
     private void submitButton(final EditText eventNameField, final EditText durationField) {
@@ -82,6 +70,7 @@ public class CreateEvent extends Activity {
 
                 EventsDataSource event = new EventsDataSource(CreateEvent.this);
                 event.createEvent(eventNameField.getText().toString(), finalEventDate, eventLatLong, Integer.parseInt(durationField.getText().toString()));
+                Log.i("Final Event Going in: ", finalEventDate.toString());
                 finish();
             }
         });
@@ -89,7 +78,7 @@ public class CreateEvent extends Activity {
 
     private Date formatEventTimeAndDate() {
         // If the month is single digit
-        String tempMonth = leftPadDateOrTime(date[1]);
+        String tempMonth = leftPadDateOrTime(date[1] + 1);
 
         // If the day is single digit
         String tempDay = leftPadDateOrTime(date[2]);
@@ -102,8 +91,7 @@ public class CreateEvent extends Activity {
 
         // yyyy - mm - dd <> hh:mm:ss
         String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
-
-        DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        DateFormat sdf = Event.EVENT_SDF;
 
         // Parsing the time and date into a Date object
         Date eventDate = new Date();
@@ -114,6 +102,8 @@ public class CreateEvent extends Activity {
             e.printStackTrace();
         }
 
+        Log.i("Date", eventDate.toString());
+        Log.i("SDF ", str);
         return eventDate;
     }
 
@@ -174,7 +164,7 @@ public class CreateEvent extends Activity {
 
         // If the GPS is turned off return a default value.
         if (myLocation == null) {
-            return new LatLng(49, -122);
+            return new LatLng(49.176872923625645, -122.8456462919712);      // Intersection of King George and 96
         } else {
             return new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
         }

@@ -16,7 +16,7 @@
     <string name="create_event_dateTimeLabel">Date and Time</string>
     <string name="create_event_timeBtn">Choose Time</string>
     <string name="create_event_dateBtn">Choose Date</string>
-    <string name="create_event_durationLabel">Duration</string>
+    <string name="create_event_durationLabel">Duration (Hours)</string>
     <string name="actionbar_add_event">Add Event</string>
     <string name="fragment_card_edit_description">Edit event</string>
     <string name="fragment_card_delete_description">Delete event</string>
@@ -39,7 +39,7 @@
     <string name="edit_event_saveBtn">Save Changes</string>
     <string name="edit_event_currentEventDataHeader">Current Event Date:</string>
     <string name="main_not_logged_in">Not Logged In</string>
-    <string name="main_not_logged_in_message">You must be logged in to share an event</string>
+    <string name="main_not_logged_in_message">You must be logged in to share an event.</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="eventlist_card_unshared">Unshared</string>
     <string name="eventlist_card_shared">Shared</string>
@@ -48,5 +48,6 @@
     <string name="eventlist_timeuntil_formatted_string_3"> hours, and </string>
     <string name="eventlist_timeuntil_formatted_string_4"> minutes</string>
     <string name="eventlist_timeuntil_now">Happening now</string>
+    <string name="skip_splash_screen">Skip splash screen</string>
 
 </resources>

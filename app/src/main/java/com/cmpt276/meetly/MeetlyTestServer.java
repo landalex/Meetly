@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.nfc.Tag;
 import android.util.Log;
 
@@ -122,13 +123,34 @@ public class MeetlyTestServer implements IMeetlyServer{
      */
     public int publishEvent(String username, int userToken,String title, Calendar startTime,
                             Calendar endTime, double latitude, double longitude) throws FailedPublicationException{
+        int sharedEventID;
+        dbHelper = new MySQLiteHelper(context);
 
-        EventsDataSource EDS = new EventsDataSource(context);
+        try{
+            try{
+                database = dbHelper.getWritableDatabase();
+            }catch (SQLiteException e){
+                e.printStackTrace();
+            }
 
+            //build event details to publish to server
+            ContentValues values = new ContentValues();
+            values.put(MySQLiteHelper.COLUMN_USERNAME, username);
+            values.put(MySQLiteHelper.COLUMN_USERTOKEN, userToken);
+            values.put(MySQLiteHelper.COLUMN_TITLE, title);
+            values.put(MySQLiteHelper.COLUMN_START_TIME, startTime.toString());
+            values.put(MySQLiteHelper.COLUMN_END_TIME, endTime.toString());
+            values.put(MySQLiteHelper.COLUMN_LATITUDE, latitude);
+            values.put(MySQLiteHelper.COLUMN_LONGITUDE, longitude);
 
+            sharedEventID = (int) database.insert(MySQLiteHelper.TABLE_SERVER_EVENTS, null, values);
+        }catch (RuntimeException e){
+            e.printStackTrace();
+            throw new FailedPublicationException();
+        }
 
-
-        throw new FailedPublicationException();
+        //this unique ID should be added to the event through the EDS
+        return sharedEventID;
     }
 
 
@@ -149,10 +171,32 @@ public class MeetlyTestServer implements IMeetlyServer{
      */
     public void modifyEvent(int eventID, int userToken, String title, Calendar startTime,
                             Calendar endTime,double latitude, double longitude) throws FailedPublicationException{
-        EventsDataSource EDS = new EventsDataSource(context);
 
 
-        throw new FailedPublicationException();
+        dbHelper = new MySQLiteHelper(context);
+
+        try{
+            try{
+                database = dbHelper.getWritableDatabase();
+            }catch (SQLiteException e){
+                e.printStackTrace();
+            }
+
+            //build event details to publish to server
+            ContentValues values = new ContentValues();
+            values.put(MySQLiteHelper.COLUMN_USERTOKEN, userToken);
+            values.put(MySQLiteHelper.COLUMN_TITLE, title);
+            values.put(MySQLiteHelper.COLUMN_START_TIME, startTime.toString());
+            values.put(MySQLiteHelper.COLUMN_END_TIME, endTime.toString());
+            values.put(MySQLiteHelper.COLUMN_LATITUDE, latitude);
+            values.put(MySQLiteHelper.COLUMN_LONGITUDE, longitude);
+
+            database.update(MySQLiteHelper.TABLE_SERVER_EVENTS, values,MySQLiteHelper.COLUMN_ID + " = " + eventID,null);
+        }catch (RuntimeException e){
+            e.printStackTrace();
+            throw new FailedPublicationException();
+        }
+
     }
 
 

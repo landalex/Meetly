@@ -1,16 +1,14 @@
 package com.cmpt276.meetly;
 
 import android.content.ContentValues;
-import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Holds information about an event, and provides functionality to get the event details in different formats
@@ -18,15 +16,15 @@ import java.util.Date;
 
 public class Event {
     private long eventID;
+    private int sharedEventID;
     private String title;
     private Date date;
     private LatLng eventLocation;
+    public final static SimpleDateFormat EVENT_SDF = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CANADA);
 /*
     private ArrayList<String> attendees;
 */
     private int duration;
-    private Calendar startTime;
-    private Calendar endTime;
 
     final private String TAG = "EventClass";
 
@@ -47,6 +45,7 @@ public class Event {
         this.date = date;
         eventLocation = new LatLng(location.latitude,location.longitude);
         this.duration = duration;
+        sharedEventID = -1;
     }
 
     /**
@@ -59,6 +58,7 @@ public class Event {
         this.date = eventCopy.getDate();
         eventLocation = eventCopy.eventLocation;
         this.duration = eventCopy.getDuration();
+        this.sharedEventID = getSharedEventID();
     }
 
     /**
@@ -71,7 +71,7 @@ public class Event {
         title = values.getAsString(MySQLiteHelper.COLUMN_TITLE);
         String dateAsString = (values.getAsString(MySQLiteHelper.COLUMN_DATE));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/mm/dd hh:mm");
+        SimpleDateFormat sdf = EVENT_SDF;
 
         try{
             date = sdf.parse(dateAsString);
@@ -81,14 +81,13 @@ public class Event {
         }
 
         eventLocation = new LatLng(
-                values.getAsDouble(MySQLiteHelper.COLUMN_LOCLAT)
-               ,values.getAsDouble(MySQLiteHelper.COLUMN_LOCLAT)
+                values.getAsDouble(MySQLiteHelper.COLUMN_LATITUDE)
+               ,values.getAsDouble(MySQLiteHelper.COLUMN_LATITUDE)
         );
 
-/*
-        attendees = EventsDataSource.parseAttendees(values.getAsString(MySQLiteHelper.COLUMN_ATTENDEES));
-*/
         duration = values.getAsInteger(MySQLiteHelper.COLUMN_DURATION);
+
+
     }
 
     /**
@@ -102,6 +101,7 @@ public class Event {
         this.date = null;
         eventLocation = null;
         this.duration = -1;
+        this.sharedEventID = -1;
     }
 
     /**
@@ -109,15 +109,13 @@ public class Event {
      * @return
      */
     public void printEvent(){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm a");
+        SimpleDateFormat sdf = EVENT_SDF;
 
         Log.i(TAG, "\nEvent ID: " + eventID
                 + "\nEvent title: " + title
                 + "\nEvent date: " + sdf.format(date)
                 + "\nEvent location: " + eventLocation.latitude + ", " + eventLocation.longitude
-/*
-                + "\nEvent Attendees: " + attendees.toString()
-*/
+                + "\nEvent sharedEventId: " + sharedEventID
                 + "\nEvent duration: " + duration);
     }
 
@@ -126,13 +124,9 @@ public class Event {
 
     public Date getDate() {return date;}
 
-    public LatLng getLocation() {
-        return eventLocation;
-    }
+    public LatLng getLocation() {return eventLocation;}
 
-/*
-    public ArrayList<String> getAttendees() {return attendees;}
-*/
+    public int getSharedEventID() { return sharedEventID; }
 
     public int getDuration(){ return duration;}
 
@@ -145,7 +139,7 @@ public class Event {
 
     public void setLocation(LatLng location) { eventLocation = location;}
 
-    /*public void setAttendees(ArrayList<String> attendees) {this.attendees = attendees;}*/
+    public void setSharedEventID(int sharedEventID) { this.sharedEventID = sharedEventID;}
 
     public void setDuration(int duration){ this.duration = duration;}
 

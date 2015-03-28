@@ -15,7 +15,7 @@
     <string name="create_event_dateTimeLabel">Date et heure</string>
     <string name="create_event_timeBtn">Choisissez Temps</string>
     <string name="create_event_dateBtn">Choisir une date</string>
-    <string name="create_event_durationLabel">Durée</string>
+    <string name="create_event_durationLabel">Durée (Heures)</string>
     <string name="actionbar_add_event">Ajouter événement</string>
     <string name="fragment_card_edit_description">Modifier l\'événement</string>
     <string name="fragment_card_delete_description">Supprimer l\'événement</string>
@@ -32,6 +32,30 @@
     <string name="error_invalid_password">Ce mot de passe est trop court</string>
     <string name="error_field_required">Ce champ est obligatoire</string>
     <string name="error_invalid_email">Cette adresse email est invalide</string>
+    <string name="login_cancel">Annuler</string>
+    <string name="label_fab_menu_create">événement</string>
+    <string name="label_fab_menu_create_spont">événement spontané</string>
+    <string name="main_loggedin">Connecté en tant que </string>
+    <string name="main_defaultLoginMessage">Anonyme</string>
+    <string name="title_activity_edit_event">Modifier l\'événement</string>
+    <string name="edit_event_timeBtn">Choisissez nouveau temps</string>
+    <string name="edit_event_dateBtn">Choisissez nouvelle date</string>
+    <string name="edit_event_saveBtn">Enregistrer les modifications</string>
+    <string name="edit_event_currentEventDataHeader">Actuel date de l\'événement:</string>
+    <string name="main_not_logged_in">Non connecté</string>
+    <string name="main_not_logged_in_message">Vous devez être connecté pour partager un événement.</string>
+    <string name="dialog_cancel">Annuler</string>
+    <string name="eventlist_card_unshared">Non partagé</string>
+    <string name="eventlist_card_shared">Commun</string>
+    <string name="eventlist_timeuntil_formatted_string_1">Passe dans </string>
+    <string name="eventlist_timeuntil_formatted_string_2"> journées, </string>
+    <string name="eventlist_timeuntil_formatted_string_3"> heure, et </string>
+    <string name="eventlist_timeuntil_formatted_string_4"> procès-verbal</string>
+    <string name="eventlist_timeuntil_now">Passe maintenant</string>
+    <string name="action_sign_in_short">Se connecter</string>
+    <string name="error_incorrect_password">Ce mot de passe est incorrect</string>
+    <string name="prompt_email">Email</string>
+    <string name="title_activity_login">Se connecter</string>
 
 
 </resources>

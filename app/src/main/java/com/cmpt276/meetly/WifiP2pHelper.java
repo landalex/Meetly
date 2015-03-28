@@ -36,6 +36,8 @@ public class WifiP2pHelper {
         mManager = (WifiP2pManager) activity.getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(context, activity.getMainLooper(), null);
         mReceiver = new WifiBroadcastReceiver(mManager, mChannel, mActivity);
+        buddies = new HashMap<String,String>();
+        devices = new ArrayList<>();
 //
 //        //  Indicates a change in the Wi-Fi P2P status.
 //        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -89,7 +91,12 @@ public class WifiP2pHelper {
             @Override
             public void onDnsSdTxtRecordAvailable(String fullDomainName, Map<String, String> txtRecordMap, WifiP2pDevice srcDevice) {
                 Log.d(TAG, txtRecordMap.toString());
-                buddies.put(srcDevice.deviceAddress, txtRecordMap.get("buddyname"));
+                Log.d(TAG, " Source device: " + srcDevice.deviceAddress.toString());
+                Log.d(TAG, " txtRecordMap: " + txtRecordMap.get("buddyname").toString());
+                Log.d(TAG, "buddies hash map: " + buddies.toString());
+                String temp1 = srcDevice.deviceAddress;
+                String temp2 = txtRecordMap.get("buddyname");
+                buddies.put(temp1, temp2);
             }
         };
 

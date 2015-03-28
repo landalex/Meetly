@@ -32,10 +32,11 @@ public class EventsDataSource {
     private MySQLiteHelper dbHelper;
     private SQLiteDatabase database;
     private String[] dbColumns = {MySQLiteHelper.COLUMN_ID,
+            MySQLiteHelper.COLUMN_SHAREDEVENTID,
             MySQLiteHelper.COLUMN_TITLE,
             MySQLiteHelper.COLUMN_DATE,
-            MySQLiteHelper.COLUMN_LOCLAT,
-            MySQLiteHelper.COLUMN_LOCLONG,
+            MySQLiteHelper.COLUMN_LATITUDE,
+            MySQLiteHelper.COLUMN_LONGITUDE,
             MySQLiteHelper.COLUMN_DURATION};
     /**
      * Events Data Source constructor.
@@ -74,8 +75,8 @@ public class EventsDataSource {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         values.put(MySQLiteHelper.COLUMN_DATE, sdf.format(date));
-        values.put(MySQLiteHelper.COLUMN_LOCLAT, location.latitude);
-        values.put(MySQLiteHelper.COLUMN_LOCLONG, location.longitude);
+        values.put(MySQLiteHelper.COLUMN_LATITUDE, location.latitude);
+        values.put(MySQLiteHelper.COLUMN_LONGITUDE, location.longitude);
         values.put(MySQLiteHelper.COLUMN_DURATION, duration);
 
         //get row id and insert into database
@@ -135,10 +136,23 @@ public class EventsDataSource {
      * @throws java.sql.SQLException
      */
     public Event findEventByID(long eventID) throws RuntimeException{
+        Cursor resultSet = findEventCursorByID(eventID);
+        return buildEventFromCursor(resultSet);
+    }
+
+    /**
+     * Retrieves a cursor to an event matching the given ID in the database
+     * @param eventID The event ID matching the database record
+     * @return  The event from the database
+     *          Returns null if no events in the database on this date
+     * @throws java.sql.SQLException
+     */
+    public Cursor findEventCursorByID(long eventID) throws RuntimeException{
         try{
             open();
         }catch (SQLException e){
             e.printStackTrace();
+            //throw new RuntimeException("Error attempting to open the database");
         }
 
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_ID + " = " + eventID,null,null,null,null);
@@ -149,7 +163,33 @@ public class EventsDataSource {
 
         resultSet.moveToFirst();
         Log.i(TAG, "" + resultSet.getLong(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_ID)));
-        return getEventFromCursor(resultSet);
+        return resultSet;
+    }
+
+    /**
+     * TODO: Currently, this assumes all sharedEventID's are unique (they may not be unique for this table)
+     * Retrieves an event matching the given ID
+     * @param sharedEventID The event ID matching the database record
+     * @return  The event from the database
+     *          Returns null if no events in the database on this date
+     * @throws java.sql.SQLException
+     */
+    public Event findEventBySharedID(long sharedEventID) throws RuntimeException{
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_SHAREDEVENTID + " = " + sharedEventID,null,null,null,null);
+
+        if(resultSet.getCount() == 0){
+            throw new RuntimeException("Error attempting to retrieve record from database. The ID \"\" + eventID + \"\" does not match any record in the database");
+        }
+
+        resultSet.moveToFirst();
+        Log.i(TAG, "" + resultSet.getLong(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_ID)));
+        return buildEventFromCursor(resultSet);
     }
 
     /**
@@ -162,7 +202,7 @@ public class EventsDataSource {
     public List<Event> findEventsByDate(Date date) throws RuntimeException{
         database = dbHelper.getReadableDatabase();
         List<Event> events;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_DATE
                 + " = " + sdf.format(date), null, null, null, "date");
 
@@ -182,7 +222,7 @@ public class EventsDataSource {
     public List<Event> findEventsByLocation(LatLng location) throws RuntimeException{
         database = dbHelper.getReadableDatabase();
         List<Event> events;
-        String locationQuery = MySQLiteHelper.COLUMN_LOCLAT + " = " + location.latitude + " AND " + MySQLiteHelper.COLUMN_LOCLONG + " = " + location.latitude;
+        String locationQuery = MySQLiteHelper.COLUMN_LATITUDE + " = " + location.latitude + " AND " + MySQLiteHelper.COLUMN_LONGITUDE + " = " + location.latitude;
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, locationQuery,null,null,null,"date");
 
         if(resultSet.getCount() == 0){
@@ -222,11 +262,28 @@ public class EventsDataSource {
     }
 
     /**
+     * Adds a sharedEventID to the event specified by the given eventID
+     * @param eventID The event to add the sharedEventID to
+     * @param sharedEventID the ID to add to the event
+     */
+    public void addSharedEventID(int eventID, int sharedEventID){
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_SHAREDEVENTID + " = " + sharedEventID,null,null,null,null);
+        Event event = buildEventFromCursor(resultSet);
+        event.setSharedEventID(sharedEventID);
+        updateDatabaseEvent(event);
+    }
+
+    /**
      * Commits an update to an event to the database
      * @param event The event details to commit to the database
      *                      Event must exist prior to calling this function
      */
-    public void updateEvent(Event event){
+    public void updateDatabaseEvent(Event event){
         try{
             open();
         }catch (SQLException e){
@@ -236,10 +293,12 @@ public class EventsDataSource {
 
         //build record pairs
         ContentValues values = new ContentValues();
+        values.put(MySQLiteHelper.COLUMN_SHAREDEVENTID,event.getSharedEventID());
         values.put(MySQLiteHelper.COLUMN_TITLE, event.getTitle());
-        values.put(MySQLiteHelper.COLUMN_DATE, event.getDate().toString());
-        values.put(MySQLiteHelper.COLUMN_LOCLAT, event.getLocation().latitude);
-        values.put(MySQLiteHelper.COLUMN_LOCLONG, event.getLocation().longitude);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        values.put(MySQLiteHelper.COLUMN_DATE, sdf.format(event.getDate()));
+        values.put(MySQLiteHelper.COLUMN_LATITUDE, event.getLocation().latitude);
+        values.put(MySQLiteHelper.COLUMN_LONGITUDE, event.getLocation().longitude);
         values.put(MySQLiteHelper.COLUMN_DURATION, event.getDuration());
 
         try{
@@ -262,9 +321,8 @@ public class EventsDataSource {
         try {
             resultSet.moveToFirst();
 
-            //TODO: change to while?
             do {
-                Event event = getEventFromCursor(resultSet);
+                Event event = buildEventFromCursor(resultSet);
                 Log.i(TAG, "" + event.getID());
                 events.add(event);
             } while (resultSet.moveToNext());
@@ -284,26 +342,28 @@ public class EventsDataSource {
      * @param resultSet cursor to the database
      * @return The Event from the database cursor points to
      */
-    private Event getEventFromCursor(Cursor resultSet){
+    public Event buildEventFromCursor(Cursor resultSet){
         Event event = new Event();
         event.setID(resultSet.getLong(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_ID)));
+        event.setSharedEventID(resultSet.getInt(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_SHAREDEVENTID)));
         event.setTitle(resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_TITLE)));
 
         //attempt to get date from string
         String dateAsString = resultSet.getString(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_DATE));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/DD hh:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         try{
             event.setDate(sdf.parse(dateAsString));
         }catch (ParseException e){
             e.printStackTrace();
         }
 
-        double loc_lat = resultSet.getDouble(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LOCLAT));
-        double loc_long = resultSet.getDouble(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LOCLONG));
+        double loc_lat = resultSet.getDouble(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LATITUDE));
+        double loc_long = resultSet.getDouble(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LONGITUDE));
         LatLng location = new LatLng(loc_lat,loc_long);
         event.setLocation(location);
         event.setDuration(resultSet.getInt(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_DURATION)));
         return event;
     }
+
 
 }

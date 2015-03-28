@@ -218,7 +218,7 @@ public class EventList extends Fragment {
 //                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), event.getDate(),
 //                                                                event.getDuration(), location.latitude, location.longitude);
 //                        event.setSharedID(sharedEventID);
-//                        db.updateEvent(event);
+//                        db.updateDatabaseEvent(event);
 //                        MaterialLargeImageCard mCard = (MaterialLargeImageCard) card;
 //                        mCard.setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_shared));
 //                    }
