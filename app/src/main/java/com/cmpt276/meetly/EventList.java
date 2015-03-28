@@ -178,7 +178,8 @@ public class EventList extends Fragment {
             @Override
             public void onClick(Card card, View view) {
                 Intent intent = new Intent(getActivity(), ViewEvent.class);
-                intent.putExtra("eventID", eventID);
+                Long eventIndex = Long.parseLong(card.getId());
+                intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
                 startActivity(intent);
             }
         });

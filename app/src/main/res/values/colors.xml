@@ -5,4 +5,6 @@
     <color name="white">#FFFFFF</color>
     <color name="white_pressed">#f1f1f1</color>
     <color name="black_semi_transparent">#B2000000</color>
+    <color name="blue">#2196F3</color>
+    <color name="purple">#673AB7</color>
 </resources>

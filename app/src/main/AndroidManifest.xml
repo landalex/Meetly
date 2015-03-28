@@ -50,7 +50,8 @@
         <!--//Create Events-->
         <activity
             android:name=".CreateEvent"
-            android:label="@string/title_activity_create_event" >
+            android:label="@string/title_activity_create_event"
+            android:theme="@style/CreateTheme">
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -59,7 +60,8 @@
         <!--//View Events-->
         <activity
             android:name=".ViewEvent"
-            android:label="@string/event_details" >
+            android:label="@string/event_details"
+            android:theme="@style/ViewTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Meetly" />

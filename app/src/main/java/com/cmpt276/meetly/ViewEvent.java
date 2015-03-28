@@ -28,6 +28,7 @@ public class ViewEvent extends ActionBarActivity {
 
     private final String TAG = "ViewEventActivity";
     private Event thisEvent;
+    private Long eventID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,10 @@ public class ViewEvent extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_edit) {
+            Intent intent = new Intent(ViewEvent.this, EditEvent.class);
+            intent.putExtra("eventID", eventID);
+            startActivity(intent);
             return true;
         }
 
@@ -109,10 +113,10 @@ public class ViewEvent extends ActionBarActivity {
     private void getEventToView(){
         Intent in = getIntent();
         Bundle extras = in.getExtras();
-        long id = extras.getLong("eventID");
-        Log.i(TAG, "" + id);
+        eventID = extras.getLong("eventID");
+        Log.i(TAG, "" + eventID);
         EventsDataSource eds = new EventsDataSource(getApplicationContext());
-        thisEvent = eds.findEventByID(id);
+        thisEvent = eds.findEventByID(eventID);
         //thisEvent.printEventS();
     }
 }

@@ -55,5 +55,6 @@
     <string name="activity_create_discard_dialog_message">Are you sure you want to discard this event? All changes will be lost.</string>
     <string name="activity_create_discard_dialog_positive">Yeah</string>
     <string name="activity_create_discard_dialog_negative">No, I didn\'t mean it!</string>
+    <string name="activity_view_edit">Edit Event</string>
 
 </resources>

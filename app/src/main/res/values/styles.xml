@@ -1,22 +1,55 @@
 <resources>
 
-    <!-- Base application theme. -->
+    <!-- Main Activity Theme -->
     <style name="MainTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="android:actionBarStyle">@style/MyActionBar</item>
+        <item name="android:actionBarStyle">@style/MainActionBar</item>
         <item name="android:windowContentOverlay">@null</item>
-
-
         <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="actionBarStyle">@style/MainActionBar</item>
+    </style>
+
+    <!-- Create Activity Theme -->
+    <style name="CreateTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/CreateActionBar</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/CreateActionBar</item>
+    </style>
+
+    <!-- View Activity Theme -->
+    <style name="ViewTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/ViewActionBar</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/ViewActionBar</item>
     </style>
 
         <!-- ActionBar styles -->
-    <style name="MyActionBar"
+    <style name="MainActionBar"
     parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/green</item>
         <!-- Support library compatibility -->
         <item name="background">@color/green</item>
+        <!--<item name="android:elevation">0dp</item> -->
+        <!-- Support library compatibility -->
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="ViewActionBar"
+        parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/blue</item>
+        <!-- Support library compatibility -->
+        <item name="background">@color/blue</item>
+        <!--<item name="android:elevation">0dp</item> -->
+        <!-- Support library compatibility -->
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="CreateActionBar"
+        parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/purple</item>
+        <!-- Support library compatibility -->
+        <item name="background">@color/purple</item>
         <!--<item name="android:elevation">0dp</item> -->
         <!-- Support library compatibility -->
         <item name="elevation">0dp</item>
