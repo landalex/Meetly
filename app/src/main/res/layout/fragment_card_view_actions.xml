@@ -3,7 +3,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/actions_padding"
+    android:padding="@dimen/card_actions_padding"
     android:gravity="center"
     android:paddingLeft="@dimen/actions_padding_left"
     android:paddingRight="@dimen/actions_padding_left">

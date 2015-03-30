@@ -37,6 +37,7 @@ import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
 import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
 import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
 import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardExpand;
 import it.gmariotti.cardslib.library.internal.CardHeader;
 import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 
@@ -82,9 +83,6 @@ public class EventList extends Fragment {
         dialog = new ProgressDialog(getActivity());
         dialog.setIndeterminate(true);
         dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
-
-        UpdateCards updater = new UpdateCards();
-        updater.execute(updater.CREATE_MODE, 0);
     }
 
     private void createFloatingActionButtonListeners() {
@@ -111,15 +109,15 @@ public class EventList extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (getEvents(new EventsDataSource(getActivity())).size() - eventList.size() == 1
-                && eventList.size() != 1) {
-            UpdateCards updater = new UpdateCards();
-            updater.execute(updater.ADD_MODE, eventList.size());
-        }
-        else {
+//        if (getEvents(new EventsDataSource(getActivity())).size() - eventList.size() == 1
+//                && eventList.size() != 1) {
+//            UpdateCards updater = new UpdateCards();
+//            updater.execute(updater.ADD_MODE, eventList.size());
+//        }
+//        else {
             UpdateCards updater = new UpdateCards();
             updater.execute(updater.CREATE_MODE, eventList.size());
-        }
+//        }
     }
 
     @Override
@@ -151,6 +149,7 @@ public class EventList extends Fragment {
         for (Event event: eventList) {
             MaterialLargeImageCard card = makeMaterialLargeImageCard(actions, event, eventIndex);
             cards.add(card);
+//            mCardArrayAdapter.notifyItemInserted(eventIndex);
             eventIndex++;
         }
         Log.i(TAG, "Cards generated.");
@@ -171,8 +170,9 @@ public class EventList extends Fragment {
         card.addCardHeader(new CardHeader(getActivity()));
 
         card.setId("" + eventIndex);
+        card.setCardElevation(10);
 
-        Log.d(TAG, "Header: " + card.getId());
+        Log.d(TAG, "Card ID: " + card.getId());
         // Pass the event ID with the intent to ViewEvent
         card.setOnClickListener(new Card.OnCardClickListener() {
             @Override
@@ -194,7 +194,7 @@ public class EventList extends Fragment {
             public void onClick(Card card, View view) {
                 Intent intent = new Intent(getActivity(), EditEvent.class);
                 Long eventIndex = Long.parseLong(card.getId());
-                intent.putExtra("eventID", eventIndex.intValue());
+                intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
                 startActivity(intent);
             }
         });
@@ -208,7 +208,8 @@ public class EventList extends Fragment {
                 int eventIndex = eventIndexParsed.intValue();
                 db.deleteEvent(db.findEventByID(eventList.get(eventIndex).getID()));
                 UpdateCards updater = new UpdateCards();
-                updater.execute(updater.REMOVE_MODE, eventIndex);            }
+                updater.execute(updater.REMOVE_MODE, eventIndex);
+            }
         });
         actions.add(deleteEvent);
 
