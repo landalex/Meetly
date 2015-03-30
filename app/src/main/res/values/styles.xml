@@ -2,26 +2,35 @@
 
     <!-- Main Activity Theme -->
     <style name="MainTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/MainActionBar</item>
+        <!--<item name="android:actionBarStyle">@style/MainActionBar</item>-->
         <item name="android:windowContentOverlay">@null</item>
         <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/MainActionBar</item>
-    </style>
-
-    <!-- Create Activity Theme -->
-    <style name="CreateTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/CreateActionBar</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/CreateActionBar</item>
+        <!--<item name="actionBarStyle">@style/MainActionBar</item>-->
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
+        <item name="colorAccent">@color/green_accent</item>
     </style>
 
     <!-- View Activity Theme -->
     <style name="ViewTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/ViewActionBar</item>
+        <!--<item name="android:actionBarStyle">@style/ViewActionBar</item>-->
         <item name="android:windowContentOverlay">@null</item>
         <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/ViewActionBar</item>
+        <!--<item name="actionBarStyle">@style/ViewActionBar</item>-->
+        <item name="colorPrimary">@color/blue</item>
+        <item name="colorPrimaryDark">@color/blue_dark</item>
+        <item name="colorAccent">@color/blue_accent</item>
+    </style>
+
+    <!-- Create Activity Theme -->
+    <style name="CreateTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!--<item name="android:actionBarStyle">@style/CreateActionBar</item>-->
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- Support library compatibility -->
+        <!--<item name="actionBarStyle">@style/CreateActionBar</item>-->
+        <item name="colorPrimary">@color/purple</item>
+        <item name="colorPrimaryDark">@color/purple_dark</item>
+        <item name="colorAccent">@color/purple_accent</item>
     </style>
 
         <!-- ActionBar styles -->

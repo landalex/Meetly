@@ -103,7 +103,8 @@
         </activity>
         <activity
             android:name=".EditEvent"
-            android:label="@string/title_activity_edit_event" >
+            android:label="@string/title_activity_edit_event"
+            android:theme="@style/CreateTheme">
         </activity>
     </application>
 
