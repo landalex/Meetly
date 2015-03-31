@@ -42,4 +42,6 @@ dependencies {
 
     compile 'com.getbase:floatingactionbutton:1.9.0'
 
+    compile 'com.r0adkll:slidableactivity:2.0.2'
+
 }

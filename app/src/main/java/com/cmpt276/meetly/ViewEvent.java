@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.r0adkll.slidr.Slidr;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +36,9 @@ public class ViewEvent extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_event);
+        int primary = getResources().getColor(R.color.green_dark);
+        int secondary = getResources().getColor(R.color.blue_dark);
+        Slidr.attach(this, primary, secondary);
 
         getEventToView();
         showEvent();

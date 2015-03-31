@@ -407,7 +407,7 @@ public class EventList extends Fragment {
         EventsDataSource database = new EventsDataSource(getActivity());
 
         protected void onPreExecute() {
-            dialog.show();
+//            dialog.show();
         }
 
         @Override
