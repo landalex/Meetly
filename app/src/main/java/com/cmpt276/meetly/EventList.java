@@ -25,8 +25,12 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import de.keyboardsurfer.android.widget.crouton.Configuration;
@@ -37,7 +41,6 @@ import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
 import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
 import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
 import it.gmariotti.cardslib.library.internal.Card;
-import it.gmariotti.cardslib.library.internal.CardExpand;
 import it.gmariotti.cardslib.library.internal.CardHeader;
 import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 
@@ -57,6 +60,7 @@ public class EventList extends Fragment {
     public boolean showingCrouton;
     private List<Event> eventList = new ArrayList<>(0);
     ProgressDialog dialog = null;
+    private Map<String, Integer> drawableMap;
 
 
     public static EventList newInstance() {
@@ -83,6 +87,28 @@ public class EventList extends Fragment {
         dialog = new ProgressDialog(getActivity());
         dialog.setIndeterminate(true);
         dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
+
+        createDrawableMap();
+    }
+
+    private void createDrawableMap() {
+        drawableMap = new HashMap<>();
+        drawableMap.put("coffee", R.drawable.card_picture_coffee);
+        drawableMap.put("drink", R.drawable.card_picture_alcohol);
+        drawableMap.put("noodles", R.drawable.card_picture_noodles);
+        drawableMap.put("pizza", R.drawable.card_picture_pizza);
+        drawableMap.put("sandwich", R.drawable.card_picture_sandwich);
+        drawableMap.put("breakfast", R.drawable.card_picture_breakfast);
+
+        // For ambiguous food words, assign pictures randomly
+        List<Integer> foodPictures = Arrays.asList(R.drawable.card_picture_noodles, R.drawable.card_picture_pizza,
+                            R.drawable.card_picture_plate, R.drawable.card_picture_sandwich);
+
+        Collections.shuffle(foodPictures);
+
+        drawableMap.put("lunch", foodPictures.get(0));
+        drawableMap.put("food", foodPictures.get(1));
+        drawableMap.put("dinner", foodPictures.get(2));
     }
 
     private void createFloatingActionButtonListeners() {
@@ -164,7 +190,7 @@ public class EventList extends Fragment {
                 .setTextOverImage(event.getTitle())
                 .setTitle(event.getDate().toString())
                 .setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_unshared))
-                .useDrawableId(R.drawable.card_picture)
+                .useDrawableId(pickDrawableForCard(event.getTitle()))
                 .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                 .build();
         card.addCardHeader(new CardHeader(getActivity()));
@@ -184,6 +210,16 @@ public class EventList extends Fragment {
             }
         });
         return card;
+    }
+
+    private int pickDrawableForCard(String title) {
+        for (String key : drawableMap.keySet()) {
+            if (title.toLowerCase().contains(key)) {
+                return drawableMap.get(key);
+            }
+        }
+
+        return R.drawable.card_picture_default;
     }
 
     private ArrayList<BaseSupplementalAction> makeCardActions(final EventsDataSource db) {
