@@ -5,11 +5,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,13 +14,16 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
+import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
+import it.neokree.materialnavigationdrawer.elements.MaterialSection;
 
 
 /**
  * Holds the EventList fragment, and provides actionbar functionality like adding an event
  * Actionbar: Add event button, Location info, Location change button?
  */
-public class MainActivity extends ActionBarActivity implements EventList.OnFragmentInteractionListener{
+public class MainActivity extends MaterialNavigationDrawer implements EventList.OnFragmentInteractionListener{
 
     private final String TAG = "MainActivity";
     private EventList eventListFragment;
@@ -35,20 +35,35 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+    public void init(Bundle bundle) {
         Meetly.setMeetlySharedPrefs(getApplicationContext());
         Meetly.showPrefs(getApplicationContext());
 
         wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
         mReceiver = wifiP2pHelper.getReceiver();
 
-        openFragment(getCurrentFocus());
+        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
 
+//        openFragment(getCurrentFocus());
+//        Fragment eventList = getFragmentManager().findFragmentByTag("EventListFragment");
+        MaterialAccount account = new MaterialAccount(getResources(),
+                preferences.getString(Meetly.MEETLY_PREFERENCES_USERNAME, getString(R.string.main_defaultLoginMessage)),
+                "", R.drawable.card_picture_pizza, R.drawable.card_picture_default);
+        this.addAccount(account);
+
+        MaterialSection mainSection = newSection(getString(R.string.app_name), EventList.newInstance());
+        this.addSection(mainSection);
+
+        Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+        MaterialSection bottomSection = newSection(getString(R.string.action_settings), R.drawable.ic_settings_grey, settingsIntent);
+        this.addBottomSection(bottomSection);
+
+        allowArrowAnimation();
+
+        if (!preferences.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)) {
+            disableLearningPattern();
         }
+    }
 
 
     @Override
@@ -122,7 +137,7 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
             menuItem.setTitle(getResources().getString(R.string.app_login));
 
             //turn off popupMenu for logging out
-            findViewById(R.id.logOut).setClickable(false);
+//            findViewById(R.id.logOut).setClickable(false);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -204,20 +219,21 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         unregisterReceiver(mReceiver);
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent startMain = new Intent(Intent.ACTION_MAIN);
-            startMain.addCategory(Intent.CATEGORY_HOME);
-            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(startMain);
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_BACK) {
+//            Intent startMain = new Intent(Intent.ACTION_MAIN);
+//            startMain.addCategory(Intent.CATEGORY_HOME);
+//            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(startMain);
+//        }
+//        return true;
+//    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Crouton.cancelAllCroutons();
     }
+
 }
