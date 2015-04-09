@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="General">
+    <PreferenceCategory android:title="@string/settings_title_general">
 
         <ListPreference android:key="server_sync_interval"
                         android:title="@string/settings_sync_interval"

@@ -1,6 +1,9 @@
 package com.cmpt276.meetly;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -17,6 +20,7 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
+import it.neokree.materialnavigationdrawer.elements.listeners.MaterialSectionListener;
 
 
 /**
@@ -32,6 +36,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     private BroadcastReceiver mReceiver;
     private WifiP2pHelper wifiP2pHelper;
     private Menu actionBarMenu;
+    private MaterialAccount account;
 
 
     @Override
@@ -44,12 +49,8 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
         SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
 
-//        openFragment(getCurrentFocus());
-//        Fragment eventList = getFragmentManager().findFragmentByTag("EventListFragment");
-        MaterialAccount account = new MaterialAccount(getResources(),
-                preferences.getString(Meetly.MEETLY_PREFERENCES_USERNAME, getString(R.string.main_defaultLoginMessage)),
-                "", R.drawable.card_picture_pizza, R.drawable.card_picture_default);
-        this.addAccount(account);
+        String username = getUsername(preferences);
+        makeAccountSection(username);
 
         MaterialSection mainSection = newSection(getString(R.string.app_name), EventList.newInstance());
         this.addSection(mainSection);
@@ -62,6 +63,39 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
         if (!preferences.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)) {
             disableLearningPattern();
+        }
+    }
+
+    private String getUsername(SharedPreferences preferences) {
+        boolean loggedIn = preferences.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+        String username;
+        if (loggedIn) {
+            username = preferences.getString(Meetly.MEETLY_PREFERENCES_USERNAME, "");
+        }
+        else {
+            username = getString(R.string.main_not_logged_in);
+        }
+        return username;
+    }
+
+    private void makeAccountSection(String username) {
+        account = new MaterialAccount(getResources(),
+                username, "", R.drawable.card_picture_pizza, R.drawable.card_picture_default);
+        this.addAccount(account);
+
+        MaterialSection accountSection;
+        if (username.equals(getString(R.string.main_not_logged_in))) {
+            accountSection = newSection(getString(R.string.app_login), R.drawable.ic_add_grey, new Intent(MainActivity.this, LoginActivity.class));
+            this.addAccountSection(accountSection);
+        }
+        else {
+            accountSection = newSection(getString(R.string.app_logout), R.drawable.ic_delete_grey, new MaterialSectionListener() {
+                @Override
+                public void onClick(MaterialSection section) {
+                    showLogOut();
+                }
+            });
+            this.addAccountSection(accountSection);
         }
     }
 
@@ -85,18 +119,20 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         if (id == R.id.action_delete_db) {
             onUpgradeDBClick(getCurrentFocus());
             return true;
-        } else if (id == R.id.action_login){
-            SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-            boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
-
-            //if logged in, ask user if they want to log out
-            if(isLoggedIn){
-                showLogOut();
-            }else{
-                goToLoginScreen();
-            }
-
-        } else if (id == R.id.action_get_location) {
+        }
+//        else if (id == R.id.action_login){
+//            SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+//            boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+//
+//            //if logged in, ask user if they want to log out
+//            if(isLoggedIn){
+//                showLogOut();
+//            }else{
+//                goToLoginScreen();
+//            }
+//
+//        }
+        else if (id == R.id.action_get_location) {
             if (eventListFragment == null) {
                 eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
                 locationCrouton = eventListFragment.makeLocationCrouton();
@@ -120,25 +156,25 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
-        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-        boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
-
-        MenuItem menuItem = actionBarMenu.findItem(R.id.action_login);
-
-        //if logged in, show user name
-        if(isLoggedIn) {
-            menuItem = actionBarMenu.findItem(R.id.action_login);
-            String menuString = (getResources().getText(R.string.main_loggedin) + " " + settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, getResources().getText(R.string.main_defaultLoginMessage).toString()));
-            menuItem.setTitle(menuString);
-
-        } else {
-            //show default menu_login message
-            menuItem.setTitle(getResources().getString(R.string.app_login));
-
-            //turn off popupMenu for logging out
-//            findViewById(R.id.logOut).setClickable(false);
-        }
+//
+//        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+//        boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+//
+//        MenuItem menuItem = actionBarMenu.findItem(R.id.action_login);
+//
+//        //if logged in, show user name
+//        if(isLoggedIn) {
+//            menuItem = actionBarMenu.findItem(R.id.action_login);
+//            String menuString = (getResources().getText(R.string.main_loggedin) + " " + settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, getResources().getText(R.string.main_defaultLoginMessage).toString()));
+//            menuItem.setTitle(menuString);
+//
+//        } else {
+//            //show default menu_login message
+//            menuItem.setTitle(getResources().getString(R.string.app_login));
+//
+//            //turn off popupMenu for logging out
+////            findViewById(R.id.logOut).setClickable(false);
+//        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -153,21 +189,39 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
      * Shows option of logging user out of Meetly
      */
     public void showLogOut(){
-        PopupMenu popupMenu = new PopupMenu(this,findViewById(R.id.logOut));
-        // This activity implements OnMenuItemClickListener
-        popupMenu.setOnMenuItemClickListener(
-                new PopupMenu.OnMenuItemClickListener(){
-                     @Override
-                     public boolean onMenuItemClick(MenuItem item) {
-                         logOut();
-                         return true;
-                     }
-                 }
-        );
-        //MenuInflater inflater = popupMenu.getMenuInflater();
-        //inflater.inflate(R.menu.menu_login, popupMenu.getMenu());
-        popupMenu.inflate(R.menu.menu_login);
-        popupMenu.show();
+        this.closeDrawer();
+//        PopupMenu popupMenu = new PopupMenu(this,findViewById(R.id.logOut));
+//        // This activity implements OnMenuItemClickListener
+//        popupMenu.setOnMenuItemClickListener(
+//                new PopupMenu.OnMenuItemClickListener(){
+//                     @Override
+//                     public boolean onMenuItemClick(MenuItem item) {
+//                         logOut();
+//                         return true;
+//                     }
+//                 }
+//        );
+//        //MenuInflater inflater = popupMenu.getMenuInflater();
+//        //inflater.inflate(R.menu.menu_login, popupMenu.getMenu());
+//        popupMenu.inflate(R.menu.menu_login);
+//        popupMenu.show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.app_logout_confirmation));
+        builder.setPositiveButton(getString(R.string.app_logout_dialog_positive), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                logOut();
+            }
+        });
+        builder.setNegativeButton(getString(R.string.app_logout_dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /*
@@ -211,6 +265,11 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     protected void onResume() {
         super.onResume();
         registerReceiver(mReceiver, intentFilter);
+        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        String username = getUsername(preferences);
+        account = new MaterialAccount(getResources(),
+                username, "", R.drawable.card_picture_pizza, R.drawable.card_picture_default);
+        notifyAccountDataChanged();
     }
 
     @Override

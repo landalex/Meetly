@@ -1,10 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
-    <item android:id="@+id/action_delete_db" android:title="Upgrade DB"
+    <item android:id="@+id/action_delete_db" android:title="@string/main_upgrade_db"
         android:orderInCategory="100" app:showAsAction="ifRoom" />
-    <item android:id="@+id/action_login" android:title="Login"
-        android:orderInCategory="1" app:showAsAction="ifRoom"/>
+    <!--<item android:id="@+id/action_login" android:title="@string/app_login"-->
+        <!--android:orderInCategory="1" app:showAsAction="ifRoom"/>-->
     <item android:id="@+id/action_get_location" android:title="@string/activity_main_actionbar_get_location"
         android:orderInCategory="1" app:showAsAction="ifRoom"
         android:icon="@drawable/ic_my_location_white" />
