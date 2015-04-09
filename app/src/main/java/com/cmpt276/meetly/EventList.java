@@ -26,8 +26,10 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -253,26 +255,15 @@ public class EventList extends Fragment {
         shareEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                String username = "";
-                Integer userToken = -1;
-                boolean loggedIn = checkLoggedIn(username, userToken);
+                boolean loggedIn = checkLoggedIn();
                 if (loggedIn) {
-                    EventsDataSource db = new EventsDataSource(getActivity());
-                    Long eventIndex = Long.parseLong(card.getId());
-                    Event event = db.findEventByID(eventList.get(eventIndex.intValue()).getID());
-                    MeetlyTestServer server = new MeetlyTestServer();
-                    LatLng location = event.getLocation();
-//                    try {
-//                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), event.getDate(),
-//                                                                event.getDuration(), location.latitude, location.longitude);
-//                        event.setSharedID(sharedEventID);
-//                        db.updateDatabaseEvent(event);
-//                        MaterialLargeImageCard mCard = (MaterialLargeImageCard) card;
-//                        mCard.setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_shared));
-//                    }
-//                    catch (IMeetlyServer.FailedPublicationException e) {
-//                        Log.e(TAG, "Failed to publish event: " + event.getTitle());
-//                    }
+                    String username = getUserName();
+                    Integer userToken = getUserToken();
+                    boolean published = publishEventByID(username, userToken, Long.parseLong(card.getId()));
+                    if (published) {
+                        MaterialLargeImageCard mCard = (MaterialLargeImageCard) card;
+                        mCard.setSubTitle(mCard.getSubTitle() + "\n" + getString(R.string.eventlist_card_shared));
+                    }
                 }
 
                 else {
@@ -285,6 +276,32 @@ public class EventList extends Fragment {
         });
         actions.add(shareEvent);
         return actions;
+    }
+
+    private boolean publishEventByID(String username, Integer userToken, Long ID) {
+        final int MILLIS_IN_HOUR = 3600000;
+
+        EventsDataSource db = new EventsDataSource(getActivity());
+        Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
+        MeetlyTestServer server = new MeetlyTestServer();
+        LatLng location = event.getLocation();
+//                    try {
+                        Calendar startTime = new GregorianCalendar();
+                        startTime.setTime(event.getDate());
+                        Calendar endTime = new GregorianCalendar();
+                        Long endTimeInMillis = event.getDate().getTime() + (event.getDuration() * MILLIS_IN_HOUR);
+                        endTime.setTimeInMillis(endTimeInMillis);
+                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), startTime,
+                                                                endTime, location.latitude, location.longitude);
+//                        event.setSharedID(sharedEventID);
+//                        db.updateDatabaseEvent(event);
+                        return true;
+
+//                    }
+//                    catch (IMeetlyServer.FailedPublicationException e) {
+//                        Log.e(TAG, "Failed to publish event: " + event.getTitle());
+//                        return false;
+//                    }
     }
 
     private AlertDialog makeLoginAlertDialog(String title, String message, String positiveButtonLabel, String negativeButtonLabel) {
@@ -307,16 +324,20 @@ public class EventList extends Fragment {
         return builder.create();
     }
 
-    private boolean checkLoggedIn(String username, Integer userToken) {
+    private boolean checkLoggedIn() {
         SharedPreferences preferences = getActivity().getSharedPreferences(Meetly.MEETLY_PREFERENCES, Context.MODE_PRIVATE);
-        boolean loggedIn = preferences.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
-        if (loggedIn) {
-            username = preferences.getString(Meetly.MEETLY_PREFERENCES_USERNAME,
-                        getResources().getText(R.string.main_defaultLoginMessage).toString());
-            userToken = preferences.getInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
-        }
+        return preferences.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+    }
 
-        return loggedIn;
+    private Integer getUserToken() {
+        SharedPreferences preferences = getActivity().getSharedPreferences(Meetly.MEETLY_PREFERENCES, Context.MODE_PRIVATE);
+        return preferences.getInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
+    }
+
+    private String getUserName() {
+        SharedPreferences preferences = getActivity().getSharedPreferences(Meetly.MEETLY_PREFERENCES, Context.MODE_PRIVATE);
+        return preferences.getString(Meetly.MEETLY_PREFERENCES_USERNAME,
+                getResources().getText(R.string.main_defaultLoginMessage).toString());
     }
 
     private String timeUntil(Date date) {
