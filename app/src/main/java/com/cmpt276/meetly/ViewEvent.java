@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.r0adkll.slidr.Slidr;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -78,7 +79,7 @@ public class ViewEvent extends ActionBarActivity {
         textView.setText(thisEvent.getTitle());
 
         textView = (TextView) findViewById(R.id.date);
-        textView.setText(thisEvent.getDate().toString());
+        textView.setText("Starts at: " + thisEvent.getStartDate().toString() + " and ends at: " + thisEvent.getEndDate().toString());
 
         textView = (TextView) findViewById(R.id.location);
 
@@ -87,15 +88,12 @@ public class ViewEvent extends ActionBarActivity {
         textView = (TextView) findViewById(R.id.location);
         String tempString = thisEvent.getLocation().toString();
         textView.setText(tempString);
-
-        textView = (TextView) findViewById(R.id.duration);
-        textView.setText("" + thisEvent.getDuration());
     }
 
 
-    private String timeUntil(Date date) {
+    private String timeUntil(Calendar startDate) {
         long now = new Date().getTime();
-        long eventTime = date.getTime();
+        long eventTime = startDate.getTimeInMillis();
         long diff = eventTime - now;
 
         if (diff <= 0) {

@@ -40,7 +40,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     final private String TAG = "LoginActivity";
     private long accountID;
-    MeetlyTestServer testServer;
+    MeetlyServer meetlyServer;
 
     /**
      * Keep track of the menu_login task to ensure we can cancel it if requested.
@@ -301,15 +301,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 //                return false;
 //            }
 
-            testServer = new MeetlyTestServer();
+            meetlyServer = new MeetlyServer();
             SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
             SharedPreferences.Editor editor = settings.edit();
 
             int token;
             //for now, registering new accounts only
             try{
-                token = testServer.login(mEmail, mPassword, getApplicationContext());
-            }catch (MeetlyTestServer.FailedLoginException e){
+                token = meetlyServer.login(mEmail,mPassword);
+            }catch (MeetlyServer.FailedLoginException e){
                 e.printStackTrace();
                 return false;
             }

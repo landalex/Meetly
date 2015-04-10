@@ -188,8 +188,8 @@ public class EventList extends Fragment {
 
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
-                .setTitle(event.getDate().toString())
-                .setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_unshared))
+                .setTitle(event.getStartDate().toString())
+                .setSubTitle(timeUntil(event.getStartDate().getTime()) + "\n" + getString(R.string.eventlist_card_unshared))
                 .useDrawableId(pickDrawableForCard(event.getTitle()))
                 .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                 .build();
@@ -260,7 +260,7 @@ public class EventList extends Fragment {
                     EventsDataSource db = new EventsDataSource(getActivity());
                     Long eventIndex = Long.parseLong(card.getId());
                     Event event = db.findEventByID(eventList.get(eventIndex.intValue()).getID());
-                    MeetlyTestServer server = new MeetlyTestServer();
+                    MeetlyServer server = new MeetlyServer();
                     LatLng location = event.getLocation();
 //                    try {
 //                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), event.getDate(),
