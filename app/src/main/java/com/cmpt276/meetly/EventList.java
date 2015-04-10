@@ -480,6 +480,7 @@ public class EventList extends Fragment {
         public final int REMOVE_MODE = 2;
         public final int EDIT_MODE = 3;
         public final int CREATE_MODE = 0;
+        public final int CLEAR_MODE = 4;
         EventsDataSource database = new EventsDataSource(getActivity());
 
         protected void onPreExecute() {
@@ -502,12 +503,18 @@ public class EventList extends Fragment {
             }
             else if (params[0] == REMOVE_MODE) {
                 Log.i(TAG, "Removing card at index: " + params[1]);
-                cards.remove(params[1].intValue());
-                eventList.remove(params[1].intValue());
-                for (int i = params[1]; i < cards.size(); i++) {
-                    Long oldPos = Long.parseLong(cards.get(i).getId());
-                    Long newPos = oldPos - 1;
-                    cards.get(i).setId("" + newPos);
+                if (eventList.size() > 1) {
+                    cards.remove(params[1].intValue());
+                    eventList.remove(params[1].intValue());
+                    for (int i = params[1]; i < cards.size(); i++) {
+                        Long oldPos = Long.parseLong(cards.get(i).getId());
+                        Long newPos = oldPos - 1;
+                        cards.get(i).setId("" + newPos);
+                    }
+                }
+                else {
+                    cards.clear();
+                    params[0] = CLEAR_MODE;
                 }
             }
             else if (params[0] == EDIT_MODE) {
@@ -538,6 +545,10 @@ public class EventList extends Fragment {
             else if (result[0] == EDIT_MODE) {
                 Log.i(TAG, "Card refreshed at index: " + result[1]);
                 mCardArrayAdapter.notifyItemChanged(result[1]);
+            }
+            else if (result[0] == CLEAR_MODE) {
+                Log.i(TAG, "Cards cleared");
+                mCardArrayAdapter.notifyDataSetChanged();
             }
         }
 
