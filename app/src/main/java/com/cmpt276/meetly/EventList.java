@@ -14,6 +14,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -84,12 +85,26 @@ public class EventList extends Fragment {
         createCardAdapter(cards);
         createFloatingActionButtonListeners();
         configureRecyclerView();
+        configureSwipeToRefresh();
 
 //        dialog = new ProgressDialog(getActivity());
 //        dialog.setIndeterminate(true);
 //        dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
 
         createDrawableMap();
+    }
+
+    private void configureSwipeToRefresh() {
+        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getActivity().sendBroadcast(new Intent("com.cmpt276.meetly.sync"));
+                // TODO: Properly implement a Runnable so refreshing stops when it is actually done
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.green));
     }
 
     private void createDrawableMap() {

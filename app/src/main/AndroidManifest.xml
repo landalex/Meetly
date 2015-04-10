@@ -53,6 +53,9 @@
         <receiver
             android:name=".ServerSyncReceiver"
             android:exported="false">
+            <intent-filter>
+                <action android:name="com.cmpt276.meetly.sync" />
+            </intent-filter>
         </receiver>
 
         <!-- //Create Events -->
