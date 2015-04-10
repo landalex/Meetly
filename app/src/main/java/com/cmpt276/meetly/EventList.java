@@ -3,7 +3,6 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -61,7 +60,7 @@ public class EventList extends Fragment {
     private ArrayList<Card> cards = new ArrayList<>(0);
     public boolean showingCrouton;
     private List<Event> eventList = new ArrayList<>(0);
-    ProgressDialog dialog = null;
+//    ProgressDialog dialog = null;
     private Map<String, Integer> drawableMap;
 
 
@@ -86,9 +85,9 @@ public class EventList extends Fragment {
         createFloatingActionButtonListeners();
         configureRecyclerView();
 
-        dialog = new ProgressDialog(getActivity());
-        dialog.setIndeterminate(true);
-        dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
+//        dialog = new ProgressDialog(getActivity());
+//        dialog.setIndeterminate(true);
+//        dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
 
         createDrawableMap();
     }
@@ -151,9 +150,9 @@ public class EventList extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (dialog != null) {
-            dialog.dismiss();
-        }
+//        if (dialog != null) {
+//            dialog.dismiss();
+//        }
     }
 
     private void configureRecyclerView() {
@@ -177,7 +176,6 @@ public class EventList extends Fragment {
         for (Event event: eventList) {
             MaterialLargeImageCard card = makeMaterialLargeImageCard(actions, event, eventIndex);
             cards.add(card);
-//            mCardArrayAdapter.notifyItemInserted(eventIndex);
             eventIndex++;
         }
         Log.i(TAG, "Cards generated.");
@@ -230,10 +228,7 @@ public class EventList extends Fragment {
         editEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Intent intent = new Intent(getActivity(), EditEvent.class);
-                Long eventIndex = Long.parseLong(card.getId());
-                intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
-                startActivity(intent);
+                editEventFromID(Long.parseLong(card.getId()));
             }
         });
         actions.add(editEvent);
@@ -242,11 +237,7 @@ public class EventList extends Fragment {
         deleteEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Long eventIndexParsed = Long.parseLong(card.getId());
-                int eventIndex = eventIndexParsed.intValue();
-                db.deleteEvent(db.findEventByID(eventList.get(eventIndex).getID()));
-                UpdateCards updater = new UpdateCards();
-                updater.execute(updater.REMOVE_MODE, eventIndex);
+                removeEventByIndex(Long.parseLong(card.getId()), db);
             }
         });
         actions.add(deleteEvent);
@@ -276,6 +267,19 @@ public class EventList extends Fragment {
         });
         actions.add(shareEvent);
         return actions;
+    }
+
+    private void removeEventByIndex(Long eventIndex, EventsDataSource db) {
+        int eventIndexInt = eventIndex.intValue();
+        db.deleteEvent(db.findEventByID(eventList.get(eventIndexInt).getID()));
+        UpdateCards updater = new UpdateCards();
+        updater.execute(updater.REMOVE_MODE, eventIndexInt);
+    }
+
+    private void editEventFromID(Long eventIndex) {
+        Intent intent = new Intent(getActivity(), EditEvent.class);
+        intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
+        startActivity(intent);
     }
 
     private boolean publishEventByID(String username, Integer userToken, Long ID) {
@@ -500,9 +504,9 @@ public class EventList extends Fragment {
 
         @Override
         protected void onPostExecute(Integer[] result) {
-            if (dialog.isShowing()) {
-                dialog.dismiss();
-            }
+//            if (dialog.isShowing()) {
+//                dialog.dismiss();
+//            }
 
             if (result[0] == CREATE_MODE) {
                 Log.i(TAG, "Card update finished.");
