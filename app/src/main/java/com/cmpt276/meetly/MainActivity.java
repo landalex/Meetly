@@ -1,8 +1,11 @@
 package com.cmpt276.meetly;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -44,10 +47,13 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         Meetly.setMeetlySharedPrefs(getApplicationContext());
         Meetly.showPrefs(getApplicationContext());
 
+        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+
+        registerServerSyncInterval(Long.parseLong(preferences.getString("server_sync_interval", "0")));
+
         wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
         mReceiver = wifiP2pHelper.getReceiver();
 
-        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
 
         String username = getUsername(preferences);
         makeAccountSection(username);
@@ -63,6 +69,20 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
         if (!preferences.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)) {
             disableLearningPattern();
+        }
+    }
+
+    private void registerServerSyncInterval(Long updateIntervalInMillis) {
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, ServerSyncReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+        if (updateIntervalInMillis > 0) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), updateIntervalInMillis,
+                    pendingIntent);
+        }
+        else {
+            alarmManager.cancel(pendingIntent);
         }
     }
 

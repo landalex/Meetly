@@ -49,6 +49,12 @@
             android:theme="@style/NavigationDrawerTheme" >
         </activity>
 
+        <!--Receiver for server sync interval alerts-->
+        <receiver
+            android:name=".ServerSyncReceiver"
+            android:exported="false">
+        </receiver>
+
         <!-- //Create Events -->
         <activity
             android:name=".CreateEvent"
