@@ -276,6 +276,14 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         startActivity(intent);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Intent refresh = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(refresh);
+        this.finish();
+    }
+
     /**
      * Represents an asynchronous menu_login/registration task used to authenticate
      * the user.

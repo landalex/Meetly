@@ -2,7 +2,6 @@ package com.cmpt276.meetly;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -40,6 +38,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     private WifiP2pHelper wifiP2pHelper;
     private Menu actionBarMenu;
     private MaterialAccount account;
+    private MaterialSection eventListSection;
 
 
     @Override
@@ -58,18 +57,31 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         String username = getUsername(preferences);
         makeAccountSection(username);
 
-        MaterialSection mainSection = newSection(getString(R.string.app_name), EventList.newInstance());
-        this.addSection(mainSection);
+        eventListSection = newSection(getString(R.string.app_name), EventList.newInstance());
+        this.addSection(eventListSection);
 
         Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
         MaterialSection bottomSection = newSection(getString(R.string.action_settings), R.drawable.ic_settings_grey, settingsIntent);
         this.addBottomSection(bottomSection);
 
         allowArrowAnimation();
+        setBackPattern(MaterialNavigationDrawer.BACKPATTERN_CUSTOM);
 
         if (!preferences.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)) {
             disableLearningPattern();
         }
+    }
+
+    @Override
+    protected MaterialSection backToSection(MaterialSection currentSection) {
+        if(currentSection == eventListSection) {
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
+            return currentSection;
+        }
+        return super.backToSection(currentSection);
     }
 
     private void registerServerSyncInterval(Long updateIntervalInMillis) {

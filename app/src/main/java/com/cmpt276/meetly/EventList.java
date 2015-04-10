@@ -304,7 +304,7 @@ public class EventList extends Fragment {
         Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
         MeetlyTestServer server = new MeetlyTestServer();
         LatLng location = event.getLocation();
-//                    try {
+                    try {
                         Calendar startTime = new GregorianCalendar();
                         startTime.setTime(event.getDate());
                         Calendar endTime = new GregorianCalendar();
@@ -316,11 +316,11 @@ public class EventList extends Fragment {
 //                        db.updateDatabaseEvent(event);
                         return true;
 
-//                    }
-//                    catch (IMeetlyServer.FailedPublicationException e) {
-//                        Log.e(TAG, "Failed to publish event: " + event.getTitle());
-//                        return false;
-//                    }
+                    }
+                    catch (MeetlyTestServer.FailedPublicationException e) {
+                        Log.e(TAG, "Failed to publish event: " + event.getTitle());
+                        return false;
+                    }
     }
 
     private AlertDialog makeLoginAlertDialog(String title, String message, String positiveButtonLabel, String negativeButtonLabel) {
