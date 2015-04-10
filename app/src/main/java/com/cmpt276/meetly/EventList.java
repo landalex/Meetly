@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.maps.model.LatLng;
@@ -200,6 +201,7 @@ public class EventList extends Fragment {
     private MaterialLargeImageCard makeMaterialLargeImageCard(ArrayList<BaseSupplementalAction> actions, Event event, int eventIndex) {
         final long eventID = event.getID();
         Log.d(TAG, "eventID: " + eventID);
+        boolean unviewed = false;
 
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
@@ -209,9 +211,9 @@ public class EventList extends Fragment {
                 .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                 .build();
         card.addCardHeader(new CardHeader(getActivity()));
-
+        setUnviewedIcon(unviewed);
         card.setId("" + eventIndex);
-        card.setCardElevation(10);
+        card.setCardElevation(20);
 
         Log.d(TAG, "Card ID: " + card.getId());
         // Pass the event ID with the intent to ViewEvent
@@ -225,6 +227,17 @@ public class EventList extends Fragment {
             }
         });
         return card;
+    }
+
+    private void setUnviewedIcon(boolean unviewed) {
+        ImageButton indicator = (ImageButton) getActivity().findViewById(R.id.viewedIndicator);
+        if (indicator != null) {
+            if (unviewed) {
+                indicator.setVisibility(View.VISIBLE);
+            } else {
+                indicator.setVisibility(View.GONE);
+            }
+        }
     }
 
     private int pickDrawableForCard(String title) {
