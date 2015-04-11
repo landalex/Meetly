@@ -61,7 +61,6 @@ public class EventList extends Fragment {
 
     private RecyclerViewAdapter mCardArrayAdapter;
     private ArrayList<Card> cards = new ArrayList<>(0);
-    public boolean showingCrouton;
     private List<Event> eventList = new ArrayList<>(0);
 //    ProgressDialog dialog = null;
     private Map<String, Integer> drawableMap;
@@ -391,59 +390,7 @@ public class EventList extends Fragment {
         return database.getAllEvents();
     }
 
-    public Crouton makeLocationCrouton() {
-        LifecycleCallback callback = new LifecycleCallback() {
-            @Override
-            public void onDisplayed() {
-                showingCrouton = true;
-            }
 
-            @Override
-            public void onRemoved() {
-                showingCrouton = false;
-            }
-        };
-        Configuration config = new Configuration.Builder()
-                .setDuration(Configuration.DURATION_INFINITE)
-                .setInAnimation(R.anim.abc_slide_in_top)
-                .setOutAnimation(R.anim.abc_slide_out_top)
-                .build();
-
-        Style style = new Style.Builder()
-                .setBackgroundColorValue(getResources().getColor(R.color.green))
-                .setHeight(150)
-                .setConfiguration(config)
-                .build();
-
-        final Crouton crouton = Crouton.makeText(getActivity(), getLocation(), style);
-        crouton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                crouton.hide();
-            }
-        });
-        crouton.setLifecycleCallback(callback);
-        return crouton;
-    }
-
-    private String getLocation() {
-        String location = getString(R.string.no_location_found);
-
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Activity.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria, true);
-
-        Location myLocation = locationManager.getLastKnownLocation(provider);
-        Geocoder geocoder = new Geocoder(getActivity());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(myLocation.getLatitude(), myLocation.getLongitude(), 5);
-            location = addresses.get(0).getLocality() + ", " + addresses.get(0).getAdminArea();
-        }
-        catch (Exception e) {
-            Log.e(TAG, "geocoder.getFromLocation failed");
-        }
-        return location;
-    }
 
     @Override
     public void onAttach(Activity activity) {

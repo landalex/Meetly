@@ -20,7 +20,6 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -35,7 +34,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
     private final String TAG = "MainActivity";
     private EventList eventListFragment;
-    private Crouton locationCrouton;
     private final IntentFilter intentFilter = new IntentFilter();
     private BroadcastReceiver mReceiver;
     private WifiP2pHelper wifiP2pHelper;
@@ -43,12 +41,16 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     private MaterialAccount account;
     private MaterialSection eventListSection;
     private MyTimerTask serverEventSynchTask;
+    private boolean locationSet = false;
+    private String locationString;
 
 
     @Override
     public void init(Bundle bundle) {
         Meetly.setMeetlySharedPrefs(getApplicationContext());
         Meetly.showPrefs(getApplicationContext());
+
+        eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
 
         wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
         mReceiver = wifiP2pHelper.getReceiver();
@@ -128,6 +130,9 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         actionBarMenu = menu;
+        if (locationSet) {
+            setUserLocationButton();
+        }
         return true;
     }
 
@@ -140,23 +145,32 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
             return true;
         }
         else if (id == R.id.action_get_location) {
-            if (eventListFragment == null) {
-                eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
-                locationCrouton = eventListFragment.makeLocationCrouton();
-            }
-            if (eventListFragment.showingCrouton) {
-                locationCrouton.hide();
-                Log.d(TAG, "hide crouton");
-            }
-            else {
-                locationCrouton = eventListFragment.makeLocationCrouton();
-                locationCrouton.show();
-                Log.d(TAG, "show crouton");
-            }
+            setUserLocationButton();
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void setUserLocationButton() {
+        MenuItem menuItem = actionBarMenu.findItem(R.id.action_get_location);
+        if (locationString == null) {
+            locationString = UserLocation.getLocation(this);
+        }
+        setLocationString(menuItem, locationString);
+    }
+
+    private void setLocationString(MenuItem menuItem, String location) {
+        if (!location.equals(getString(R.string.no_location_found))) {
+            menuItem.setIcon(null);
+            menuItem.setTitle(location);
+        }
+        else {
+            menuItem.setIcon(null);
+            menuItem.setTitle(getString(R.string.location_not_available));
+        }
+        locationSet = true;
+    }
+
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -253,7 +267,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Crouton.cancelAllCroutons();
     }
 
     //For Scheduling Time-Interval Event Retrieval from Server
@@ -270,7 +283,11 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 //        delay  amount of time in milliseconds before first execution.
 //        period  amount of time in milliseconds between subsequent executions.
 
-        synchTimer.schedule(serverEventSynchTask, 3000, getServerSyncInterval());
+        Long syncInterval = getServerSyncInterval();
+
+        if (syncInterval > 0) {
+            synchTimer.schedule(serverEventSynchTask, 3000, syncInterval);
+        }
     }
 
     private long getServerSyncInterval() {

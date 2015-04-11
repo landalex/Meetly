@@ -83,5 +83,6 @@
         <item>0</item>
     </string-array>
     <string name="title_activity_timer">TimerActivity</string>
+    <string name="location_not_available">N/A</string>
 
 </resources>
