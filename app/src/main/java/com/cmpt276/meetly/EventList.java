@@ -3,6 +3,7 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -205,8 +206,8 @@ public class EventList extends Fragment {
 
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
-                .setTitle(event.getDate().toString())
-                .setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_unshared))
+                .setTitle(event.getStartDate().toString())
+                .setSubTitle(timeUntil(event.getStartDate().getTime()) + "\n" + getString(R.string.eventlist_card_unshared))
                 .useDrawableId(pickDrawableForCard(event.getTitle()))
                 .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                 .build();
@@ -315,14 +316,13 @@ public class EventList extends Fragment {
 
         EventsDataSource db = new EventsDataSource(getActivity());
         Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
-        MeetlyTestServer server = new MeetlyTestServer();
+        MeetlyServer server = new MeetlyServer();
         LatLng location = event.getLocation();
                     try {
                         Calendar startTime = new GregorianCalendar();
-                        startTime.setTime(event.getDate());
+                        startTime = event.getStartDate();
                         Calendar endTime = new GregorianCalendar();
-                        Long endTimeInMillis = event.getDate().getTime() + (event.getDuration() * MILLIS_IN_HOUR);
-                        endTime.setTimeInMillis(endTimeInMillis);
+                        endTime = event.getEndDate();
                         int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), startTime,
                                                                 endTime, location.latitude, location.longitude);
 //                        event.setSharedID(sharedEventID);
@@ -330,7 +330,7 @@ public class EventList extends Fragment {
                         return true;
 
                     }
-                    catch (MeetlyTestServer.FailedPublicationException e) {
+                    catch (MeetlyServer.FailedPublicationException e) {
                         Log.e(TAG, "Failed to publish event: " + event.getTitle());
                         return false;
                     }

@@ -10,13 +10,6 @@ import android.widget.Toast;
 /**
  * Meetly class to be inherited from
  */
-
-/**
- * TODO: make sure month is updated to database (incorrect formatting?)
- * TODO: implement start and end date to get duration
- * TODO: add sharedEventID to Event
- */
-
 public class Meetly extends ActionBarActivity {
 
     private static final String TAG = "ParentActivity";
@@ -45,7 +38,7 @@ public class Meetly extends ActionBarActivity {
 
         if(settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)){
             editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
-            editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, "Not Logged In");
+            editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, defaultUMessage);
             editor.putBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false);
             editor.putBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
             editor.commit();

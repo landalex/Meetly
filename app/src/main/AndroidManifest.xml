@@ -49,10 +49,10 @@
             android:theme="@style/NavigationDrawerTheme" >
         </activity>
 
-        <!--Receiver for server sync interval alerts-->
+        <!-- Receiver for server sync interval alerts -->
         <receiver
             android:name=".ServerSyncReceiver"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.cmpt276.meetly.sync" />
             </intent-filter>

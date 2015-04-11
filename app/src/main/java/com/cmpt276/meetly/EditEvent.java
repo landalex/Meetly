@@ -1,6 +1,5 @@
 package com.cmpt276.meetly;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -31,6 +30,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * This class allows you edit an event thats passed in
@@ -64,14 +64,14 @@ public class EditEvent extends ActionBarActivity {
 
         // Setting the TextViews and Map to display the details of the event thats passed in.
         eventName.setText(event.getTitle());
-        eventDate.setText(event.getDate().toString());
-        eventDuration.setText("" + event.getDuration());
-        Date newDate = event.getDate();
+        eventDate.setText(event.getStartDate().toString());
+        //eventDuration.setText("" + event.getDuration());
+        //Date newDate = event.getDate();
         // TODO: Allow event location to be changed
 
         // Setting up the map and buttons
         eventLatLong = event.getLocation();
-        calender.setTime(event.getDate());
+        calender = event.getStartDate();
         date = new Integer[]{calender.get(Calendar.YEAR), calender.get(Calendar.MONTH), calender.get(Calendar.DAY_OF_MONTH)};
         hourAndMinuteArray = new Integer[]{calender.get(Calendar.HOUR_OF_DAY), calender.get(Calendar.MINUTE)};
 
@@ -107,8 +107,11 @@ public class EditEvent extends ActionBarActivity {
                 final Date newDate = formatEventTimeAndDate();
 
                 event.setTitle(newTitle);
-                event.setDate(newDate);
-                event.setDuration(newDuration);
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(newDate);
+                event.setStartDate(calendar);
+                event.setEndDate(calendar);
+                //event.setDuration(newDuration);
                 event.setLocation(eventLatLong);
 
                 database.updateDatabaseEvent(event);
@@ -168,7 +171,7 @@ public class EditEvent extends ActionBarActivity {
         // yyyy - mm - dd <> hh:mm:ss
         String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
 
-        DateFormat sdf = Event.EVENT_SDF;
+        DateFormat sdf = Event.EVENT_DATEFORMAT;
 
         // Parsing the time and date into a Date object
         Date eventDate = new Date();

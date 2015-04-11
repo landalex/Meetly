@@ -1,12 +1,9 @@
 package com.cmpt276.meetly;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -31,9 +28,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Allows user to specify details about an event, and create the event in the database
@@ -75,8 +73,15 @@ public class CreateEvent extends ActionBarActivity {
             public void onClick(View v) {
                 final Date finalEventDate = formatEventTimeAndDate();
 
+
+                Calendar startCalendar = new GregorianCalendar();
+                startCalendar.setTime(finalEventDate);
+                Calendar endCalendar = new GregorianCalendar();
+                endCalendar.setTime(finalEventDate);
+                endCalendar.add(Calendar.HOUR, Integer.parseInt(durationField.getText().toString()));
                 EventsDataSource event = new EventsDataSource(CreateEvent.this);
-                event.createEvent(eventNameField.getText().toString(), finalEventDate, eventLatLong, Integer.parseInt(durationField.getText().toString()));
+                event.createEvent(eventNameField.getText().toString(), startCalendar,startCalendar, eventLatLong);
+
                 Log.i("Final Event Going in: ", finalEventDate.toString());
                 finish();
             }
@@ -98,7 +103,7 @@ public class CreateEvent extends ActionBarActivity {
 
         // yyyy - mm - dd <> hh:mm:ss
         String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
-        DateFormat sdf = Event.EVENT_SDF;
+        DateFormat sdf = Event.EVENT_DATEFORMAT;
 
         // Parsing the time and date into a Date object
         Date eventDate = new Date();

@@ -1,0 +1,46 @@
+Task List for Iteration 3
+# Task List Iteration 3
+
+1. Working with the central server (Hami)
+-----------------------------------
+- All event publications and modifications should be stored on the
+ central server, accessed through MeetlyServer and MeetlyServerImpl.
+
+2. Fetching new events (Hami)
+-------------------------
+- At regular intervals, the app should fetch new events from the central
+ server.
+- New events must indicate that they are unviewed in the event list until the
+ user views them.
+- Events that the logged in user did not create must not be modifiable.
+
+3. Displaying updated events (Alex)
+-----------------------------
+- When a viewed event has been modified on the central server, the event
+ list must indicate that the event has changed until the user views them.
+
+4. Controlling server updates (Alex)
+------------------------------
+- Suppose the user is viewing the event list.
+- The user selects an "options menu" and configures the update frequency.
+ - The app now scans for updates with the selected frequency, in minutes.
+- The user returns to the event list.
+- The user presses a button for updating the event list immediately.
+ - The app fetches any new events from the server immediately.
+
+5. Scheduling around conflicts (Jasdeep)
+-------------------------------
+- Assume the user has logged in and created an event.
+- Suppose some other published event conflicts with the chosen time for
+ the created event.
+- Upon choosing to share a the first event, a warning dialog appears with a
+ list of events scheduled at the same time.
+- The user can choose to cancel the publication and edit the event or
+ continue publishing the event anyway.
+
+
+# Possible Extra Helper Classes
+
+
+# UI Polishing
+UI Design (Tina)

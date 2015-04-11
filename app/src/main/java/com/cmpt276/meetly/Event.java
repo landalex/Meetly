@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -18,13 +19,13 @@ public class Event {
     private long eventID;
     private int sharedEventID;
     private String title;
-    private Date date;
+    private Calendar startDate;
+    private Calendar endDate;
     private LatLng eventLocation;
-    public final static SimpleDateFormat EVENT_SDF = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CANADA);
-/*
-    private ArrayList<String> attendees;
-*/
-    private int duration;
+    private boolean viewed;
+
+    //used for all calendar/date formats in the app for events
+    public final static SimpleDateFormat EVENT_DATEFORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CANADA);
 
     final private String TAG = "EventClass";
 
@@ -35,18 +36,21 @@ public class Event {
     /**
      * Event Constructor using LatLng
      * @param title
-     * @param date
+     * @param startDate
+     * @param endDate
      * @param location
-     * @param duration
      */
-    public Event(long eventID, String title, Date date, LatLng location, int duration) {
+    public Event(long eventID, String title, Calendar startDate, Calendar endDate, LatLng location) {
         this.eventID = eventID;
         this.title = title;
-        this.date = date;
+        this.startDate = startDate;
+        this.endDate = endDate;
         eventLocation = new LatLng(location.latitude,location.longitude);
-        this.duration = duration;
         sharedEventID = -1;
+        viewed = true;
     }
+
+
 
     /**
      * Event Copy Constructor
@@ -55,39 +59,39 @@ public class Event {
     public Event(Event eventCopy) {
         this.eventID = eventCopy.getID();
         this.title = eventCopy.getTitle();
-        this.date = eventCopy.getDate();
+        this.startDate = eventCopy.getStartDate();
+        this.endDate = eventCopy.getEndDate();
         eventLocation = eventCopy.eventLocation;
-        this.duration = eventCopy.getDuration();
-        this.sharedEventID = getSharedEventID();
+        this.sharedEventID = eventCopy.getSharedEventID();
+        this.viewed = eventCopy.isViewed();
     }
 
     /**
      * Event Constructor
-     *       Note: values must contain 6 key-value pairs
+     *       Note: values must contain 7 key-value pairs
      * @param values The values to create the event with
      */
     public Event(ContentValues values) {
         eventID = values.getAsLong(MySQLiteHelper.COLUMN_ID);
         title = values.getAsString(MySQLiteHelper.COLUMN_TITLE);
-        String dateAsString = (values.getAsString(MySQLiteHelper.COLUMN_DATE));
+        String startDateAsString = (values.getAsString(MySQLiteHelper.COLUMN_STARTDATE));
+        String endDateAsString = (values.getAsString(MySQLiteHelper.COLUMN_ENDDATE));
 
-        SimpleDateFormat sdf = EVENT_SDF;
-
+        SimpleDateFormat sdf = EVENT_DATEFORMAT;
         try{
-            date = sdf.parse(dateAsString);
+            startDate.setTime(sdf.parse(startDateAsString));
+            endDate.setTime(sdf.parse(endDateAsString));
         }catch (ParseException e){
-            Log.e(TAG, "Failed to parse " + dateAsString + " into a date object");
+            Log.e(TAG, "Failed to parse string into a Calendar object");
             e.printStackTrace();
         }
 
         eventLocation = new LatLng(
                 values.getAsDouble(MySQLiteHelper.COLUMN_LATITUDE)
-               ,values.getAsDouble(MySQLiteHelper.COLUMN_LATITUDE)
+               ,values.getAsDouble(MySQLiteHelper.COLUMN_LONGITUDE)
         );
 
-        duration = values.getAsInteger(MySQLiteHelper.COLUMN_DURATION);
-
-
+        viewed = values.getAsBoolean(MySQLiteHelper.COLUMN_VIEWED);
     }
 
     /**
@@ -96,12 +100,13 @@ public class Event {
      * The event is unusable in this state until its properties have been assigned
      */
     public Event() {
-        this.eventID = -1;
-        this.title = "";
-        this.date = null;
+        eventID = -1;
+        title = null;
+        startDate = null;
+        endDate = null;
         eventLocation = null;
-        this.duration = -1;
-        this.sharedEventID = -1;
+        sharedEventID = -1;
+        viewed = false;
     }
 
     /**
@@ -109,41 +114,49 @@ public class Event {
      * @return
      */
     public void printEvent(){
-        SimpleDateFormat sdf = EVENT_SDF;
+        SimpleDateFormat sdf = EVENT_DATEFORMAT;
 
         Log.i(TAG, "\nEvent ID: " + eventID
                 + "\nEvent title: " + title
-                + "\nEvent date: " + sdf.format(date)
+                + "\nEvent start date: " + sdf.format(startDate)
+                + "\nEvent end date: " + sdf.format(endDate)
                 + "\nEvent location: " + eventLocation.latitude + ", " + eventLocation.longitude
                 + "\nEvent sharedEventId: " + sharedEventID
-                + "\nEvent duration: " + duration);
+                + "\nEvent is viewed?: " + viewed);
     }
 
     // Accessors
     public String getTitle() {return title;}
 
-    public Date getDate() {return date;}
+    public Calendar getStartDate() {return startDate;}
+
+    public Calendar getEndDate() {return endDate;}
 
     public LatLng getLocation() {return eventLocation;}
 
     public int getSharedEventID() { return sharedEventID; }
 
-    public int getDuration(){ return duration;}
-
     public long getID() {return eventID;}
+
+    public boolean isViewed() {
+        return viewed;
+    }
 
     //Basic Mutators
     public void setTitle(String title) { this.title = title;}
 
-    public void setDate(Date date) { this.date = date;}
+    public void setStartDate(Calendar startDate) {this.startDate = startDate;}
+
+    public void setEndDate(Calendar endDate) {this.endDate = endDate;}
 
     public void setLocation(LatLng location) { eventLocation = location;}
 
     public void setSharedEventID(int sharedEventID) { this.sharedEventID = sharedEventID;}
 
-    public void setDuration(int duration){ this.duration = duration;}
-
     public void setID(long eventID) {this.eventID = eventID;}
 
+    public void setViewed(boolean viewed) {
+        this.viewed = viewed;
+    }
 
 }
