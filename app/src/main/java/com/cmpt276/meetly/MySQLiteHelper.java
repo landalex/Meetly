@@ -14,16 +14,17 @@ import java.sql.SQLException;
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "MeetlyDB";
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_EVENTS = "events";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_SHAREDEVENTID = "sharedEventID";
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_STARTDATE = "startDate";
-    public static final String COLUMN_ENDDATE = "startDate";
+    public static final String COLUMN_ENDDATE = "endDate";
     public static final String COLUMN_LATITUDE = "latitude";
     public static final String COLUMN_LONGITUDE = "longitude";
+    public static final String COLUMN_VIEWED = "viewed";
 
     // database table sql statement for events
     private static final String DATABASE_CREATE = "create table "
@@ -35,6 +36,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + COLUMN_ENDDATE + " text,"
             + COLUMN_LATITUDE + " double,"
             + COLUMN_LONGITUDE + " double,"
+            + COLUMN_VIEWED + " integer"
             + ");";
 
 
@@ -69,7 +71,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
-        //onCreate(db);
+        onCreate(db);
     }
 
     /**

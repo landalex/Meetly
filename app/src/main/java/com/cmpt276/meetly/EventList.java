@@ -190,8 +190,8 @@ public class EventList extends Fragment {
 
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
-                .setTitle(event.getDate().toString())
-                .setSubTitle(timeUntil(event.getDate()) + "\n" + getString(R.string.eventlist_card_unshared))
+                .setTitle(event.getStartDate().toString())
+                .setSubTitle(timeUntil(event.getStartDate().getTime()) + "\n" + getString(R.string.eventlist_card_unshared))
                 .useDrawableId(pickDrawableForCard(event.getTitle()))
                 .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                 .build();
@@ -285,23 +285,22 @@ public class EventList extends Fragment {
         Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
         MeetlyServer server = new MeetlyServer();
         LatLng location = event.getLocation();
-//                    try {
+                        try {
                         Calendar startTime = new GregorianCalendar();
                         startTime = event.getStartDate();
                         Calendar endTime = new GregorianCalendar();
-                        Long endTimeInMillis = event.getStartDate().getTime() + (event.getDuration() * MILLIS_IN_HOUR);
-                        endTime.setTimeInMillis(endTimeInMillis);
+                        endTime.setTimeInMillis(event.getEndDate().getTimeInMillis());
                         int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), startTime,
                                                                 endTime, location.latitude, location.longitude);
-//                        event.setSharedID(sharedEventID);
-//                        db.updateDatabaseEvent(event);
+                        event.setSharedEventID(sharedEventID);
+                        db.updateDatabaseEvent(event);
                         return true;
 
-//                    }
-//                    catch (IMeetlyServer.FailedPublicationException e) {
-//                        Log.e(TAG, "Failed to publish event: " + event.getTitle());
-//                        return false;
-//                    }
+                    }
+                    catch (IMeetlyServer.FailedPublicationException e) {
+                        Log.e(TAG, "Failed to publish event: " + event.getTitle());
+                        return false;
+                    }
     }
 
     private AlertDialog makeLoginAlertDialog(String title, String message, String positiveButtonLabel, String negativeButtonLabel) {

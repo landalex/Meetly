@@ -80,7 +80,7 @@ public class CreateEvent extends ActionBarActivity {
                 endCalendar.setTime(finalEventDate);
                 endCalendar.add(Calendar.HOUR, Integer.parseInt(durationField.getText().toString()));
                 EventsDataSource event = new EventsDataSource(CreateEvent.this);
-                event.createEvent(eventNameField.getText().toString(), startCalendar,endCalendar, eventLatLong);
+                event.createEvent(eventNameField.getText().toString(), startCalendar,startCalendar, eventLatLong);
 
                 Log.i("Final Event Going in: ", finalEventDate.toString());
                 finish();

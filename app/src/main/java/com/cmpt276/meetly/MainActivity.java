@@ -48,8 +48,34 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
 
         openFragment(getCurrentFocus());
 
+
+/*        //new Thread(new Runnable(){
+            @Override
+            public void run() {
+                connectToDB();
+            }
+        }).start();*/
+    }
+
+/*    private void connectToDB() {
+        MeetlyServer server = new MeetlyServer();
+        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        String username = settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, Meetly.defaultUMessage);
+        //String password = settings.getString(Meetly.MEE)
+        if(!username.matches("Not Logged In")){
+            try {
+                int token = server.login(username, "nopassword");
+                for (MeetlyServer.MeetlyEvent e : server.fetchEventsAfter(1)) {
+                    Log.i("DBTester", "Event " + e.title);
+                }
+            } catch (MeetlyServer.FailedLoginException e) {
+                e.printStackTrace();
+            } catch (MeetlyServer.FailedFetchException e) {
+                e.printStackTrace();
+            }
         }
 
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -188,8 +214,8 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     public void onUpgradeDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        //dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
-        MySQLiteHelper.deleteDatabase(database, getApplicationContext());
+        dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
+        //MySQLiteHelper.deleteDatabase(database, getApplicationContext());
     }
 
     @Override

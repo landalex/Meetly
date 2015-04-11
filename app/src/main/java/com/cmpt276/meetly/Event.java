@@ -22,6 +22,7 @@ public class Event {
     private Calendar startDate;
     private Calendar endDate;
     private LatLng eventLocation;
+    private boolean viewed;
 
     //used for all calendar/date formats in the app for events
     public final static SimpleDateFormat EVENT_DATEFORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CANADA);
@@ -46,7 +47,10 @@ public class Event {
         this.endDate = endDate;
         eventLocation = new LatLng(location.latitude,location.longitude);
         sharedEventID = -1;
+        viewed = true;
     }
+
+
 
     /**
      * Event Copy Constructor
@@ -58,12 +62,13 @@ public class Event {
         this.startDate = eventCopy.getStartDate();
         this.endDate = eventCopy.getEndDate();
         eventLocation = eventCopy.eventLocation;
-        this.sharedEventID = getSharedEventID();
+        this.sharedEventID = eventCopy.getSharedEventID();
+        this.viewed = eventCopy.isViewed();
     }
 
     /**
      * Event Constructor
-     *       Note: values must contain 6 key-value pairs
+     *       Note: values must contain 7 key-value pairs
      * @param values The values to create the event with
      */
     public Event(ContentValues values) {
@@ -85,6 +90,8 @@ public class Event {
                 values.getAsDouble(MySQLiteHelper.COLUMN_LATITUDE)
                ,values.getAsDouble(MySQLiteHelper.COLUMN_LONGITUDE)
         );
+
+        viewed = values.getAsBoolean(MySQLiteHelper.COLUMN_VIEWED);
     }
 
     /**
@@ -99,6 +106,7 @@ public class Event {
         endDate = null;
         eventLocation = null;
         sharedEventID = -1;
+        viewed = false;
     }
 
     /**
@@ -113,7 +121,8 @@ public class Event {
                 + "\nEvent start date: " + sdf.format(startDate)
                 + "\nEvent end date: " + sdf.format(endDate)
                 + "\nEvent location: " + eventLocation.latitude + ", " + eventLocation.longitude
-                + "\nEvent sharedEventId: " + sharedEventID);
+                + "\nEvent sharedEventId: " + sharedEventID
+                + "\nEvent is viewed?: " + viewed);
     }
 
     // Accessors
@@ -129,6 +138,10 @@ public class Event {
 
     public long getID() {return eventID;}
 
+    public boolean isViewed() {
+        return viewed;
+    }
+
     //Basic Mutators
     public void setTitle(String title) { this.title = title;}
 
@@ -142,5 +155,8 @@ public class Event {
 
     public void setID(long eventID) {this.eventID = eventID;}
 
+    public void setViewed(boolean viewed) {
+        this.viewed = viewed;
+    }
 
 }

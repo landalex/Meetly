@@ -45,7 +45,7 @@ public class Meetly extends ActionBarActivity {
 
         if(settings.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)){
             editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
-            editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, "Not Logged In");
+            editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, defaultUMessage);
             editor.putBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false);
             editor.putBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
             editor.commit();

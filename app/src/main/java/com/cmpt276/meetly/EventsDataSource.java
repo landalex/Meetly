@@ -5,18 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
-import android.nfc.Tag;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.File;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -39,7 +34,8 @@ public class EventsDataSource {
             MySQLiteHelper.COLUMN_STARTDATE,
             MySQLiteHelper.COLUMN_ENDDATE,
             MySQLiteHelper.COLUMN_LATITUDE,
-            MySQLiteHelper.COLUMN_LONGITUDE};
+            MySQLiteHelper.COLUMN_LONGITUDE,
+            MySQLiteHelper.COLUMN_VIEWED};
     /**
      * Events Data Source constructor.
      * Facilitates database connections and supports adding new events and fetching events
@@ -76,11 +72,11 @@ public class EventsDataSource {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_TITLE, title);
 
-        values.put(MySQLiteHelper.COLUMN_STARTDATE, Event.EVENT_DATEFORMAT.format(startDate));
-        values.put(MySQLiteHelper.COLUMN_ENDDATE, Event.EVENT_DATEFORMAT.format(endDate));
+        values.put(MySQLiteHelper.COLUMN_STARTDATE, Event.EVENT_DATEFORMAT.format(startDate.getTime()));
+        values.put(MySQLiteHelper.COLUMN_ENDDATE, Event.EVENT_DATEFORMAT.format(endDate.getTime()));
         values.put(MySQLiteHelper.COLUMN_LATITUDE, location.latitude);
         values.put(MySQLiteHelper.COLUMN_LONGITUDE, location.longitude);
-
+        values.put(MySQLiteHelper.COLUMN_VIEWED, 1);
         //get row id and insert into database
         long insertID = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
 
@@ -98,7 +94,7 @@ public class EventsDataSource {
 
     /**
      * Create a new event from a ContentValues object and add to the database
-     *      Note: Content values must have 5 key-value pairs
+     *      Note: Content values must have 6 key-value pairs
      * @param values The values to create the event with
      * @return a copy of the event added to the database
      */
@@ -181,7 +177,7 @@ public class EventsDataSource {
         database = dbHelper.getReadableDatabase();
         List<Event> events;
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_STARTDATE
-                + " = " + Event.EVENT_DATEFORMAT.format(startDate), null, null, null, "date");
+                + " = " + Event.EVENT_DATEFORMAT.format(startDate.getTime()), null, null, null, "date");
 
         if(resultSet.getCount() == 0){
             throw new RuntimeException("Error attempting to retrieve record from database. The ID \"\" + eventID + \"\" does not match any record in the database");
@@ -272,10 +268,14 @@ public class EventsDataSource {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_SHAREDEVENTID,event.getSharedEventID());
         values.put(MySQLiteHelper.COLUMN_TITLE, event.getTitle());
-        values.put(MySQLiteHelper.COLUMN_STARTDATE, Event.EVENT_DATEFORMAT.format(event.getStartDate()));
-        values.put(MySQLiteHelper.COLUMN_ENDDATE, Event.EVENT_DATEFORMAT.format(event.getEndDate()));
+        values.put(MySQLiteHelper.COLUMN_STARTDATE, Event.EVENT_DATEFORMAT.format(event.getStartDate().getTime()));
+        values.put(MySQLiteHelper.COLUMN_ENDDATE, Event.EVENT_DATEFORMAT.format(event.getEndDate().getTime()));
         values.put(MySQLiteHelper.COLUMN_LATITUDE, event.getLocation().latitude);
         values.put(MySQLiteHelper.COLUMN_LONGITUDE, event.getLocation().longitude);
+
+
+        int tempViewed = event.isViewed() ? 1 : 0;
+        values.put(MySQLiteHelper.COLUMN_VIEWED, tempViewed);
 
         try{
             database.update(MySQLiteHelper.TABLE_EVENTS, values,MySQLiteHelper.COLUMN_ID + " = " + event.getID(),null);
@@ -373,8 +373,17 @@ public class EventsDataSource {
         double loc_long = resultSet.getDouble(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_LONGITUDE));
         LatLng location = new LatLng(loc_lat,loc_long);
         event.setLocation(location);
+
+        event.setViewed(getBooleanFromCursor(resultSet, resultSet.getColumnIndex(MySQLiteHelper.COLUMN_VIEWED)));
         return event;
     }
 
+    private boolean getBooleanFromCursor(Cursor resultSet, int columnIndex) {
+        if (resultSet.isNull(columnIndex) || resultSet.getShort(columnIndex) == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
 }
