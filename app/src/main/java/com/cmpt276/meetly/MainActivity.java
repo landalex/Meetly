@@ -1,10 +1,7 @@
 package com.cmpt276.meetly;
 
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -19,9 +16,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -55,13 +50,10 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         Meetly.setMeetlySharedPrefs(getApplicationContext());
         Meetly.showPrefs(getApplicationContext());
 
-        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-
-        registerServerSyncInterval(Long.parseLong(preferences.getString("server_sync_interval", "0")));
-
         wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
         mReceiver = wifiP2pHelper.getReceiver();
 
+        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
 
         String username = getUsername(preferences);
         makeAccountSection(username);
@@ -96,19 +88,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         return super.backToSection(currentSection);
     }
 
-    private void registerServerSyncInterval(Long updateIntervalInMillis) {
-        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, ServerSyncReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-
-        if (updateIntervalInMillis > 0) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), updateIntervalInMillis,
-                    pendingIntent);
-        }
-        else {
-            alarmManager.cancel(pendingIntent);
-        }
-    }
 
     private String getUsername(SharedPreferences preferences) {
         boolean loggedIn = preferences.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
@@ -302,7 +281,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         //dbHelper.onUpgrade(database, MySQLiteHelper.DATABASE_VERSION, MySQLiteHelper.DATABASE_VERSION + 1);
-        MySQLiteHelper.deleteDatabase(database,getApplicationContext());
+        MySQLiteHelper.deleteDatabase(database, getApplicationContext());
     }
 
     @Override
@@ -354,7 +333,12 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 //        delay  amount of time in milliseconds before first execution.
 //        period  amount of time in milliseconds between subsequent executions.
 
-        synchTimer.schedule(serverEventSynchTask, 3000, 50000);
+        synchTimer.schedule(serverEventSynchTask, 3000, getServerSyncInterval());
+    }
+
+    private long getServerSyncInterval() {
+        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        return Long.parseLong(preferences.getString("server_sync_interval", "0"));
     }
 
     class MyTimerTask extends TimerTask {
