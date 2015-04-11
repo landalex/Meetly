@@ -133,28 +133,12 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_delete_db) {
             onUpgradeDBClick(getCurrentFocus());
             return true;
         }
-//        else if (id == R.id.action_login){
-//            SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-//            boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
-//
-//            //if logged in, ask user if they want to log out
-//            if(isLoggedIn){
-//                showLogOut();
-//            }else{
-//                goToLoginScreen();
-//            }
-//
-//        }
         else if (id == R.id.action_get_location) {
             if (eventListFragment == null) {
                 eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
@@ -174,30 +158,8 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         return super.onOptionsItemSelected(item);
     }
 
-    /*
-     * Changes the menu_login menu item text depending if user is logged in or not
-     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-//
-//        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-//        boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
-//
-//        MenuItem menuItem = actionBarMenu.findItem(R.id.action_login);
-//
-//        //if logged in, show user name
-//        if(isLoggedIn) {
-//            menuItem = actionBarMenu.findItem(R.id.action_login);
-//            String menuString = (getResources().getText(R.string.main_loggedin) + " " + settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, getResources().getText(R.string.main_defaultLoginMessage).toString()));
-//            menuItem.setTitle(menuString);
-//
-//        } else {
-//            //show default menu_login message
-//            menuItem.setTitle(getResources().getString(R.string.app_login));
-//
-//            //turn off popupMenu for logging out
-////            findViewById(R.id.logOut).setClickable(false);
-//        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -213,21 +175,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
      */
     public void showLogOut(){
         this.closeDrawer();
-//        PopupMenu popupMenu = new PopupMenu(this,findViewById(R.id.logOut));
-//        // This activity implements OnMenuItemClickListener
-//        popupMenu.setOnMenuItemClickListener(
-//                new PopupMenu.OnMenuItemClickListener(){
-//                     @Override
-//                     public boolean onMenuItemClick(MenuItem item) {
-//                         logOut();
-//                         return true;
-//                     }
-//                 }
-//        );
-//        //MenuInflater inflater = popupMenu.getMenuInflater();
-//        //inflater.inflate(R.menu.menu_login, popupMenu.getMenu());
-//        popupMenu.inflate(R.menu.menu_login);
-//        popupMenu.show();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.app_logout_confirmation));
         builder.setPositiveButton(getString(R.string.app_logout_dialog_positive), new DialogInterface.OnClickListener() {
@@ -301,17 +249,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         super.onPause();
         unregisterReceiver(mReceiver);
     }
-
-//    @Override
-//    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
-//        if (keyCode == KeyEvent.KEYCODE_BACK) {
-//            Intent startMain = new Intent(Intent.ACTION_MAIN);
-//            startMain.addCategory(Intent.CATEGORY_HOME);
-//            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            startActivity(startMain);
-//        }
-//        return true;
-//    }
 
     @Override
     protected void onDestroy() {

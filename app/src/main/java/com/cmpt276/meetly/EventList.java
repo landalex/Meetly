@@ -202,7 +202,6 @@ public class EventList extends Fragment {
     private MaterialLargeImageCard makeMaterialLargeImageCard(ArrayList<BaseSupplementalAction> actions, Event event, int eventIndex) {
         final long eventID = event.getID();
         Log.d(TAG, "eventID: " + eventID);
-        boolean unviewed = false;
 
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
@@ -212,7 +211,7 @@ public class EventList extends Fragment {
                 .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                 .build();
         card.addCardHeader(new CardHeader(getActivity()));
-        setUnviewedIcon(unviewed);
+        setUnviewedIcon(event.isViewed());
         card.setId("" + eventIndex);
         card.setCardElevation(20);
 
@@ -230,10 +229,10 @@ public class EventList extends Fragment {
         return card;
     }
 
-    private void setUnviewedIcon(boolean unviewed) {
+    private void setUnviewedIcon(boolean viewed) {
         ImageButton indicator = (ImageButton) getActivity().findViewById(R.id.viewedIndicator);
         if (indicator != null) {
-            if (unviewed) {
+            if (!viewed) {
                 indicator.setVisibility(View.VISIBLE);
             } else {
                 indicator.setVisibility(View.GONE);
@@ -312,21 +311,15 @@ public class EventList extends Fragment {
     }
 
     private boolean publishEventByID(String username, Integer userToken, Long ID) {
-        final int MILLIS_IN_HOUR = 3600000;
-
         EventsDataSource db = new EventsDataSource(getActivity());
         Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
         MeetlyServer server = new MeetlyServer();
         LatLng location = event.getLocation();
                     try {
-                        Calendar startTime = new GregorianCalendar();
-                        startTime = event.getStartDate();
-                        Calendar endTime = new GregorianCalendar();
-                        endTime = event.getEndDate();
-                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), startTime,
-                                                                endTime, location.latitude, location.longitude);
-//                        event.setSharedID(sharedEventID);
-//                        db.updateDatabaseEvent(event);
+                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), event.getStartDate(),
+                                                                event.getEndDate(), location.latitude, location.longitude);
+                        event.setSharedEventID(sharedEventID);
+                        db.updateDatabaseEvent(event);
                         return true;
 
                     }
