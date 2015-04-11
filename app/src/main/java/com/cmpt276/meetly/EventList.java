@@ -88,6 +88,14 @@ public class EventList extends Fragment {
         configureRecyclerView();
         configureSwipeToRefresh();
 
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.setEventUpdateObserver(new EventUpdateObserver() {
+            @Override
+            public void eventsUpdated() {
+                onResume();
+            }
+        });
+
 //        dialog = new ProgressDialog(getActivity());
 //        dialog.setIndeterminate(true);
 //        dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
@@ -148,6 +156,7 @@ public class EventList extends Fragment {
             }
         });
     }
+
 
     @Override
     public void onResume() {
