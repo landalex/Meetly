@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/settings_title_general">
+
+        <ListPreference android:key="server_sync_interval"
+                        android:title="@string/settings_sync_interval"
+                        android:summary="@string/settings_sync_interval_description"
+                        android:entries="@array/list_sync_intervals"
+                        android:entryValues="@array/list_sync_intervals_values"
+                        android:dialogTitle="@string/settings_sync_interval"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

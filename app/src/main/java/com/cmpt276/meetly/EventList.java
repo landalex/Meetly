@@ -15,6 +15,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,7 +62,7 @@ public class EventList extends Fragment {
     private ArrayList<Card> cards = new ArrayList<>(0);
     public boolean showingCrouton;
     private List<Event> eventList = new ArrayList<>(0);
-    ProgressDialog dialog = null;
+//    ProgressDialog dialog = null;
     private Map<String, Integer> drawableMap;
 
 
@@ -85,12 +86,26 @@ public class EventList extends Fragment {
         createCardAdapter(cards);
         createFloatingActionButtonListeners();
         configureRecyclerView();
+        configureSwipeToRefresh();
 
-        dialog = new ProgressDialog(getActivity());
-        dialog.setIndeterminate(true);
-        dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
+//        dialog = new ProgressDialog(getActivity());
+//        dialog.setIndeterminate(true);
+//        dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
 
         createDrawableMap();
+    }
+
+    private void configureSwipeToRefresh() {
+        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getActivity().sendBroadcast(new Intent("com.cmpt276.meetly.sync"));
+                // TODO: Properly implement a Runnable so refreshing stops when it is actually done
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.green));
     }
 
     private void createDrawableMap() {
@@ -151,9 +166,9 @@ public class EventList extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (dialog != null) {
-            dialog.dismiss();
-        }
+//        if (dialog != null) {
+//            dialog.dismiss();
+//        }
     }
 
     private void configureRecyclerView() {
@@ -177,7 +192,6 @@ public class EventList extends Fragment {
         for (Event event: eventList) {
             MaterialLargeImageCard card = makeMaterialLargeImageCard(actions, event, eventIndex);
             cards.add(card);
-//            mCardArrayAdapter.notifyItemInserted(eventIndex);
             eventIndex++;
         }
         Log.i(TAG, "Cards generated.");
@@ -230,10 +244,7 @@ public class EventList extends Fragment {
         editEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Intent intent = new Intent(getActivity(), EditEvent.class);
-                Long eventIndex = Long.parseLong(card.getId());
-                intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
-                startActivity(intent);
+                editEventFromID(Long.parseLong(card.getId()));
             }
         });
         actions.add(editEvent);
@@ -242,11 +253,7 @@ public class EventList extends Fragment {
         deleteEvent.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
             @Override
             public void onClick(Card card, View view) {
-                Long eventIndexParsed = Long.parseLong(card.getId());
-                int eventIndex = eventIndexParsed.intValue();
-                db.deleteEvent(db.findEventByID(eventList.get(eventIndex).getID()));
-                UpdateCards updater = new UpdateCards();
-                updater.execute(updater.REMOVE_MODE, eventIndex);
+                removeEventByIndex(Long.parseLong(card.getId()), db);
             }
         });
         actions.add(deleteEvent);
@@ -278,26 +285,40 @@ public class EventList extends Fragment {
         return actions;
     }
 
+    private void removeEventByIndex(Long eventIndex, EventsDataSource db) {
+        int eventIndexInt = eventIndex.intValue();
+        db.deleteEvent(db.findEventByID(eventList.get(eventIndexInt).getID()));
+        UpdateCards updater = new UpdateCards();
+        updater.execute(updater.REMOVE_MODE, eventIndexInt);
+    }
+
+    private void editEventFromID(Long eventIndex) {
+        Intent intent = new Intent(getActivity(), EditEvent.class);
+        intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
+        startActivity(intent);
+    }
+
     private boolean publishEventByID(String username, Integer userToken, Long ID) {
         final int MILLIS_IN_HOUR = 3600000;
 
         EventsDataSource db = new EventsDataSource(getActivity());
         Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
-        MeetlyServer server = new MeetlyServer();
+        MeetlyTestServer server = new MeetlyTestServer();
         LatLng location = event.getLocation();
-                        try {
+                    try {
                         Calendar startTime = new GregorianCalendar();
-                        startTime = event.getStartDate();
+                        startTime.setTime(event.getDate());
                         Calendar endTime = new GregorianCalendar();
-                        endTime.setTimeInMillis(event.getEndDate().getTimeInMillis());
+                        Long endTimeInMillis = event.getDate().getTime() + (event.getDuration() * MILLIS_IN_HOUR);
+                        endTime.setTimeInMillis(endTimeInMillis);
                         int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), startTime,
                                                                 endTime, location.latitude, location.longitude);
-                        event.setSharedEventID(sharedEventID);
-                        db.updateDatabaseEvent(event);
+//                        event.setSharedID(sharedEventID);
+//                        db.updateDatabaseEvent(event);
                         return true;
 
                     }
-                    catch (IMeetlyServer.FailedPublicationException e) {
+                    catch (MeetlyTestServer.FailedPublicationException e) {
                         Log.e(TAG, "Failed to publish event: " + event.getTitle());
                         return false;
                     }
@@ -460,6 +481,7 @@ public class EventList extends Fragment {
         public final int REMOVE_MODE = 2;
         public final int EDIT_MODE = 3;
         public final int CREATE_MODE = 0;
+        public final int CLEAR_MODE = 4;
         EventsDataSource database = new EventsDataSource(getActivity());
 
         protected void onPreExecute() {
@@ -482,12 +504,18 @@ public class EventList extends Fragment {
             }
             else if (params[0] == REMOVE_MODE) {
                 Log.i(TAG, "Removing card at index: " + params[1]);
-                cards.remove(params[1].intValue());
-                eventList.remove(params[1].intValue());
-                for (int i = params[1]; i < cards.size(); i++) {
-                    Long oldPos = Long.parseLong(cards.get(i).getId());
-                    Long newPos = oldPos - 1;
-                    cards.get(i).setId("" + newPos);
+                if (eventList.size() > 1) {
+                    cards.remove(params[1].intValue());
+                    eventList.remove(params[1].intValue());
+                    for (int i = params[1]; i < cards.size(); i++) {
+                        Long oldPos = Long.parseLong(cards.get(i).getId());
+                        Long newPos = oldPos - 1;
+                        cards.get(i).setId("" + newPos);
+                    }
+                }
+                else {
+                    cards.clear();
+                    params[0] = CLEAR_MODE;
                 }
             }
             else if (params[0] == EDIT_MODE) {
@@ -499,9 +527,9 @@ public class EventList extends Fragment {
 
         @Override
         protected void onPostExecute(Integer[] result) {
-            if (dialog.isShowing()) {
-                dialog.dismiss();
-            }
+//            if (dialog.isShowing()) {
+//                dialog.dismiss();
+//            }
 
             if (result[0] == CREATE_MODE) {
                 Log.i(TAG, "Card update finished.");
@@ -518,6 +546,10 @@ public class EventList extends Fragment {
             else if (result[0] == EDIT_MODE) {
                 Log.i(TAG, "Card refreshed at index: " + result[1]);
                 mCardArrayAdapter.notifyItemChanged(result[1]);
+            }
+            else if (result[0] == CLEAR_MODE) {
+                Log.i(TAG, "Cards cleared");
+                mCardArrayAdapter.notifyDataSetChanged();
             }
         }
 

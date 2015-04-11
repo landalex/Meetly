@@ -1,29 +1,34 @@
 package com.cmpt276.meetly;
 
+import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
+import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
+import it.neokree.materialnavigationdrawer.elements.MaterialSection;
+import it.neokree.materialnavigationdrawer.elements.listeners.MaterialSectionListener;
 
 
 /**
  * Holds the EventList fragment, and provides actionbar functionality like adding an event
  * Actionbar: Add event button, Location info, Location change button?
  */
-public class MainActivity extends ActionBarActivity implements EventList.OnFragmentInteractionListener{
+public class MainActivity extends MaterialNavigationDrawer implements EventList.OnFragmentInteractionListener{
 
     private final String TAG = "MainActivity";
     private EventList eventListFragment;
@@ -32,50 +37,100 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     private BroadcastReceiver mReceiver;
     private WifiP2pHelper wifiP2pHelper;
     private Menu actionBarMenu;
+    private MaterialAccount account;
+    private MaterialSection eventListSection;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+    public void init(Bundle bundle) {
         Meetly.setMeetlySharedPrefs(getApplicationContext());
         Meetly.showPrefs(getApplicationContext());
+
+        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+
+        registerServerSyncInterval(Long.parseLong(preferences.getString("server_sync_interval", "0")));
 
         wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
         mReceiver = wifiP2pHelper.getReceiver();
 
-        openFragment(getCurrentFocus());
 
+        String username = getUsername(preferences);
+        makeAccountSection(username);
 
-/*        //new Thread(new Runnable(){
-            @Override
-            public void run() {
-                connectToDB();
-            }
-        }).start();*/
+        eventListSection = newSection(getString(R.string.app_name), EventList.newInstance());
+        this.addSection(eventListSection);
+
+        Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+        MaterialSection bottomSection = newSection(getString(R.string.action_settings), R.drawable.ic_settings_grey, settingsIntent);
+        this.addBottomSection(bottomSection);
+
+        allowArrowAnimation();
+        setBackPattern(MaterialNavigationDrawer.BACKPATTERN_CUSTOM);
+
+        if (!preferences.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)) {
+            disableLearningPattern();
+        }
     }
 
-/*    private void connectToDB() {
-        MeetlyServer server = new MeetlyServer();
-        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-        String username = settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, Meetly.defaultUMessage);
-        //String password = settings.getString(Meetly.MEE)
-        if(!username.matches("Not Logged In")){
-            try {
-                int token = server.login(username, "nopassword");
-                for (MeetlyServer.MeetlyEvent e : server.fetchEventsAfter(1)) {
-                    Log.i("DBTester", "Event " + e.title);
-                }
-            } catch (MeetlyServer.FailedLoginException e) {
-                e.printStackTrace();
-            } catch (MeetlyServer.FailedFetchException e) {
-                e.printStackTrace();
-            }
+    @Override
+    protected MaterialSection backToSection(MaterialSection currentSection) {
+        if(currentSection == eventListSection) {
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
+            return currentSection;
         }
+        return super.backToSection(currentSection);
+    }
 
-    }*/
+    private void registerServerSyncInterval(Long updateIntervalInMillis) {
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, ServerSyncReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+        if (updateIntervalInMillis > 0) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), updateIntervalInMillis,
+                    pendingIntent);
+        }
+        else {
+            alarmManager.cancel(pendingIntent);
+        }
+    }
+
+    private String getUsername(SharedPreferences preferences) {
+        boolean loggedIn = preferences.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+        String username;
+        if (loggedIn) {
+            username = preferences.getString(Meetly.MEETLY_PREFERENCES_USERNAME, "");
+        }
+        else {
+            username = getString(R.string.main_not_logged_in);
+        }
+        return username;
+    }
+
+    private void makeAccountSection(String username) {
+        account = new MaterialAccount(getResources(),
+                username, "", R.drawable.card_picture_pizza, R.drawable.card_picture_default);
+        this.addAccount(account);
+
+        MaterialSection accountSection;
+        if (username.equals(getString(R.string.main_not_logged_in))) {
+            accountSection = newSection(getString(R.string.app_login), R.drawable.ic_add_grey, new Intent(MainActivity.this, LoginActivity.class));
+            this.addAccountSection(accountSection);
+        }
+        else {
+            accountSection = newSection(getString(R.string.app_logout), R.drawable.ic_delete_grey, new MaterialSectionListener() {
+                @Override
+                public void onClick(MaterialSection section) {
+                    showLogOut();
+                }
+            });
+            this.addAccountSection(accountSection);
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -96,18 +151,20 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         if (id == R.id.action_delete_db) {
             onUpgradeDBClick(getCurrentFocus());
             return true;
-        } else if (id == R.id.action_login){
-            SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-            boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
-
-            //if logged in, ask user if they want to log out
-            if(isLoggedIn){
-                showLogOut();
-            }else{
-                goToLoginScreen();
-            }
-
-        } else if (id == R.id.action_get_location) {
+        }
+//        else if (id == R.id.action_login){
+//            SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+//            boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+//
+//            //if logged in, ask user if they want to log out
+//            if(isLoggedIn){
+//                showLogOut();
+//            }else{
+//                goToLoginScreen();
+//            }
+//
+//        }
+        else if (id == R.id.action_get_location) {
             if (eventListFragment == null) {
                 eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
                 locationCrouton = eventListFragment.makeLocationCrouton();
@@ -131,25 +188,25 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
-        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-        boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
-
-        MenuItem menuItem = actionBarMenu.findItem(R.id.action_login);
-
-        //if logged in, show user name
-        if(isLoggedIn) {
-            menuItem = actionBarMenu.findItem(R.id.action_login);
-            String menuString = (getResources().getText(R.string.main_loggedin) + " " + settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, getResources().getText(R.string.main_defaultLoginMessage).toString()));
-            menuItem.setTitle(menuString);
-
-        } else {
-            //show default menu_login message
-            menuItem.setTitle(getResources().getString(R.string.app_login));
-
-            //turn off popupMenu for logging out
-            findViewById(R.id.logOut).setClickable(false);
-        }
+//
+//        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+//        boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+//
+//        MenuItem menuItem = actionBarMenu.findItem(R.id.action_login);
+//
+//        //if logged in, show user name
+//        if(isLoggedIn) {
+//            menuItem = actionBarMenu.findItem(R.id.action_login);
+//            String menuString = (getResources().getText(R.string.main_loggedin) + " " + settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, getResources().getText(R.string.main_defaultLoginMessage).toString()));
+//            menuItem.setTitle(menuString);
+//
+//        } else {
+//            //show default menu_login message
+//            menuItem.setTitle(getResources().getString(R.string.app_login));
+//
+//            //turn off popupMenu for logging out
+////            findViewById(R.id.logOut).setClickable(false);
+//        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -164,21 +221,39 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
      * Shows option of logging user out of Meetly
      */
     public void showLogOut(){
-        PopupMenu popupMenu = new PopupMenu(this,findViewById(R.id.logOut));
-        // This activity implements OnMenuItemClickListener
-        popupMenu.setOnMenuItemClickListener(
-                new PopupMenu.OnMenuItemClickListener(){
-                     @Override
-                     public boolean onMenuItemClick(MenuItem item) {
-                         logOut();
-                         return true;
-                     }
-                 }
-        );
-        //MenuInflater inflater = popupMenu.getMenuInflater();
-        //inflater.inflate(R.menu.menu_login, popupMenu.getMenu());
-        popupMenu.inflate(R.menu.menu_login);
-        popupMenu.show();
+        this.closeDrawer();
+//        PopupMenu popupMenu = new PopupMenu(this,findViewById(R.id.logOut));
+//        // This activity implements OnMenuItemClickListener
+//        popupMenu.setOnMenuItemClickListener(
+//                new PopupMenu.OnMenuItemClickListener(){
+//                     @Override
+//                     public boolean onMenuItemClick(MenuItem item) {
+//                         logOut();
+//                         return true;
+//                     }
+//                 }
+//        );
+//        //MenuInflater inflater = popupMenu.getMenuInflater();
+//        //inflater.inflate(R.menu.menu_login, popupMenu.getMenu());
+//        popupMenu.inflate(R.menu.menu_login);
+//        popupMenu.show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.app_logout_confirmation));
+        builder.setPositiveButton(getString(R.string.app_logout_dialog_positive), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                logOut();
+            }
+        });
+        builder.setNegativeButton(getString(R.string.app_logout_dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /*
@@ -214,14 +289,19 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
     public void onUpgradeDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
-        //MySQLiteHelper.deleteDatabase(database, getApplicationContext());
+        //dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
+        MySQLiteHelper.deleteDatabase(database, getApplicationContext());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(mReceiver, intentFilter);
+        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        String username = getUsername(preferences);
+        account = new MaterialAccount(getResources(),
+                username, "", R.drawable.card_picture_pizza, R.drawable.card_picture_default);
+        notifyAccountDataChanged();
     }
 
     @Override
@@ -230,20 +310,21 @@ public class MainActivity extends ActionBarActivity implements EventList.OnFragm
         unregisterReceiver(mReceiver);
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent startMain = new Intent(Intent.ACTION_MAIN);
-            startMain.addCategory(Intent.CATEGORY_HOME);
-            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(startMain);
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_BACK) {
+//            Intent startMain = new Intent(Intent.ACTION_MAIN);
+//            startMain.addCategory(Intent.CATEGORY_HOME);
+//            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(startMain);
+//        }
+//        return true;
+//    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Crouton.cancelAllCroutons();
     }
+
 }

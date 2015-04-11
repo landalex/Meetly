@@ -13,10 +13,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <!--This little bit is also used for the maps for drawing-->
+    <!-- This little bit is also used for the maps for drawing -->
     <uses-feature
         android:glEsVersion="0x00020000"
-        android:required="true"/>
+        android:required="true" />
 
     <!--
      To retrieve OAuth 2.0 tokens or invalidate tokens to disconnect a user. This disconnect
@@ -27,9 +27,9 @@
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <!--For Wifi P2P-->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <!-- For Wifi P2P -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
@@ -37,36 +37,46 @@
         android:label="@string/app_name"
         android:theme="@style/MainTheme" >
 
-        <!--The api key for the maps-->
+        <!-- The api key for the maps -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAv1lruClrwpiI3PI-oyJ5U59F9XsdMxk8" />
 
-        <!--//Main Activity &ndash;&gt; Parent-->
+        <!-- //Main Activity &ndash;&gt; Parent -->
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >-->
+            android:label="@string/app_name"
+            android:theme="@style/NavigationDrawerTheme" >
         </activity>
-        <!--//Create Events-->
+
+        <!--Receiver for server sync interval alerts-->
+        <receiver
+            android:name=".ServerSyncReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.cmpt276.meetly.sync" />
+            </intent-filter>
+        </receiver>
+
+        <!-- //Create Events -->
         <activity
             android:name=".CreateEvent"
             android:label="@string/title_activity_create_event"
-            android:theme="@style/CreateTheme">
-
+            android:theme="@style/CreateTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Meetly" />
         </activity>
-        <!--//View Events-->
+        <!-- //View Events -->
         <activity
             android:name=".ViewEvent"
             android:label="@string/event_details"
-            android:theme="@style/ViewTheme">
+            android:theme="@style/ViewTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Meetly" />
         </activity>
-        <!--//Welcome Screen-->
+        <!-- //Welcome Screen -->
         <activity
             android:name=".WelcomeScreen"
             android:label="@string/app_name"
@@ -81,7 +91,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Meetly" />
         </activity>
-        <!--//Parent Activity-->
+        <!-- //Parent Activity -->
         <activity
             android:name=".Meetly"
             android:label="@string/title_activity_parent" >
@@ -104,10 +114,16 @@
         <activity
             android:name=".EditEvent"
             android:label="@string/title_activity_edit_event"
-            android:theme="@style/CreateTheme">
+            android:theme="@style/CreateTheme" >
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cmpt276.meetly.MainActivity" />
         </activity>
     </application>
-
-
 
 </manifest>

@@ -67,6 +67,12 @@
         <item name="elevation">0dp</item>
     </style>
 
+    <style name="NavigationDrawerTheme" parent="MaterialNavigationDrawerTheme.Light.DarkActionBar">
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryDark">@color/green_dark</item>
+        <item name="colorAccent">@color/green_accent</item>
+    </style>
+
     <style name="TitleHeadingTextStyle"  >
         <item name="android:textColor">@color/summer_sky_blue</item>
         <item name="android:textSize">55sp</item>
