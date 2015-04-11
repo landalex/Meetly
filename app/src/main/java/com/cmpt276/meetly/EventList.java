@@ -3,16 +3,10 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -28,19 +22,13 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import de.keyboardsurfer.android.widget.crouton.Configuration;
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.LifecycleCallback;
-import de.keyboardsurfer.android.widget.crouton.Style;
 import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
 import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
 import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
@@ -62,7 +50,6 @@ public class EventList extends Fragment {
     private RecyclerViewAdapter mCardArrayAdapter;
     private ArrayList<Card> cards = new ArrayList<>(0);
     private List<Event> eventList = new ArrayList<>(0);
-//    ProgressDialog dialog = null;
     private Map<String, Integer> drawableMap;
 
 
@@ -95,11 +82,6 @@ public class EventList extends Fragment {
                 onResume();
             }
         });
-
-//        dialog = new ProgressDialog(getActivity());
-//        dialog.setIndeterminate(true);
-//        dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
-
         createDrawableMap();
     }
 
@@ -161,23 +143,13 @@ public class EventList extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        if (getEvents(new EventsDataSource(getActivity())).size() - eventList.size() == 1
-//                && eventList.size() != 1) {
-//            UpdateCards updater = new UpdateCards();
-//            updater.execute(updater.ADD_MODE, eventList.size());
-//        }
-//        else {
             UpdateCards updater = new UpdateCards();
             updater.execute(updater.CREATE_MODE, eventList.size());
-//        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        if (dialog != null) {
-//            dialog.dismiss();
-//        }
     }
 
     private void configureRecyclerView() {
@@ -446,7 +418,6 @@ public class EventList extends Fragment {
         EventsDataSource database = new EventsDataSource(getActivity());
 
         protected void onPreExecute() {
-//            dialog.show();
         }
 
         @Override
@@ -488,9 +459,6 @@ public class EventList extends Fragment {
 
         @Override
         protected void onPostExecute(Integer[] result) {
-//            if (dialog.isShowing()) {
-//                dialog.dismiss();
-//            }
 
             if (result[0] == CREATE_MODE) {
                 Log.i(TAG, "Card update finished.");
