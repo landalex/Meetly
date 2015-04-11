@@ -82,5 +82,6 @@
         <item>1800000</item>
         <item>0</item>
     </string-array>
+    <string name="title_activity_timer">TimerActivity</string>
 
 </resources>

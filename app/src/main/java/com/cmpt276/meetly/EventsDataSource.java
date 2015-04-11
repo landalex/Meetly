@@ -91,6 +91,44 @@ public class EventsDataSource {
         return event;
     }
 
+    /**
+     * Add a new shared event to the database
+     * @param sharedEventID
+     * @param title title for event
+     * @param startDate start date for event
+     * @param endDate end date for event
+     * @param location LatLng object for event's location
+     * @return false if event already in database
+     */
+    public boolean AddSharedEvent(long sharedEventID,String title, Calendar startDate, Calendar endDate, LatLng location) {
+        try{
+            open();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        //build record pairs
+        ContentValues values = new ContentValues();
+        values.put(MySQLiteHelper.COLUMN_TITLE, title);
+
+        values.put(MySQLiteHelper.COLUMN_STARTDATE, Event.EVENT_DATEFORMAT.format(startDate.getTime()));
+        values.put(MySQLiteHelper.COLUMN_ENDDATE, Event.EVENT_DATEFORMAT.format(endDate.getTime()));
+        values.put(MySQLiteHelper.COLUMN_LATITUDE, location.latitude);
+        values.put(MySQLiteHelper.COLUMN_LONGITUDE, location.longitude);
+        values.put(MySQLiteHelper.COLUMN_VIEWED, 1);
+        //get row id and insert into database
+        long insertID = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
+
+
+        //get this record and create new event object
+        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns,
+                MySQLiteHelper.COLUMN_ID + " = " + insertID, null,null,null,null);
+        resultSet.moveToFirst();
+        Event event = new Event(insertID, title, startDate, endDate, location);
+        resultSet.close();
+        close();
+        return true;
+    }
+
 
     /**
      * Create a new event from a ContentValues object and add to the database
@@ -158,7 +196,10 @@ public class EventsDataSource {
         Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_SHAREDEVENTID + " = " + sharedEventID,null,null,null,null);
 
         if(resultSet.getCount() == 0){
-            throw new RuntimeException("Error attempting to retrieve record from database. The ID \"\" + eventID + \"\" does not match any record in the database");
+            Log.d(TAG,"Error attempting to retrieve record from database. The ID \"\" + eventID + \"\" does not match any record in the database");
+            return null;
+        }else if(resultSet.getCount() > 1){
+            throw new RuntimeException("Error attempting to retrieve record from database. The ID \"\" + eventID + \"\" matches more than 1 record in the database");
         }
 
         resultSet.moveToFirst();

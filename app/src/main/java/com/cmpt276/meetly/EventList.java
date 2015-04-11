@@ -303,14 +303,13 @@ public class EventList extends Fragment {
 
         EventsDataSource db = new EventsDataSource(getActivity());
         Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
-        MeetlyTestServer server = new MeetlyTestServer();
+        MeetlyServer server = new MeetlyServer();
         LatLng location = event.getLocation();
                     try {
                         Calendar startTime = new GregorianCalendar();
-                        startTime.setTime(event.getDate());
+                        startTime = event.getStartDate();
                         Calendar endTime = new GregorianCalendar();
-                        Long endTimeInMillis = event.getDate().getTime() + (event.getDuration() * MILLIS_IN_HOUR);
-                        endTime.setTimeInMillis(endTimeInMillis);
+                        endTime = event.getEndDate();
                         int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), startTime,
                                                                 endTime, location.latitude, location.longitude);
 //                        event.setSharedID(sharedEventID);
@@ -318,7 +317,7 @@ public class EventList extends Fragment {
                         return true;
 
                     }
-                    catch (MeetlyTestServer.FailedPublicationException e) {
+                    catch (MeetlyServer.FailedPublicationException e) {
                         Log.e(TAG, "Failed to publish event: " + event.getTitle());
                         return false;
                     }

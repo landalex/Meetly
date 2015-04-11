@@ -31,7 +31,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + TABLE_EVENTS + "("
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_SHAREDEVENTID + " integer, "
-            + COLUMN_TITLE + " text not null,"
+            + COLUMN_TITLE + " text unique,"
             + COLUMN_STARTDATE + " text,"
             + COLUMN_ENDDATE + " text,"
             + COLUMN_LATITUDE + " double,"
@@ -75,8 +75,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Closes connections to database and deletes it. This should be called if
-     * changes are made to the database structure
+     * Closes connections to database and deletes it. This can be called if
+     * changes are made to the database structure and update doesn't work
      * @param db the database to close
      * @param context
      */

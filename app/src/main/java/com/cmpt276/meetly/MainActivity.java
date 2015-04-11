@@ -17,6 +17,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
@@ -39,6 +47,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     private Menu actionBarMenu;
     private MaterialAccount account;
     private MaterialSection eventListSection;
+    private MyTimerTask serverEventSynchTask;
 
 
     @Override
@@ -70,6 +79,9 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         if (!preferences.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)) {
             disableLearningPattern();
         }
+
+
+        setSchedule();
     }
 
     @Override
@@ -289,8 +301,8 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     public void onUpgradeDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        //dbHelper.onUpgrade(database,MySQLiteHelper.DATABASE_VERSION,MySQLiteHelper.DATABASE_VERSION+1);
-        MySQLiteHelper.deleteDatabase(database, getApplicationContext());
+        //dbHelper.onUpgrade(database, MySQLiteHelper.DATABASE_VERSION, MySQLiteHelper.DATABASE_VERSION + 1);
+        MySQLiteHelper.deleteDatabase(database,getApplicationContext());
     }
 
     @Override
@@ -302,6 +314,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         account = new MaterialAccount(getResources(),
                 username, "", R.drawable.card_picture_pizza, R.drawable.card_picture_default);
         notifyAccountDataChanged();
+        //setSchedule();
     }
 
     @Override
@@ -327,4 +340,68 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         Crouton.cancelAllCroutons();
     }
 
+    //For Scheduling Time-Interval Event Retrieval from Server
+
+    private void setSchedule(){
+        //For timer
+        serverEventSynchTask = new MyTimerTask();
+        Timer synchTimer = new Timer();
+//        public void schedule (TimerTask task, long delay, long period)
+//        Schedule a task for repeated fixed-delay execution after a specific delay.
+//
+//        Parameters
+//        task  the task to schedule.
+//        delay  amount of time in milliseconds before first execution.
+//        period  amount of time in milliseconds between subsequent executions.
+
+        synchTimer.schedule(serverEventSynchTask, 3000, 50000);
+    }
+
+    class MyTimerTask extends TimerTask {
+        public void run() {
+            MeetlyServer server = new MeetlyServer();
+            SharedPreferences settingss = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+            EventsDataSource eventsDataSource = new EventsDataSource(getApplicationContext());
+            if(settingss.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false)){
+                try {
+                    //int token = server.login("nobody", "nopassword");
+                    for (MeetlyServer.MeetlyEvent e : server.fetchEventsAfter(10)) {
+                        Log.i("DBTester", "Event " + e.title);
+
+                        //make sure event is not already in the database
+                        Event event = null;
+                        try{
+                            event = eventsDataSource.findEventBySharedID(e.eventID);
+                        }catch (RuntimeException exc){
+                            exc.printStackTrace();
+                        }
+                        if(event == null){
+                            //event is not, so add it
+                            LatLng latLng = new LatLng(e.latitude,e.longitude);
+                            Event event2 = eventsDataSource.createEvent(e.title,e.startTime,e.endTime,latLng);
+                            event2.setSharedEventID(e.eventID);
+                            event2.setViewed(false);
+                        }else{
+                            //event is already in the database, so just update it
+                            event.setTitle(e.title);
+                            event.setStartDate(e.startTime);
+                            event.setEndDate(e.endTime);
+                            LatLng latLng = new LatLng(e.latitude,e.longitude);
+                            event.setLocation(latLng);
+                            eventsDataSource.updateDatabaseEvent(event);
+                        }
+                    }
+                } catch (MeetlyServer.FailedFetchException e) {
+                    e.printStackTrace();
+                }
+
+                Calendar currentCal = Calendar.getInstance();
+                Log.i(TAG, "Fetched new events @: " + Event.EVENT_DATEFORMAT.format(currentCal.getTime()));
+            }else{
+                Log.i(TAG, "Failed to fetch new events. User not logged in");
+
+            }
+
+        }
+    }
 }
