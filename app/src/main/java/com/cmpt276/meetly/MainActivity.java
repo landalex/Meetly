@@ -307,7 +307,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
             EventsDataSource eventsDataSource = new EventsDataSource(getApplicationContext());
             if(settingss.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false)){
                 try {
-                    int token = server.login("fritter@sfu.ca", "password");
+//                    int token = server.login("fritter@sfu.ca", "password");
                     for (MeetlyServer.MeetlyEvent e : server.fetchEventsAfter(10)) {
                         Log.i("DBTester", "Event " + e.title);
 
@@ -335,9 +335,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
                         }
                     }
                 } catch (MeetlyServer.FailedFetchException e) {
-                    e.printStackTrace();
-                } catch (IMeetlyServer.FailedLoginException e) {
-                    Log.i(TAG, "Failed to login");
                     e.printStackTrace();
                 }
 

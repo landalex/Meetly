@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,6 +66,8 @@ public class EventList extends Fragment {
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_layout, container, false);
     }
+
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -183,17 +186,18 @@ public class EventList extends Fragment {
         final long eventID = event.getID();
         Log.d(TAG, "eventID: " + eventID);
 
+        int supplementalActionsLayout = pickSupplementalActionsLayout(event.isViewed());
+
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
-                .setTitle(event.getStartDate().toString())
+                .setTitle(getTimestringForEvent(event))
                 .setSubTitle(timeUntil(event.getStartDate().getTime()) + "\n" + getString(R.string.eventlist_card_unshared))
                 .useDrawableId(pickDrawableForCard(event.getTitle()))
-                .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
+                .setupSupplementalActions(supplementalActionsLayout, actions)
                 .build();
         card.addCardHeader(new CardHeader(getActivity()));
-        setUnviewedIcon(event.isViewed());
         card.setId("" + eventIndex);
-        card.setCardElevation(20);
+        card.setCardElevation(10);
 
         Log.d(TAG, "Card ID: " + card.getId());
         // Pass the event ID with the intent to ViewEvent
@@ -209,14 +213,17 @@ public class EventList extends Fragment {
         return card;
     }
 
-    private void setUnviewedIcon(boolean viewed) {
-        ImageButton indicator = (ImageButton) getActivity().findViewById(R.id.viewedIndicator);
-        if (indicator != null) {
-            if (!viewed) {
-                indicator.setVisibility(View.VISIBLE);
-            } else {
-                indicator.setVisibility(View.GONE);
-            }
+    private String getTimestringForEvent(Event event) {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEEE',' MMMM dd 'at' hh:mm aa");
+        return formatter.format(event.getStartDate().getTime());
+    }
+
+    private int pickSupplementalActionsLayout(boolean viewed) {
+        if (viewed) {
+            return R.layout.fragment_card_view_actions_viewed;
+        }
+        else {
+            return R.layout.fragment_card_view_actions_unviewed;
         }
     }
 
