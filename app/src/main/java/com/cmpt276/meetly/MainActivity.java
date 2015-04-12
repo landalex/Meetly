@@ -19,9 +19,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -47,7 +45,8 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     private Menu actionBarMenu;
     private MaterialAccount account;
     private MaterialSection eventListSection;
-    private MyTimerTask serverEventSynchTask;
+    private MeetlyTimerTask serverEventSynchTask;
+    private Long serverEventUpdateInterval;
 
 
     @Override
@@ -57,8 +56,10 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
         SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
 
+/*
         registerServerSyncInterval(Long.parseLong(preferences.getString("server_sync_interval", "0")));
-
+*/
+        serverEventUpdateInterval = Long.parseLong(preferences.getString("server_sync_interval", "0"));
         wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
         mReceiver = wifiP2pHelper.getReceiver();
 
@@ -82,6 +83,9 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
 
         setSchedule();
+
+        //default interval is 15 minutes
+        serverEventUpdateInterval = 900000l;
     }
 
     @Override
@@ -96,7 +100,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         return super.backToSection(currentSection);
     }
 
-    private void registerServerSyncInterval(Long updateIntervalInMillis) {
+/*    private void registerServerSyncInterval(Long updateIntervalInMillis) {
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, ServerSyncReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
@@ -108,7 +112,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         else {
             alarmManager.cancel(pendingIntent);
         }
-    }
+    }*/
 
     private String getUsername(SharedPreferences preferences) {
         boolean loggedIn = preferences.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
@@ -164,18 +168,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
             onUpgradeDBClick(getCurrentFocus());
             return true;
         }
-//        else if (id == R.id.action_login){
-//            SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-//            boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
-//
-//            //if logged in, ask user if they want to log out
-//            if(isLoggedIn){
-//                showLogOut();
-//            }else{
-//                goToLoginScreen();
-//            }
-//
-//        }
+
         else if (id == R.id.action_get_location) {
             if (eventListFragment == null) {
                 eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
@@ -200,33 +193,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-//
-//        SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-//        boolean isLoggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
-//
-//        MenuItem menuItem = actionBarMenu.findItem(R.id.action_login);
-//
-//        //if logged in, show user name
-//        if(isLoggedIn) {
-//            menuItem = actionBarMenu.findItem(R.id.action_login);
-//            String menuString = (getResources().getText(R.string.main_loggedin) + " " + settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, getResources().getText(R.string.main_defaultLoginMessage).toString()));
-//            menuItem.setTitle(menuString);
-//
-//        } else {
-//            //show default menu_login message
-//            menuItem.setTitle(getResources().getString(R.string.app_login));
-//
-//            //turn off popupMenu for logging out
-////            findViewById(R.id.logOut).setClickable(false);
-//        }
         return super.onPrepareOptionsMenu(menu);
-    }
-
-
-    /* Switches to Login activity */
-    private void goToLoginScreen(){
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
     }
 
     /*
@@ -234,21 +201,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
      */
     public void showLogOut(){
         this.closeDrawer();
-//        PopupMenu popupMenu = new PopupMenu(this,findViewById(R.id.logOut));
-//        // This activity implements OnMenuItemClickListener
-//        popupMenu.setOnMenuItemClickListener(
-//                new PopupMenu.OnMenuItemClickListener(){
-//                     @Override
-//                     public boolean onMenuItemClick(MenuItem item) {
-//                         logOut();
-//                         return true;
-//                     }
-//                 }
-//        );
-//        //MenuInflater inflater = popupMenu.getMenuInflater();
-//        //inflater.inflate(R.menu.menu_login, popupMenu.getMenu());
-//        popupMenu.inflate(R.menu.menu_login);
-//        popupMenu.show();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.app_logout_confirmation));
         builder.setPositiveButton(getString(R.string.app_logout_dialog_positive), new DialogInterface.OnClickListener() {
@@ -301,8 +253,8 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     public void onUpgradeDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        //dbHelper.onUpgrade(database, MySQLiteHelper.DATABASE_VERSION, MySQLiteHelper.DATABASE_VERSION + 1);
-        MySQLiteHelper.deleteDatabase(database,getApplicationContext());
+        dbHelper.onUpgrade(database, MySQLiteHelper.DATABASE_VERSION, MySQLiteHelper.DATABASE_VERSION + 1);
+        //MySQLiteHelper.deleteDatabase(database, getApplicationContext());
     }
 
     @Override
@@ -314,7 +266,11 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         account = new MaterialAccount(getResources(),
                 username, "", R.drawable.card_picture_pizza, R.drawable.card_picture_default);
         notifyAccountDataChanged();
-        //setSchedule();
+
+        //only start synch schedule if it hasn't been started for some reason
+        if(serverEventSynchTask == null){
+            setSchedule();
+        }
     }
 
     @Override
@@ -338,70 +294,78 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     protected void onDestroy() {
         super.onDestroy();
         Crouton.cancelAllCroutons();
+        serverEventSynchTask.cancel();
     }
 
     //For Scheduling Time-Interval Event Retrieval from Server
 
-    private void setSchedule(){
-        //For timer
-        serverEventSynchTask = new MyTimerTask();
-        Timer synchTimer = new Timer();
-//        public void schedule (TimerTask task, long delay, long period)
-//        Schedule a task for repeated fixed-delay execution after a specific delay.
-//
-//        Parameters
-//        task  the task to schedule.
-//        delay  amount of time in milliseconds before first execution.
-//        period  amount of time in milliseconds between subsequent executions.
+    /**
+     * Fethes new events and updates current ones from the server if user is logged in
+     */
+    private void fetchNewServerEvents(){
+        MeetlyServer server = new MeetlyServer();
+        SharedPreferences settingss = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        EventsDataSource eventsDataSource = new EventsDataSource(getApplicationContext());
 
-        synchTimer.schedule(serverEventSynchTask, 3000, 50000);
-    }
+        //only pulls events if user is logged in
+        if(settingss.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false)){
+            try {
+                for (MeetlyServer.MeetlyEvent e : server.fetchEventsAfter(1)) {
+                    Log.i("**DBTester**", "Event " + e.title);
 
-    class MyTimerTask extends TimerTask {
-        public void run() {
-            MeetlyServer server = new MeetlyServer();
-            SharedPreferences settingss = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-            EventsDataSource eventsDataSource = new EventsDataSource(getApplicationContext());
-            if(settingss.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false)){
-                try {
-                    //int token = server.login("nobody", "nopassword");
-                    for (MeetlyServer.MeetlyEvent e : server.fetchEventsAfter(10)) {
-                        Log.i("DBTester", "Event " + e.title);
-
-                        //make sure event is not already in the database
-                        Event event = null;
-                        try{
-                            event = eventsDataSource.findEventBySharedID(e.eventID);
-                        }catch (RuntimeException exc){
-                            exc.printStackTrace();
-                        }
-                        if(event == null){
-                            //event is not, so add it
-                            LatLng latLng = new LatLng(e.latitude,e.longitude);
-                            Event event2 = eventsDataSource.createEvent(e.title,e.startTime,e.endTime,latLng);
-                            event2.setSharedEventID(e.eventID);
-                            event2.setViewed(false);
-                        }else{
-                            //event is already in the database, so just update it
-                            event.setTitle(e.title);
-                            event.setStartDate(e.startTime);
-                            event.setEndDate(e.endTime);
-                            LatLng latLng = new LatLng(e.latitude,e.longitude);
-                            event.setLocation(latLng);
-                            eventsDataSource.updateDatabaseEvent(event);
-                        }
+                    //make sure event is not already in the database
+                    Event event = null;
+                    try{
+                        event = eventsDataSource.findEventBySharedID(e.eventID);
+                    }catch (RuntimeException exc){
+                        exc.printStackTrace();
                     }
-                } catch (MeetlyServer.FailedFetchException e) {
-                    e.printStackTrace();
+
+                    if(event == null){
+                        //event is not in db, so add it
+                        LatLng latLng = new LatLng(e.latitude,e.longitude);
+                        eventsDataSource.addSharedEvent(e.eventID,e.title,e.startTime,e.endTime,latLng);
+                    }else{
+                        //event is already in the database, so just update it
+                        event.setTitle(e.title);
+                        event.setStartDate(e.startTime);
+                        event.setEndDate(e.endTime);
+                        LatLng latLng = new LatLng(e.latitude,e.longitude);
+                        event.setLocation(latLng);
+                        eventsDataSource.updateDatabaseEvent(event);
+                    }
                 }
-
-                Calendar currentCal = Calendar.getInstance();
-                Log.i(TAG, "Fetched new events @: " + Event.EVENT_DATEFORMAT.format(currentCal.getTime()));
-            }else{
-                Log.i(TAG, "Failed to fetch new events. User not logged in");
-
+            } catch (MeetlyServer.FailedFetchException e) {
+                e.printStackTrace();
             }
 
+            Calendar currentCal = Calendar.getInstance();
+            Log.i(TAG, "Fetched new events @: " + Event.EVENT_DATEFORMAT.format(currentCal.getTime()));
+        }else{
+            Log.i(TAG, "Failed to fetch new events. User not logged in");
+
+        }
+    }
+
+/*
+        void schedule (TimerTask task, long delay, long period)
+        Schedule a task for repeated fixed-delay execution after a specific delay.
+
+        Parameters
+        task  the task to schedule.
+        delay  amount of time in milliseconds before first execution.
+        period  amount of time in milliseconds between subsequent executions.
+*/
+    private void setSchedule(){
+        //For timer
+        serverEventSynchTask = new MeetlyTimerTask();
+        Timer synchTimer = new Timer();
+        synchTimer.schedule(serverEventSynchTask, 10000, serverEventUpdateInterval);
+    }
+
+    class MeetlyTimerTask extends TimerTask {
+        public void run() {
+            fetchNewServerEvents();
         }
     }
 }

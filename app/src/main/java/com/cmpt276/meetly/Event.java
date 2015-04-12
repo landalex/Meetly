@@ -23,6 +23,8 @@ public class Event {
     private Calendar endDate;
     private LatLng eventLocation;
     private boolean viewed;
+    private boolean modifiable;
+
 
     //used for all calendar/date formats in the app for events
     public final static SimpleDateFormat EVENT_DATEFORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.CANADA);
@@ -32,6 +34,7 @@ public class Event {
 
 
 /// Event Constructors ///
+
 
     /**
      * Event Constructor using LatLng
@@ -48,6 +51,7 @@ public class Event {
         eventLocation = new LatLng(location.latitude,location.longitude);
         sharedEventID = -1;
         viewed = true;
+        modifiable = false;
     }
 
 
@@ -64,12 +68,13 @@ public class Event {
         eventLocation = eventCopy.eventLocation;
         this.sharedEventID = eventCopy.getSharedEventID();
         this.viewed = eventCopy.isViewed();
+        eventCopy.modifiable = eventCopy.isModifiable();
     }
 
     /**
      * Event Constructor
      *       Note: values must contain 7 key-value pairs
-     * @param values The values to create the event with
+     * @param values
      */
     public Event(ContentValues values) {
         eventID = values.getAsLong(MySQLiteHelper.COLUMN_ID);
@@ -142,6 +147,10 @@ public class Event {
         return viewed;
     }
 
+    public boolean isModifiable() {
+        return modifiable;
+    }
+
     //Basic Mutators
     public void setTitle(String title) { this.title = title;}
 
@@ -159,4 +168,7 @@ public class Event {
         this.viewed = viewed;
     }
 
+    public void setModifiable(boolean modifiable) {
+        this.modifiable = modifiable;
+    }
 }

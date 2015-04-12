@@ -25,6 +25,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_LATITUDE = "latitude";
     public static final String COLUMN_LONGITUDE = "longitude";
     public static final String COLUMN_VIEWED = "viewed";
+    public static final String COLUMN_MODIFIABLE = "modifiable";
 
     // database table sql statement for events
     private static final String DATABASE_CREATE = "create table "
@@ -36,7 +37,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + COLUMN_ENDDATE + " text,"
             + COLUMN_LATITUDE + " double,"
             + COLUMN_LONGITUDE + " double,"
-            + COLUMN_VIEWED + " integer"
+            + COLUMN_VIEWED + " integer,"
+            + COLUMN_MODIFIABLE + " integer"
             + ");";
 
 

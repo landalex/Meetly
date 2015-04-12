@@ -30,6 +30,7 @@ public class Meetly extends ActionBarActivity {
 
     /**
      * Sets shared preferences for meetly application
+     * @param context
      */
     public static void setMeetlySharedPrefs(Context context) {
         SharedPreferences settings = context.getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
@@ -48,7 +49,7 @@ public class Meetly extends ActionBarActivity {
     /**
      * Prints currently logged in username to Toast and Log.i
      * If no one is logged in, displays default message
-     * @param context application context invoked from
+     * @param context
      */
     public static void showPrefs(Context context){
         SharedPreferences settings = context.getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);

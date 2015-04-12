@@ -293,6 +293,12 @@ public class EventList extends Fragment {
     }
 
     private void editEventFromID(Long eventIndex) {
+        EventsDataSource eventsDataSource = new EventsDataSource(getActivity());
+        Event event = eventsDataSource.findEventByID(eventIndex);
+        if (!event.isModifiable()){
+            Log.e(TAG, "Warning! Event is not modifiable because it is a remote shared event");
+            return;
+        }
         Intent intent = new Intent(getActivity(), EditEvent.class);
         intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
         startActivity(intent);
@@ -312,8 +318,8 @@ public class EventList extends Fragment {
                         endTime = event.getEndDate();
                         int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), startTime,
                                                                 endTime, location.latitude, location.longitude);
-//                        event.setSharedID(sharedEventID);
-//                        db.updateDatabaseEvent(event);
+                        event.setSharedEventID(sharedEventID);
+                        db.updateDatabaseEvent(event);
                         return true;
 
                     }

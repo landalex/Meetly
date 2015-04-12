@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -115,6 +116,28 @@ public class EditEvent extends ActionBarActivity {
                 event.setLocation(eventLatLong);
 
                 database.updateDatabaseEvent(event);
+
+                //also update event if user is logged in and has shared the event
+                SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+                boolean loggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+
+                if(loggedIn && event.getSharedEventID() != -1){
+                    MeetlyServer server = new MeetlyServer();
+
+                    try{
+                        server.publishEvent(
+                                settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, Meetly.defaultUMessage),
+                                settings.getInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1),
+                                event.getTitle(),
+                                event.getStartDate(),
+                                event.getEndDate(),
+                                event.getLocation().latitude,
+                                event.getLocation().longitude);
+                    }catch (MeetlyServer.FailedPublicationException e) {
+                        e.printStackTrace();
+                    }
+
+                }
                 finish();
             }
         });

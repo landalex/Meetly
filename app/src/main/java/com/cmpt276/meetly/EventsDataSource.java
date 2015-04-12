@@ -77,6 +77,7 @@ public class EventsDataSource {
         values.put(MySQLiteHelper.COLUMN_LATITUDE, location.latitude);
         values.put(MySQLiteHelper.COLUMN_LONGITUDE, location.longitude);
         values.put(MySQLiteHelper.COLUMN_VIEWED, 1);
+        values.put(MySQLiteHelper.COLUMN_MODIFIABLE, 1);
         //get row id and insert into database
         long insertID = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
 
@@ -100,7 +101,7 @@ public class EventsDataSource {
      * @param location LatLng object for event's location
      * @return false if event already in database
      */
-    public boolean AddSharedEvent(long sharedEventID,String title, Calendar startDate, Calendar endDate, LatLng location) {
+    public Event addSharedEvent(long sharedEventID,String title, Calendar startDate, Calendar endDate, LatLng location) {
         try{
             open();
         }catch (SQLException e){
@@ -108,13 +109,14 @@ public class EventsDataSource {
         }
         //build record pairs
         ContentValues values = new ContentValues();
+        values.put(MySQLiteHelper.COLUMN_SHAREDEVENTID, sharedEventID);
         values.put(MySQLiteHelper.COLUMN_TITLE, title);
-
         values.put(MySQLiteHelper.COLUMN_STARTDATE, Event.EVENT_DATEFORMAT.format(startDate.getTime()));
         values.put(MySQLiteHelper.COLUMN_ENDDATE, Event.EVENT_DATEFORMAT.format(endDate.getTime()));
         values.put(MySQLiteHelper.COLUMN_LATITUDE, location.latitude);
         values.put(MySQLiteHelper.COLUMN_LONGITUDE, location.longitude);
-        values.put(MySQLiteHelper.COLUMN_VIEWED, 1);
+        values.put(MySQLiteHelper.COLUMN_VIEWED, 0);
+        values.put(MySQLiteHelper.COLUMN_MODIFIABLE, 0);
         //get row id and insert into database
         long insertID = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
 
@@ -126,7 +128,7 @@ public class EventsDataSource {
         Event event = new Event(insertID, title, startDate, endDate, location);
         resultSet.close();
         close();
-        return true;
+        return event;
     }
 
 
@@ -276,23 +278,6 @@ public class EventsDataSource {
     }
 
     /**
-     * Adds a sharedEventID to the event specified by the given eventID
-     * @param eventID The event to add the sharedEventID to
-     * @param sharedEventID the ID to add to the event
-     */
-    public void addSharedEventID(int eventID, int sharedEventID){
-        try{
-            open();
-        }catch (SQLException e){
-            e.printStackTrace();
-        }
-        Cursor resultSet = database.query(MySQLiteHelper.TABLE_EVENTS, dbColumns, MySQLiteHelper.COLUMN_SHAREDEVENTID + " = " + sharedEventID,null,null,null,null);
-        Event event = buildEventFromCursor(resultSet);
-        event.setSharedEventID(sharedEventID);
-        updateDatabaseEvent(event);
-    }
-
-    /**
      * Commits an update to an event to the database
      * @param event The event details to commit to the database
      *                      Event must exist prior to calling this function
@@ -303,6 +288,11 @@ public class EventsDataSource {
         }catch (SQLException e){
             Log.e(TAG, "Failed to open database for writing");
             e.printStackTrace();
+        }
+
+        if(!event.isModifiable()){
+            Log.e(TAG, "Failed to edit event. Event not created by user.");
+            return;
         }
 
         //build record pairs
@@ -317,6 +307,9 @@ public class EventsDataSource {
 
         int tempViewed = event.isViewed() ? 1 : 0;
         values.put(MySQLiteHelper.COLUMN_VIEWED, tempViewed);
+
+        int tempMod = event.isModifiable() ? 1 : 0;
+        values.put(MySQLiteHelper.COLUMN_MODIFIABLE, tempMod);
 
         try{
             database.update(MySQLiteHelper.TABLE_EVENTS, values,MySQLiteHelper.COLUMN_ID + " = " + event.getID(),null);
@@ -416,6 +409,8 @@ public class EventsDataSource {
         event.setLocation(location);
 
         event.setViewed(getBooleanFromCursor(resultSet, resultSet.getColumnIndex(MySQLiteHelper.COLUMN_VIEWED)));
+        event.setModifiable(getBooleanFromCursor(resultSet, resultSet.getColumnIndex(MySQLiteHelper.COLUMN_MODIFIABLE)));
+
         return event;
     }
 
