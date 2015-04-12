@@ -42,8 +42,11 @@ public class EditEvent extends ActionBarActivity {
     private GoogleMap map;
     private EventsDataSource database;
     private Calendar calender = Calendar.getInstance();
+    private Calendar endCalender = Calendar.getInstance();
     private Integer[] date;
     private Integer[] hourAndMinuteArray;
+    private Integer[] endDate;
+    private Integer[] endHourAndMinuteArray;
     private LatLng eventLatLong;
     private Menu actionBarMenu;
 
@@ -64,20 +67,25 @@ public class EditEvent extends ActionBarActivity {
 
         // Setting the TextViews and Map to display the details of the event thats passed in.
         eventName.setText(event.getTitle());
-        eventDate.setText(event.getStartDate().toString());
+        eventDate.setText(event.getStartDate().getTime().toString());
         //eventDuration.setText("" + event.getDuration());
         //Date newDate = event.getDate();
-        // TODO: Allow event location to be changed
 
         // Setting up the map and buttons
         eventLatLong = event.getLocation();
         calender = event.getStartDate();
+        endCalender = event.getEndDate();
+
         date = new Integer[]{calender.get(Calendar.YEAR), calender.get(Calendar.MONTH), calender.get(Calendar.DAY_OF_MONTH)};
+        endDate = new Integer[]{endCalender.get(Calendar.YEAR), endCalender.get(Calendar.MONTH), endCalender.get(Calendar.DAY_OF_MONTH)};
         hourAndMinuteArray = new Integer[]{calender.get(Calendar.HOUR_OF_DAY), calender.get(Calendar.MINUTE)};
+        endHourAndMinuteArray = new Integer[]{endCalender.get(Calendar.HOUR_OF_DAY), endCalender.get(Calendar.MINUTE)};
 
         displayMap();
         chooseDateButton();
+        chooseEndDateButton();
         chooseTimeButton();
+        chooseEndTimeButton();
 
         // Save Button
         saveButton();
@@ -102,15 +110,20 @@ public class EditEvent extends ActionBarActivity {
                 String newTitle = eventName.getText().toString();
 
                 EditText eventDuration = (EditText) findViewById(R.id.editDurationField);
-                int newDuration = Integer.parseInt(eventDuration.getText().toString());
+                //int newDuration = Integer.parseInt(eventDuration.getText().toString());
 
                 final Date newDate = formatEventTimeAndDate();
+                final Date endDate = formatEndEventTimeAndDate();
 
                 event.setTitle(newTitle);
+
                 Calendar calendar = new GregorianCalendar();
                 calendar.setTime(newDate);
+                Calendar endCalendar = new GregorianCalendar();
+                calendar.setTime(endDate);
+
                 event.setStartDate(calendar);
-                event.setEndDate(calendar);
+                event.setEndDate(endCalendar);
                 //event.setDuration(newDuration);
                 event.setLocation(eventLatLong);
 
@@ -184,6 +197,37 @@ public class EditEvent extends ActionBarActivity {
         return eventDate;
     }
 
+    private Date formatEndEventTimeAndDate() {
+        // If the month is single digit
+        String tempMonth = leftPadDateOrTime(endDate[1] + 1);
+
+        // If the day is single digit
+        String tempDay = leftPadDateOrTime(endDate[2]);
+
+        // If the hour is single digit
+        String tempHour = leftPadDateOrTime(endHourAndMinuteArray[0]);
+
+        // If the minute is single digit
+        String tempMinute = leftPadDateOrTime(endHourAndMinuteArray[1]);
+
+        // yyyy - mm - dd <> hh:mm:ss
+        String str = endDate[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
+        DateFormat sdf = Event.EVENT_DATEFORMAT;
+
+        // Parsing the time and date into a Date object
+        Date eventDate = new Date();
+        try{
+            eventDate = sdf.parse(str);
+        } catch(ParseException e) {
+            Log.e(TAG, "Error parsing time and date...");
+            e.printStackTrace();
+        }
+
+        Log.i("Date", eventDate.toString());
+        Log.i("SDF ", str);
+        return eventDate;
+    }
+
     private String leftPadDateOrTime(int dateAndTimeDigit) {
         String newPaddedDigit;
         if (dateAndTimeDigit < 10){
@@ -219,6 +263,35 @@ public class EditEvent extends ActionBarActivity {
                         date[1] = monthOfYear;
                         date[2] = dayOfMonth;
 //                        Log.i("NewDATE", "" + "y" + date[0] + " m" + date[1] + " d" + date[2]);
+                    }
+                }, INITIAL_YEAR, INITIAL_MONTH, INITIAL_DAY).show();
+            }
+        });
+
+    }
+
+    private void chooseEndDateButton() {
+        final Button dateBtn = (Button) findViewById(R.id.editChooseEndDate);
+        final int INITIAL_YEAR = 2015;
+        final int INITIAL_MONTH = 0;
+        final int INITIAL_DAY = 2;
+
+        dateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // When the buttons pressed we pop up a new DatePicker Dialog
+                // Parameters: CreateEvent.this : Tells it which Context (Activity) it is in
+                //             new DatePickerDialog.OnDateSetListener() : What to do when user clicks done
+                //             INITIAL_* : What year, month and day to show when it initially pops up
+
+                new DatePickerDialog(EditEvent.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        dateBtn.setText(monthOfYear + 1 + "/" + dayOfMonth + "/" + year);       // Months are 0-indexed, Days are 1-indexed
+                        endDate[0] = year;
+                        endDate[1] = monthOfYear;
+                        endDate[2] = dayOfMonth;
                     }
                 }, INITIAL_YEAR, INITIAL_MONTH, INITIAL_DAY).show();
             }
@@ -266,6 +339,49 @@ public class EditEvent extends ActionBarActivity {
         });
 
         Log.i(TAG, "Returned:" + hourAndMinuteArray[0] + ":" + hourAndMinuteArray[1]);
+    }
+
+    private void chooseEndTimeButton() {
+        final Button timeBtn = (Button) findViewById(R.id.editChooseEndTime);
+        final int INITIAL_HOUR = 12;
+        final int INITIAL_MINUTE = 55;
+        endHourAndMinuteArray = new Integer[]{INITIAL_HOUR, INITIAL_MINUTE};
+
+        timeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // When the buttons pressed we pop up a new TimePicker Dialog
+                // Parameters: CreateEvent.this : Tells it which Context (Activity) it is in
+                //             new TimePickerDialog.OnTimeSetListener() : What to do when user clicks done
+                //             INITIAL_HOUR : What hour to show when it initially pops up
+                //             INITIAL_MINUTE: What minute to show when it initially pops up
+                //             false : Sets displaying the time in a 24 Hour View
+
+                new TimePickerDialog(EditEvent.this,
+                        new TimePickerDialog.OnTimeSetListener() {
+
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                endHourAndMinuteArray[0] = hourOfDay;
+                                endHourAndMinuteArray[1] = minute;
+
+                                String amOrPm = "AM";
+
+                                if (hourOfDay > 12) {
+                                    hourOfDay -= 12;
+                                    amOrPm = "PM";
+                                }
+                                String time = String.format("%d : %02d " + amOrPm, hourOfDay, minute);
+                                timeBtn.setText(time);
+                                Log.i(TAG, "Updated:" + time);
+                            }
+                        }, INITIAL_HOUR, INITIAL_MINUTE, false).show();
+            }
+        });
+
+        Log.i(TAG, "Returned:" + endHourAndMinuteArray[0] + ":" + endHourAndMinuteArray[1]);
+//        return hourAndMinuteArray;
     }
 
 

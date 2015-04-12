@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -263,6 +264,27 @@ public class EventList extends Fragment {
             public void onClick(Card card, View view) {
                 boolean loggedIn = checkLoggedIn();
                 if (loggedIn) {
+
+                    // Checking for duplicate events
+                    for (int i = 0; i < eventList.size(); i++) {
+                        Long eventIndexLong = Long.parseLong(card.getId());
+                        int eventIndexInt = eventIndexLong.intValue();
+
+                        // Make sure we dont look at the same event as the one we're checking with
+                        if (i != eventIndexInt) {
+                            Calendar currentCardEventDate = db.findEventByID(eventList.get(eventIndexInt).getID()).getStartDate();
+                            boolean sameDate = eventList.get(i).getStartDate().equals(currentCardEventDate);
+
+                            if (sameDate) {
+                                AlertDialog dialog = makeDuplicateEventAlertDialog(eventIndexLong, getString(R.string.duplicate_event_heading),
+                                        getString(R.string.duplicate_event_msg) + " \"" + eventList.get(i).getTitle() + "\"", getString(R.string.decline_cancel_duplicate_event), getString(R.string.accept_edit_duplicate_event));
+                                dialog.show();
+
+                                Log.e("ANOTHEREVENT-SAME TITLE", "SAME LOC " + eventList.get(i).getStartDate() + " as " + eventList.get(i).getTitle());
+                            }
+                        }
+                    }
+
                     String username = getUserName();
                     Integer userToken = getUserToken();
                     boolean published = publishEventByID(username, userToken, Long.parseLong(card.getId()));
@@ -314,6 +336,27 @@ public class EventList extends Fragment {
                         Log.e(TAG, "Failed to publish event: " + event.getTitle());
                         return false;
                     }
+    }
+
+    private AlertDialog makeDuplicateEventAlertDialog(final Long eventIndex, String title, String message, String positiveButtonLabel, String negativeButtonLabel) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(positiveButtonLabel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(getActivity(), EditEvent.class);
+                intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
+                startActivity(intent);
+            }
+        });
+        builder.setNegativeButton(negativeButtonLabel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        return builder.create();
     }
 
     private AlertDialog makeLoginAlertDialog(String title, String message, String positiveButtonLabel, String negativeButtonLabel) {
