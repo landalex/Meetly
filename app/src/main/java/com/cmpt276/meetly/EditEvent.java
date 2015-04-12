@@ -63,7 +63,7 @@ public class EditEvent extends ActionBarActivity {
         // Getting a reference to all our fields
         TextView eventName = (TextView) findViewById(R.id.editEventName);
         TextView eventDate = (TextView) findViewById(R.id.currentEventDate);
-        TextView eventDuration = (TextView) findViewById(R.id.editDurationField);
+        //TextView eventDuration = (TextView) findViewById(R.id.editDurationField);
 
         // Setting the TextViews and Map to display the details of the event thats passed in.
         eventName.setText(event.getTitle());
@@ -109,7 +109,7 @@ public class EditEvent extends ActionBarActivity {
                 EditText eventName = (EditText) findViewById(R.id.editEventName);
                 String newTitle = eventName.getText().toString();
 
-                EditText eventDuration = (EditText) findViewById(R.id.editDurationField);
+                //EditText eventDuration = (EditText) findViewById(R.id.editDurationField);
                 //int newDuration = Integer.parseInt(eventDuration.getText().toString());
 
                 final Date newDate = formatEventTimeAndDate();

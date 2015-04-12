@@ -150,25 +150,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal" >
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="@string/create_event_durationLabel"
-                        android:id="@+id/textView4"
-                        android:layout_marginTop="25dp"
-                        android:layout_gravity="center_horizontal" />
-
-                    <EditText
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:inputType="textMultiLine"
-                        android:ems="10"
-                        android:id="@+id/editDurationField"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
-                        android:text="0" />
-
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

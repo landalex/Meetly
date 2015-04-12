@@ -62,14 +62,14 @@ public class CreateEvent extends ActionBarActivity {
 
         // Getting name and duration from their fields
         final EditText eventNameField = (EditText) findViewById(R.id.eventName);
-        final EditText durationField = (EditText) findViewById(R.id.durationField);
+        //final EditText durationField = (EditText) findViewById(R.id.durationField);
 
         // Getting a reference to the submit button
-        submitButton(eventNameField, durationField);
+        submitButton(eventNameField);
 
     }
 
-    private void submitButton(final EditText eventNameField, final EditText durationField) {
+    private void submitButton(final EditText eventNameField) {
         Button submitBtn = (Button) findViewById(R.id.submitBtn);
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
