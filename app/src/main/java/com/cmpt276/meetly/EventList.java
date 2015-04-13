@@ -280,7 +280,7 @@ public class EventList extends Fragment {
                                         getString(R.string.duplicate_event_msg) + " \"" + eventList.get(i).getTitle() + "\"", getString(R.string.decline_cancel_duplicate_event), getString(R.string.accept_edit_duplicate_event));
                                 dialog.show();
 
-                                Log.e("ANOTHEREVENT-SAME TITLE", "SAME LOC " + eventList.get(i).getStartDate() + " as " + eventList.get(i).getTitle());
+                                Log.e("ANOTHER EVENT-SAME TIME", "SAME TIME " + eventList.get(i).getStartDate() + " AS " + eventList.get(i).getTitle());
                             }
                         }
                     }
