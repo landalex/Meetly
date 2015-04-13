@@ -114,19 +114,22 @@ public class EditEvent extends ActionBarActivity {
 
                 final Date newDate = formatEventTimeAndDate();
                 final Date endDate = formatEndEventTimeAndDate();
+                Log.i("DATE DETAILS", newDate.toString() + " END DATE" + endDate.toString());
 
                 event.setTitle(newTitle);
 
-                Calendar calendar = new GregorianCalendar();
+                //Calendar calendar = new GregorianCalendar();
+                Calendar calendar = Calendar.getInstance();
                 calendar.setTime(newDate);
-                Calendar endCalendar = new GregorianCalendar();
-                calendar.setTime(endDate);
+                Calendar endCalendar = Calendar.getInstance();
+                endCalendar.setTime(endDate);
 
                 event.setStartDate(calendar);
                 event.setEndDate(endCalendar);
                 //event.setDuration(newDuration);
                 event.setLocation(eventLatLong);
 
+                Log.i("NEW DETAILS", event.getStartDate().getTime() + " END DATE" + event.getEndDate().getTime());
                 database.updateDatabaseEvent(event);
                 finish();
             }

@@ -79,10 +79,10 @@ public class CreateEvent extends ActionBarActivity {
                 final Date finalEndEventDate = formatEndEventTimeAndDate();
 
                 // Making Calendar objects
-                Calendar startCalendar = new GregorianCalendar();
+                Calendar startCalendar = Calendar.getInstance();
                 startCalendar.setTime(finalEventDate);
 
-                Calendar endCalendar = new GregorianCalendar();
+                Calendar endCalendar = Calendar.getInstance();
                 endCalendar.setTime(finalEndEventDate);
 
                 //endCalendar.add(Calendar.HOUR, Integer.parseInt(durationField.getText().toString()));
