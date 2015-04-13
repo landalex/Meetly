@@ -11,11 +11,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.maps.model.LatLng;
@@ -53,6 +53,7 @@ public class EventList extends Fragment {
     private ArrayList<Card> cards = new ArrayList<>(0);
     private List<Event> eventList = new ArrayList<>(0);
     private Map<String, Integer> drawableMap;
+    private List<Boolean> eventListViewed;
 
 
     public static EventList newInstance() {
@@ -65,9 +66,18 @@ public class EventList extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+//        setCardsViewed();
         return inflater.inflate(R.layout.fragment_layout, container, false);
     }
 
+    private void setCardsViewed() {
+        int index = 0;
+        for (Card card: cards) {
+            boolean viewed;
+            viewed = eventListViewed.get(index++);
+            pickSupplementalActionsLayout(viewed);
+        }
+    }
 
 
     @Override
@@ -94,11 +104,25 @@ public class EventList extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getActivity().sendBroadcast(new Intent("com.cmpt276.meetly.sync"));
-                // TODO: Properly implement a Runnable so refreshing stops when it is actually done
-                swipeRefreshLayout.setRefreshing(false);
+                MainActivity activity = (MainActivity) getActivity();
+                activity.syncWithServerNow();
             }
         });
+        final CardRecyclerView recyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
+        recyclerView.setOnScrollListener(new CardRecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScrolled(RecyclerView view, int firstVisibleItem, int visibleItemCount) {
+                int topRowVerticalPosition = (recyclerView == null || recyclerView.getChildCount() == 0) ?
+                        0 : recyclerView.getChildAt(0).getTop();
+                swipeRefreshLayout.setEnabled((topRowVerticalPosition >= 0));
+            }
+        });
+
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.green));
     }
 
@@ -170,7 +194,6 @@ public class EventList extends Fragment {
     private ArrayList<Card> makeCards(EventsDataSource database) {
         eventList = getEvents(database);
 
-        Log.d(TAG, "eventList size: " + eventList.size());
         ArrayList<Card> cards = new ArrayList<>();
         ArrayList<BaseSupplementalAction> actions = makeCardActions(database);
         int eventIndex = 0;
@@ -179,13 +202,11 @@ public class EventList extends Fragment {
             cards.add(card);
             eventIndex++;
         }
-        Log.i(TAG, "Cards generated.");
         return cards;
     }
 
     private MaterialLargeImageCard makeMaterialLargeImageCard(ArrayList<BaseSupplementalAction> actions, Event event, int eventIndex) {
         final long eventID = event.getID();
-        Log.d(TAG, "eventID: " + eventID);
 
         int supplementalActionsLayout = pickSupplementalActionsLayout(event.isViewed());
 
@@ -199,8 +220,8 @@ public class EventList extends Fragment {
         card.addCardHeader(new CardHeader(getActivity()));
         card.setId("" + eventIndex);
         card.setCardElevation(10);
+        event.setViewed(true);
 
-        Log.d(TAG, "Card ID: " + card.getId());
         // Pass the event ID with the intent to ViewEvent
         card.setOnClickListener(new Card.OnCardClickListener() {
             @Override

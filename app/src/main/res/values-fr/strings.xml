@@ -47,10 +47,10 @@
     <string name="dialog_cancel">Annuler</string>
     <string name="eventlist_card_unshared">Non partagé</string>
     <string name="eventlist_card_shared">Commun</string>
-    <string name="eventlist_timeuntil_formatted_string_1">Passe dans </string>
-    <string name="eventlist_timeuntil_formatted_string_2"> journées, </string>
-    <string name="eventlist_timeuntil_formatted_string_3"> heure, et </string>
-    <string name="eventlist_timeuntil_formatted_string_4"> procès-verbal</string>
+    <string name="eventlist_timeuntil_formatted_string_1">Passe dans&#160;</string>
+    <string name="eventlist_timeuntil_formatted_string_2">&#160;journées,&#160;</string>
+    <string name="eventlist_timeuntil_formatted_string_3">&#160;heure, et&#160;</string>
+    <string name="eventlist_timeuntil_formatted_string_4">&#160;procès-verbal</string>
     <string name="eventlist_timeuntil_now">Passe maintenant</string>
     <string name="action_sign_in_short">Se connecter</string>
     <string name="error_incorrect_password">Ce mot de passe est incorrect</string>

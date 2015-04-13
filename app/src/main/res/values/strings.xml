@@ -52,10 +52,10 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="eventlist_card_unshared">Unshared</string>
     <string name="eventlist_card_shared">Shared</string>
-    <string name="eventlist_timeuntil_formatted_string_1">Happening in </string>
-    <string name="eventlist_timeuntil_formatted_string_2"> days, </string>
-    <string name="eventlist_timeuntil_formatted_string_3"> hours, and </string>
-    <string name="eventlist_timeuntil_formatted_string_4"> minutes</string>
+    <string name="eventlist_timeuntil_formatted_string_1">Happening in&#160;</string>
+    <string name="eventlist_timeuntil_formatted_string_2">&#160;days,&#160;</string>
+    <string name="eventlist_timeuntil_formatted_string_3">&#160;hours, and&#160;</string>
+    <string name="eventlist_timeuntil_formatted_string_4">&#160;minutes</string>
     <string name="eventlist_timeuntil_now">Happening now</string>
     <string name="skip_splash_screen">Skip splash screen</string>
     <string name="activity_create_save">Confirm Event</string>
