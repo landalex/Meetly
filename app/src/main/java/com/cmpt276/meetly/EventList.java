@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -54,6 +55,9 @@ public class EventList extends Fragment {
     private List<Event> eventList = new ArrayList<>(0);
     private Map<String, Integer> drawableMap;
     private List<Boolean> eventListViewed;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    public boolean cardsUpdating;
+
 
 
     public static EventList newInstance() {
@@ -100,12 +104,25 @@ public class EventList extends Fragment {
     }
 
     private void configureSwipeToRefresh() {
-        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                MainActivity activity = (MainActivity) getActivity();
-                activity.syncWithServerNow();
+                final Handler handler = new Handler();
+                cardsUpdating = true;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        MainActivity activity = (MainActivity) getActivity();
+                        activity.syncWithServerNow();
+                        if (cardsUpdating) {
+                            handler.postDelayed(this, 1000);
+                        } else {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+
+                    }
+                });
             }
         });
         final CardRecyclerView recyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
@@ -489,6 +506,7 @@ public class EventList extends Fragment {
         EventsDataSource database = new EventsDataSource(getActivity());
 
         protected void onPreExecute() {
+            cardsUpdating = true;
         }
 
         @Override
@@ -551,6 +569,8 @@ public class EventList extends Fragment {
                 Log.i(TAG, "Cards cleared");
                 mCardArrayAdapter.notifyDataSetChanged();
             }
+
+            cardsUpdating = false;
         }
 
     }

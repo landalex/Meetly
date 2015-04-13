@@ -287,7 +287,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         Long syncInterval = getServerSyncInterval();
 
         if (syncInterval > 0) {
-            synchTimer.schedule(serverEventSynchTask, 3000, syncInterval);
+            synchTimer.schedule(serverEventSynchTask, syncInterval, syncInterval);
         }
     }
 
@@ -297,7 +297,8 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     }
 
     protected void syncWithServerNow() {
-        new MyTimerTask().run();
+        Timer timer = new Timer();
+        timer.schedule(new MyTimerTask(), 0);
     }
 
     class MyTimerTask extends TimerTask {
@@ -345,7 +346,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
                 Log.i(TAG, "Failed to fetch new events. User not logged in");
 
             }
-
         }
     }
 }
