@@ -1,5 +1,7 @@
 package com.cmpt276.meetly;
 
+import com.cmpt276.meetly.IMeetlyServer;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,10 +14,6 @@ import java.util.Calendar;
 import java.util.List;
 
 
-
-/**
- * Created by Hami on 4/8/2015.
- */
 public class MeetlyServer implements IMeetlyServer {
 
     // This is horrible. Don't do this. Seriously.
@@ -71,8 +69,8 @@ public class MeetlyServer implements IMeetlyServer {
             CallableStatement createStmt = con.prepareCall(create);
             createStmt.setInt(1, userToken);
             createStmt.setString(2, title);
-            createStmt.setInt(3, (int) startTime.getTimeInMillis());
-            createStmt.setInt(4, (int)endTime.getTimeInMillis());
+            createStmt.setLong(3, startTime.getTimeInMillis());
+            createStmt.setLong(4, endTime.getTimeInMillis());
             createStmt.setDouble(5, latitude);
             createStmt.setDouble(6, longitude);
             createStmt.registerOutParameter(7, Types.INTEGER);
@@ -102,8 +100,8 @@ public class MeetlyServer implements IMeetlyServer {
             modifyStmt.setInt(1, eventID);
             modifyStmt.setInt(2, userToken);
             modifyStmt.setString(3, title);
-            modifyStmt.setInt(4, (int) startTime.getTimeInMillis());
-            modifyStmt.setInt(5, (int) endTime.getTimeInMillis());
+            modifyStmt.setLong(4, startTime.getTimeInMillis());
+            modifyStmt.setLong(5, endTime.getTimeInMillis());
             modifyStmt.setDouble(6, latitude);
             modifyStmt.setDouble(7, longitude);
             modifyStmt.registerOutParameter(8, Types.INTEGER);
@@ -140,9 +138,9 @@ public class MeetlyServer implements IMeetlyServer {
                 event.title      = results.getString(4);
 
                 event.startTime  = Calendar.getInstance();
-                event.startTime.setTimeInMillis(results.getInt(5));
+                event.startTime.setTimeInMillis(results.getLong(5));
                 event.endTime    = Calendar.getInstance();
-                event.endTime.setTimeInMillis(results.getInt(6));
+                event.endTime.setTimeInMillis(results.getLong(6));
 
                 event.latitude   = results.getDouble(7);
                 event.longitude  = results.getDouble(8);
@@ -155,5 +153,4 @@ public class MeetlyServer implements IMeetlyServer {
             throw new FailedFetchException(sqle);
         }
     }
-
 }
