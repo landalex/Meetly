@@ -159,4 +159,13 @@ public class Event {
         this.viewed = viewed;
     }
 
+    public static String getTimestringForEventStart(Event event) {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEEE',' MMMM dd 'at' hh:mm aa");
+        return formatter.format(event.getStartDate().getTime());
+    }
+
+    public static String getTimestringForEventEnd(Event event) {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEEE',' MMMM dd 'at' hh:mm aa");
+        return formatter.format(event.getEndDate().getTime());
+    }
 }

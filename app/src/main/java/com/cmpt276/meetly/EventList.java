@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -229,7 +228,7 @@ public class EventList extends Fragment {
 
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
-                .setTitle(getTimestringForEvent(event))
+                .setTitle(Event.getTimestringForEventStart(event))
                 .setSubTitle(timeUntil(event.getStartDate().getTime()) + "\n" + getString(R.string.eventlist_card_unshared))
                 .useDrawableId(pickDrawableForCard(event.getTitle()))
                 .setupSupplementalActions(supplementalActionsLayout, actions)
@@ -250,11 +249,6 @@ public class EventList extends Fragment {
             }
         });
         return card;
-    }
-
-    private String getTimestringForEvent(Event event) {
-        SimpleDateFormat formatter = new SimpleDateFormat("EEEE',' MMMM dd 'at' hh:mm aa");
-        return formatter.format(event.getStartDate().getTime());
     }
 
     private int pickSupplementalActionsLayout(boolean viewed) {
