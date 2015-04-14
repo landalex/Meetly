@@ -3,25 +3,20 @@ package com.cmpt276.meetly;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.maps.model.LatLng;
@@ -31,16 +26,11 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import de.keyboardsurfer.android.widget.crouton.Configuration;
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.LifecycleCallback;
-import de.keyboardsurfer.android.widget.crouton.Style;
 import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
 import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
 import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
@@ -62,8 +52,11 @@ public class EventList extends Fragment {
     private RecyclerViewAdapter mCardArrayAdapter;
     private ArrayList<Card> cards = new ArrayList<>(0);
     private List<Event> eventList = new ArrayList<>(0);
-//    ProgressDialog dialog = null;
     private Map<String, Integer> drawableMap;
+    private List<Boolean> eventListViewed;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    public boolean cardsUpdating;
+
 
 
     public static EventList newInstance() {
@@ -76,8 +69,19 @@ public class EventList extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+//        setCardsViewed();
         return inflater.inflate(R.layout.fragment_layout, container, false);
     }
+
+    private void setCardsViewed() {
+        int index = 0;
+        for (Card card: cards) {
+            boolean viewed;
+            viewed = eventListViewed.get(index++);
+            pickSupplementalActionsLayout(viewed);
+        }
+    }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -88,23 +92,53 @@ public class EventList extends Fragment {
         configureRecyclerView();
         configureSwipeToRefresh();
 
-//        dialog = new ProgressDialog(getActivity());
-//        dialog.setIndeterminate(true);
-//        dialog.setMessage(getString(R.string.fragment_event_update_loading_text));
-
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.setEventUpdateObserver(new EventUpdateObserver() {
+            @Override
+            public void eventsUpdated() {
+                onResume();
+            }
+        });
         createDrawableMap();
     }
 
     private void configureSwipeToRefresh() {
-        final SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getActivity().sendBroadcast(new Intent("com.cmpt276.meetly.sync"));
-                // TODO: Properly implement a Runnable so refreshing stops when it is actually done
-                swipeRefreshLayout.setRefreshing(false);
+                final Handler handler = new Handler();
+                cardsUpdating = true;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        MainActivity activity = (MainActivity) getActivity();
+                        activity.syncWithServerNow();
+                        if (cardsUpdating) {
+                            handler.postDelayed(this, 1000);
+                        } else {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+
+                    }
+                });
             }
         });
+        final CardRecyclerView recyclerView = (CardRecyclerView) getActivity().findViewById(R.id.fragment_recyclerview);
+        recyclerView.setOnScrollListener(new CardRecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScrolled(RecyclerView view, int firstVisibleItem, int visibleItemCount) {
+                int topRowVerticalPosition = (recyclerView == null || recyclerView.getChildCount() == 0) ?
+                        0 : recyclerView.getChildAt(0).getTop();
+                swipeRefreshLayout.setEnabled((topRowVerticalPosition >= 0));
+            }
+        });
+
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.green));
     }
 
@@ -149,26 +183,17 @@ public class EventList extends Fragment {
         });
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
-//        if (getEvents(new EventsDataSource(getActivity())).size() - eventList.size() == 1
-//                && eventList.size() != 1) {
-//            UpdateCards updater = new UpdateCards();
-//            updater.execute(updater.ADD_MODE, eventList.size());
-//        }
-//        else {
             UpdateCards updater = new UpdateCards();
             updater.execute(updater.CREATE_MODE, eventList.size());
-//        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        if (dialog != null) {
-//            dialog.dismiss();
-//        }
     }
 
     private void configureRecyclerView() {
@@ -185,7 +210,6 @@ public class EventList extends Fragment {
     private ArrayList<Card> makeCards(EventsDataSource database) {
         eventList = getEvents(database);
 
-        Log.d(TAG, "eventList size: " + eventList.size());
         ArrayList<Card> cards = new ArrayList<>();
         ArrayList<BaseSupplementalAction> actions = makeCardActions(database);
         int eventIndex = 0;
@@ -194,27 +218,26 @@ public class EventList extends Fragment {
             cards.add(card);
             eventIndex++;
         }
-        Log.i(TAG, "Cards generated.");
         return cards;
     }
 
     private MaterialLargeImageCard makeMaterialLargeImageCard(ArrayList<BaseSupplementalAction> actions, Event event, int eventIndex) {
         final long eventID = event.getID();
-        Log.d(TAG, "eventID: " + eventID);
+
+        int supplementalActionsLayout = pickSupplementalActionsLayout(event.isViewed());
 
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
-                .setTitle(event.getStartDate().toString())
+                .setTitle(Event.getTimestringForEventStart(event))
                 .setSubTitle(timeUntil(event.getStartDate().getTime()) + "\n" + getString(R.string.eventlist_card_unshared))
                 .useDrawableId(pickDrawableForCard(event.getTitle()))
-                .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
+                .setupSupplementalActions(supplementalActionsLayout, actions)
                 .build();
         card.addCardHeader(new CardHeader(getActivity()));
-        setUnviewedIcon(event.isViewed());
         card.setId("" + eventIndex);
-        card.setCardElevation(20);
+        card.setCardElevation(10);
+        event.setViewed(true);
 
-        Log.d(TAG, "Card ID: " + card.getId());
         // Pass the event ID with the intent to ViewEvent
         card.setOnClickListener(new Card.OnCardClickListener() {
             @Override
@@ -228,14 +251,12 @@ public class EventList extends Fragment {
         return card;
     }
 
-    private void setUnviewedIcon(boolean viewed) {
-        ImageButton indicator = (ImageButton) getActivity().findViewById(R.id.viewedIndicator);
-        if (indicator != null) {
-            if (!viewed) {
-                indicator.setVisibility(View.VISIBLE);
-            } else {
-                indicator.setVisibility(View.GONE);
-            }
+    private int pickSupplementalActionsLayout(boolean viewed) {
+        if (viewed) {
+            return R.layout.fragment_card_view_actions_viewed;
+        }
+        else {
+            return R.layout.fragment_card_view_actions_unviewed;
         }
     }
 
@@ -275,6 +296,27 @@ public class EventList extends Fragment {
             public void onClick(Card card, View view) {
                 boolean loggedIn = checkLoggedIn();
                 if (loggedIn) {
+
+                    // Checking for duplicate events
+                    for (int i = 0; i < eventList.size(); i++) {
+                        Long eventIndexLong = Long.parseLong(card.getId());
+                        int eventIndexInt = eventIndexLong.intValue();
+
+                        // Make sure we dont look at the same event as the one we're checking with
+                        if (i != eventIndexInt) {
+                            Calendar currentCardEventDate = db.findEventByID(eventList.get(eventIndexInt).getID()).getStartDate();
+                            boolean sameDate = eventList.get(i).getStartDate().equals(currentCardEventDate);
+
+                            if (sameDate) {
+                                AlertDialog dialog = makeDuplicateEventAlertDialog(eventIndexLong, getString(R.string.duplicate_event_heading),
+                                        getString(R.string.duplicate_event_msg) + " \"" + eventList.get(i).getTitle() + "\"", getString(R.string.decline_cancel_duplicate_event), getString(R.string.accept_edit_duplicate_event));
+                                dialog.show();
+
+                                Log.e("ANOTHER EVENT-SAME TIME", "SAME TIME " + eventList.get(i).getStartDate() + " AS " + eventList.get(i).getTitle());
+                            }
+                        }
+                    }
+
                     String username = getUserName();
                     Integer userToken = getUserToken();
                     boolean published = publishEventByID(username, userToken, Long.parseLong(card.getId()));
@@ -326,6 +368,27 @@ public class EventList extends Fragment {
                         Log.e(TAG, "Failed to publish event: " + event.getTitle());
                         return false;
                     }
+    }
+
+    private AlertDialog makeDuplicateEventAlertDialog(final Long eventIndex, String title, String message, String positiveButtonLabel, String negativeButtonLabel) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(positiveButtonLabel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(getActivity(), EditEvent.class);
+                intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
+                startActivity(intent);
+            }
+        });
+        builder.setNegativeButton(negativeButtonLabel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        return builder.create();
     }
 
     private AlertDialog makeLoginAlertDialog(String title, String message, String positiveButtonLabel, String negativeButtonLabel) {
@@ -437,7 +500,7 @@ public class EventList extends Fragment {
         EventsDataSource database = new EventsDataSource(getActivity());
 
         protected void onPreExecute() {
-//            dialog.show();
+            cardsUpdating = true;
         }
 
         @Override
@@ -479,9 +542,6 @@ public class EventList extends Fragment {
 
         @Override
         protected void onPostExecute(Integer[] result) {
-//            if (dialog.isShowing()) {
-//                dialog.dismiss();
-//            }
 
             if (result[0] == CREATE_MODE) {
                 Log.i(TAG, "Card update finished.");
@@ -503,6 +563,8 @@ public class EventList extends Fragment {
                 Log.i(TAG, "Cards cleared");
                 mCardArrayAdapter.notifyDataSetChanged();
             }
+
+            cardsUpdating = false;
         }
 
     }

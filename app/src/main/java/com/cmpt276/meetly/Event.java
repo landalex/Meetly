@@ -51,7 +51,6 @@ public class Event {
         eventLocation = new LatLng(location.latitude,location.longitude);
         sharedEventID = -1;
         viewed = true;
-        modifiable = false;
     }
 
 
@@ -68,13 +67,12 @@ public class Event {
         eventLocation = eventCopy.eventLocation;
         this.sharedEventID = eventCopy.getSharedEventID();
         this.viewed = eventCopy.isViewed();
-        eventCopy.modifiable = eventCopy.isModifiable();
     }
 
     /**
      * Event Constructor
      *       Note: values must contain 7 key-value pairs
-     * @param values
+     * @param values The values to create the event with
      */
     public Event(ContentValues values) {
         eventID = values.getAsLong(MySQLiteHelper.COLUMN_ID);
@@ -170,5 +168,14 @@ public class Event {
 
     public void setModifiable(boolean modifiable) {
         this.modifiable = modifiable;
+    }
+    public static String getTimestringForEventStart(Event event) {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEEE',' MMMM dd 'at' hh:mm aa");
+        return formatter.format(event.getStartDate().getTime());
+    }
+
+    public static String getTimestringForEventEnd(Event event) {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEEE',' MMMM dd 'at' hh:mm aa");
+        return formatter.format(event.getEndDate().getTime());
     }
 }

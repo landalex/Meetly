@@ -42,7 +42,9 @@ public class CreateEvent extends ActionBarActivity {
     private final String TAG = "CreateEventActivity";
     private GoogleMap map;
     private Integer[] hourAndMinuteArray = new Integer[]{0, 0};
+    private Integer[] endHourAndMinuteArray = new Integer[]{0, 0};
     private Integer[] date = new Integer[]{2015, 1, 1};
+    private Integer[] endDate = new Integer[]{2015, 1, 2};
     private LatLng eventLatLong = new LatLng(49.176872923625645, -122.8456462919712);      // Intersection of King George and 96
     private Menu actionBarMenu;
 
@@ -53,34 +55,41 @@ public class CreateEvent extends ActionBarActivity {
 
         // Getting info from buttons and map
         chooseTimeButton();
+        chooseEndTimeButton();
         chooseDateButton();
+        chooseEndDateButton();
         displayMap();
 
         // Getting name and duration from their fields
         final EditText eventNameField = (EditText) findViewById(R.id.eventName);
-        final EditText durationField = (EditText) findViewById(R.id.durationField);
+        //final EditText durationField = (EditText) findViewById(R.id.durationField);
 
         // Getting a reference to the submit button
-        submitButton(eventNameField, durationField);
+        submitButton(eventNameField);
 
     }
 
-    private void submitButton(final EditText eventNameField, final EditText durationField) {
+    private void submitButton(final EditText eventNameField) {
         Button submitBtn = (Button) findViewById(R.id.submitBtn);
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final Date finalEventDate = formatEventTimeAndDate();
+                final Date finalEndEventDate = formatEndEventTimeAndDate();
 
-
-                Calendar startCalendar = new GregorianCalendar();
+                // Making Calendar objects
+                Calendar startCalendar = Calendar.getInstance();
                 startCalendar.setTime(finalEventDate);
-                Calendar endCalendar = new GregorianCalendar();
-                endCalendar.setTime(finalEventDate);
-                endCalendar.add(Calendar.HOUR, Integer.parseInt(durationField.getText().toString()));
+
+                Calendar endCalendar = Calendar.getInstance();
+                endCalendar.setTime(finalEndEventDate);
+
+                //endCalendar.add(Calendar.HOUR, Integer.parseInt(durationField.getText().toString()));
+
                 EventsDataSource event = new EventsDataSource(CreateEvent.this);
-                event.createEvent(eventNameField.getText().toString(), startCalendar,startCalendar, eventLatLong);
+
+                event.createEvent(eventNameField.getText().toString(), startCalendar, endCalendar, eventLatLong);
 
                 Log.i("Final Event Going in: ", finalEventDate.toString());
                 finish();
@@ -103,6 +112,37 @@ public class CreateEvent extends ActionBarActivity {
 
         // yyyy - mm - dd <> hh:mm:ss
         String str = date[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
+        DateFormat sdf = Event.EVENT_DATEFORMAT;
+
+        // Parsing the time and date into a Date object
+        Date eventDate = new Date();
+        try{
+            eventDate = sdf.parse(str);
+        } catch(ParseException e) {
+            Log.e(TAG, "Error parsing time and date...");
+            e.printStackTrace();
+        }
+
+        Log.i("Date", eventDate.toString());
+        Log.i("SDF ", str);
+        return eventDate;
+    }
+
+    private Date formatEndEventTimeAndDate() {
+        // If the month is single digit
+        String tempMonth = leftPadDateOrTime(endDate[1] + 1);
+
+        // If the day is single digit
+        String tempDay = leftPadDateOrTime(endDate[2]);
+
+        // If the hour is single digit
+        String tempHour = leftPadDateOrTime(endHourAndMinuteArray[0]);
+
+        // If the minute is single digit
+        String tempMinute = leftPadDateOrTime(endHourAndMinuteArray[1]);
+
+        // yyyy - mm - dd <> hh:mm:ss
+        String str = endDate[0] + "/" + tempMonth + "/" + tempDay + " " + tempHour + ":" + tempMinute + ":" + "00";
         DateFormat sdf = Event.EVENT_DATEFORMAT;
 
         // Parsing the time and date into a Date object
@@ -225,6 +265,49 @@ public class CreateEvent extends ActionBarActivity {
 //        return hourAndMinuteArray;
     }
 
+    private void chooseEndTimeButton() {
+        final Button timeBtn = (Button) findViewById(R.id.chooseEndTime);
+        final int INITIAL_HOUR = 12;
+        final int INITIAL_MINUTE = 55;
+        endHourAndMinuteArray = new Integer[]{INITIAL_HOUR, INITIAL_MINUTE};
+
+        timeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // When the buttons pressed we pop up a new TimePicker Dialog
+                // Parameters: CreateEvent.this : Tells it which Context (Activity) it is in
+                //             new TimePickerDialog.OnTimeSetListener() : What to do when user clicks done
+                //             INITIAL_HOUR : What hour to show when it initially pops up
+                //             INITIAL_MINUTE: What minute to show when it initially pops up
+                //             false : Sets displaying the time in a 24 Hour View
+
+                new TimePickerDialog(CreateEvent.this,
+                        new TimePickerDialog.OnTimeSetListener() {
+
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                endHourAndMinuteArray[0] = hourOfDay;
+                                endHourAndMinuteArray[1] = minute;
+
+                                String amOrPm = "AM";
+
+                                if (hourOfDay > 12) {
+                                    hourOfDay -= 12;
+                                    amOrPm = "PM";
+                                }
+                                String time = String.format("%d : %02d " + amOrPm, hourOfDay, minute);
+                                timeBtn.setText(time);
+                                Log.i(TAG, "Updated:" + time);
+                            }
+                        }, INITIAL_HOUR, INITIAL_MINUTE, false).show();
+            }
+        });
+
+        Log.i(TAG, "Returned:" + endHourAndMinuteArray[0] + ":" + endHourAndMinuteArray[1]);
+//        return hourAndMinuteArray;
+    }
+
     private void chooseDateButton() {
         final Button dateBtn = (Button) findViewById(R.id.chooseDate);
         final int INITIAL_YEAR = 2015;
@@ -254,6 +337,35 @@ public class CreateEvent extends ActionBarActivity {
         });
 
         //return dateOfEvent;
+    }
+
+    private void chooseEndDateButton() {
+        final Button dateBtn = (Button) findViewById(R.id.chooseEndDate);
+        final int INITIAL_YEAR = 2015;
+        final int INITIAL_MONTH = 0;
+        final int INITIAL_DAY = 2;
+
+        dateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // When the buttons pressed we pop up a new DatePicker Dialog
+                // Parameters: CreateEvent.this : Tells it which Context (Activity) it is in
+                //             new DatePickerDialog.OnDateSetListener() : What to do when user clicks done
+                //             INITIAL_* : What year, month and day to show when it initially pops up
+
+                new DatePickerDialog(CreateEvent.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        dateBtn.setText(monthOfYear + 1 + "/" + dayOfMonth + "/" + year);       // Months are 0-indexed, Days are 1-indexed
+                        endDate[0] = year;
+                        endDate[1] = monthOfYear;
+                        endDate[2] = dayOfMonth;
+                    }
+                }, INITIAL_YEAR, INITIAL_MONTH, INITIAL_DAY).show();
+            }
+        });
+
     }
 
     @Override

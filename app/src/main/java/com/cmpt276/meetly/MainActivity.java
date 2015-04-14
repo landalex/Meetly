@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +44,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     private MeetlyTimerTask serverEventSynchTask;
     private boolean locationSet = false;
     private String locationString;
+    private EventUpdateObserver observer;
 
 
     @Override
@@ -76,6 +78,10 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
 
         setSchedule();
+    }
+
+    protected void setEventUpdateObserver(EventUpdateObserver observer) {
+        this.observer = observer;
     }
 
     @Override
@@ -177,6 +183,13 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         return super.onPrepareOptionsMenu(menu);
     }
 
+
+    /* Switches to Login activity */
+    private void goToLoginScreen(){
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+
     /*
      * Shows option of logging user out of Meetly
      */
@@ -243,12 +256,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     protected void onResume() {
         super.onResume();
         registerReceiver(mReceiver, intentFilter);
-        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-        String username = getUsername(preferences);
-        account = new MaterialAccount(getResources(),
-                username, "", R.drawable.card_picture_pizza, R.drawable.card_picture_default);
-        notifyAccountDataChanged();
-
         //only start synch schedule if it hasn't been started for some reason
         if(serverEventSynchTask == null){
             setSchedule();
@@ -284,7 +291,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     }
 
     private long getServerSyncInterval() {
-        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         return Long.parseLong(preferences.getString("server_sync_interval", "0"));
     }
         //only pulls events if user is logged in
@@ -300,6 +307,21 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
                     }catch (RuntimeException exc){
                         exc.printStackTrace();
                     }
+    protected void syncWithServerNow() {
+        Timer timer = new Timer();
+        timer.schedule(new MyTimerTask(), 0);
+    }
+
+    class MyTimerTask extends TimerTask {
+        public void run() {
+            MeetlyServer server = new MeetlyServer();
+            SharedPreferences settingss = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+            EventsDataSource eventsDataSource = new EventsDataSource(getApplicationContext());
+            if(settingss.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false)){
+                try {
+//                    int token = server.login("fritter@sfu.ca", "password");
+                    for (MeetlyServer.MeetlyEvent e : server.fetchEventsAfter(10)) {
+                        Log.i("DBTester", "Event " + e.title);
 
                     if(event == null){
                         //event is not in db, so add it
@@ -325,6 +347,11 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
             Log.i(TAG, "Fetched new events @: " + Event.EVENT_DATEFORMAT.format(currentCal.getTime()));
         }else{
             Log.i(TAG, "Failed to fetch new events. User not logged in");
+                Calendar currentCal = Calendar.getInstance();
+                Log.i(TAG, "Fetched new events @: " + Event.EVENT_DATEFORMAT.format(currentCal.getTime()));
+                observer.eventsUpdated();
+            }else{
+                Log.i(TAG, "Failed to fetch new events. User not logged in");
 
         }
     }
@@ -348,6 +375,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     class MeetlyTimerTask extends TimerTask {
         public void run() {
             fetchNewServerEvents();
+            }
         }
     }
 }

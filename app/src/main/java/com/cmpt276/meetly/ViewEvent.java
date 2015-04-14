@@ -2,27 +2,17 @@ package com.cmpt276.meetly;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.r0adkll.slidr.Slidr;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
-import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
-import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
-import it.gmariotti.cardslib.library.internal.Card;
-import it.gmariotti.cardslib.library.internal.CardHeader;
 
 /**
  * Fields: Name, Location, Date/Time, Time to event start, People, Notes,
@@ -79,7 +69,7 @@ public class ViewEvent extends ActionBarActivity {
         textView.setText(thisEvent.getTitle());
 
         textView = (TextView) findViewById(R.id.date);
-        textView.setText("Starts at: " + thisEvent.getStartDate().toString() + " and ends at: " + thisEvent.getEndDate().toString());
+        textView.setText("Starts at: " + Event.getTimestringForEventStart(thisEvent) + " and ends at: " + Event.getTimestringForEventEnd(thisEvent));
 
         textView = (TextView) findViewById(R.id.location);
 
