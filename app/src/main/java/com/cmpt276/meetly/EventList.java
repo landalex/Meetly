@@ -224,7 +224,7 @@ public class EventList extends Fragment {
     private MaterialLargeImageCard makeMaterialLargeImageCard(ArrayList<BaseSupplementalAction> actions, Event event, int eventIndex) {
         final long eventID = event.getID();
 
-        int supplementalActionsLayout = pickSupplementalActionsLayout(false); // event.isViewed()
+        int supplementalActionsLayout = pickSupplementalActionsLayout(event.isViewed());
 
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
