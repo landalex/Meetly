@@ -110,6 +110,7 @@ public class ViewEvent extends ActionBarActivity {
         Log.i(TAG, "" + eventID);
         EventsDataSource eds = new EventsDataSource(getApplicationContext());
         thisEvent = eds.findEventByID(eventID);
+
         //thisEvent.printEventS();
     }
 }

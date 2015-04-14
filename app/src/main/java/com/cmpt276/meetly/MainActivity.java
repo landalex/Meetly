@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -75,8 +76,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         if (!preferences.getBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, true)) {
             disableLearningPattern();
         }
-
-
         setSchedule();
     }
 
@@ -224,6 +223,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, getResources().getString(R.string.main_defaultLoginMessage));
         editor.putBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
         editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1);
+        editor.putString(Meetly.MEETLY_PREFERENCES_PASS, getResources().getString(R.string.main_defaultLoginMessage));
         editor.commit();
         Toast.makeText(getApplicationContext(), "You have been successfully logged out", Toast.LENGTH_LONG).show();
         // Refresh main activity upon close of dialog box
@@ -248,8 +248,8 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     public void onUpgradeDBClick(View view){
         MySQLiteHelper dbHelper = new MySQLiteHelper(getApplicationContext());
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        dbHelper.onUpgrade(database, MySQLiteHelper.DATABASE_VERSION, MySQLiteHelper.DATABASE_VERSION + 1);
-        //MySQLiteHelper.deleteDatabase(database, getApplicationContext());
+        //dbHelper.onUpgrade(database, MySQLiteHelper.DATABASE_VERSION, MySQLiteHelper.DATABASE_VERSION + 1);
+        MySQLiteHelper.deleteDatabase(database, getApplicationContext());
     }
 
     @Override
@@ -257,9 +257,9 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         super.onResume();
         registerReceiver(mReceiver, intentFilter);
         //only start synch schedule if it hasn't been started for some reason
-        if(serverEventSynchTask == null){
-            setSchedule();
-        }
+//        if(serverEventSynchTask == null){
+//            setSchedule();
+//        }
     }
 
     @Override
@@ -270,65 +270,43 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
     @Override
     protected void onDestroy() {
+
         super.onDestroy();
+        serverEventSynchTask.cancel();
     }
 
     //For Scheduling Time-Interval Event Retrieval from Server
 
     /**
-     * Fethes new events and updates current ones from the server if user is logged in
+     * Fetches new events and updates current ones from the server if user is logged in
      */
-    private void fetchNewServerEvents(){
+    private void fetchNewServerEvents() {
         MeetlyServer server = new MeetlyServer();
         SharedPreferences settingss = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
         EventsDataSource eventsDataSource = new EventsDataSource(getApplicationContext());
 
         Long syncInterval = getServerSyncInterval();
 
-        if (syncInterval > 0) {
-            synchTimer.schedule(serverEventSynchTask, 3000, syncInterval);
-        }
-    }
-
-    private long getServerSyncInterval() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        return Long.parseLong(preferences.getString("server_sync_interval", "0"));
-    }
         //only pulls events if user is logged in
-        if(settingss.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false)){
+        if (settingss.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false)) {
             try {
+
                 for (MeetlyServer.MeetlyEvent e : server.fetchEventsAfter(1)) {
                     Log.i("**DBTester**", "Event " + e.title);
 
                     //make sure event is not already in the database
                     Event event = null;
-                    try{
+                    try {
                         event = eventsDataSource.findEventBySharedID(e.eventID);
-                    }catch (RuntimeException exc){
+                    } catch (RuntimeException exc) {
                         exc.printStackTrace();
                     }
-    protected void syncWithServerNow() {
-        Timer timer = new Timer();
-        timer.schedule(new MyTimerTask(), 0);
-    }
-
-    class MyTimerTask extends TimerTask {
-        public void run() {
-            MeetlyServer server = new MeetlyServer();
-            SharedPreferences settingss = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
-            EventsDataSource eventsDataSource = new EventsDataSource(getApplicationContext());
-            if(settingss.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false)){
-                try {
-//                    int token = server.login("fritter@sfu.ca", "password");
-                    for (MeetlyServer.MeetlyEvent e : server.fetchEventsAfter(10)) {
-                        Log.i("DBTester", "Event " + e.title);
 
                     if(event == null){
                         //event is not in db, so add it
                         LatLng latLng = new LatLng(e.latitude,e.longitude);
                         eventsDataSource.addSharedEvent(e.eventID,e.title,e.startTime,e.endTime,latLng);
-                    }else{
-                        //event is already in the database, so just update it
+                    }else {
                         event.setTitle(e.title);
                         event.setStartDate(e.startTime);
                         event.setEndDate(e.endTime);
@@ -336,8 +314,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
                         event.setLocation(latLng);
                         eventsDataSource.updateDatabaseEvent(event);
                     }
-                } catch (MeetlyServer.FailedFetchException e) {
-                    e.printStackTrace();
                 }
             } catch (MeetlyServer.FailedFetchException e) {
                 e.printStackTrace();
@@ -345,37 +321,37 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
             Calendar currentCal = Calendar.getInstance();
             Log.i(TAG, "Fetched new events @: " + Event.EVENT_DATEFORMAT.format(currentCal.getTime()));
+
         }else{
             Log.i(TAG, "Failed to fetch new events. User not logged in");
-                Calendar currentCal = Calendar.getInstance();
-                Log.i(TAG, "Fetched new events @: " + Event.EVENT_DATEFORMAT.format(currentCal.getTime()));
-                observer.eventsUpdated();
-            }else{
-                Log.i(TAG, "Failed to fetch new events. User not logged in");
-
         }
+        observer.eventsUpdated();
     }
 
-/*
-        void schedule (TimerTask task, long delay, long period)
-        Schedule a task for repeated fixed-delay execution after a specific delay.
+    private long getServerSyncInterval() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        return Long.parseLong(preferences.getString("server_sync_interval", "0"));
+    }
 
-        Parameters
-        task  the task to schedule.
-        delay  amount of time in milliseconds before first execution.
-        period  amount of time in milliseconds between subsequent executions.
-*/
+    protected void syncWithServerNow() {
+        Timer timer = new Timer();
+        timer.schedule(new MeetlyTimerTask(), 0);
+    }
+
     private void setSchedule(){
         //For timer
         serverEventSynchTask = new MeetlyTimerTask();
         Timer synchTimer = new Timer();
-        synchTimer.schedule(serverEventSynchTask, 10000, serverEventUpdateInterval);
+        if(serverEventSynchTask == null) synchTimer.schedule(serverEventSynchTask, 0, getServerSyncInterval());
+        Log.i(TAG, "Setting schedule for fetching events from server");
     }
 
     class MeetlyTimerTask extends TimerTask {
         public void run() {
-            fetchNewServerEvents();
+
+                    fetchNewServerEvents();
+
+
             }
         }
-    }
 }

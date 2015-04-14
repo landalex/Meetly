@@ -3,6 +3,7 @@ package com.cmpt276.meetly;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,6 +18,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,8 +60,17 @@ public class EditEvent extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_event);
 
+        event = new Event();
         // Getting a reference to the event thats passed in
         getEventToEdit();
+
+        //make sure event is modifiable
+        Log.i(TAG, "event modifiable?: " + event.isModifiable());
+        if(!event.isModifiable()){
+            Toast.makeText(getApplicationContext(),"You cannot modify an event not created by you.", Toast.LENGTH_LONG).show();
+            finish();
+        }
+
 
         // Getting a reference to all our fields
         TextView eventName = (TextView) findViewById(R.id.editEventName);
@@ -136,27 +147,49 @@ public class EditEvent extends ActionBarActivity {
                 //also update event if user is logged in and has shared the event
                 SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
                 boolean loggedIn = settings.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+                final String username = settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, "");
+                final String password = settings.getString(Meetly.MEETLY_PREFERENCES_PASS, "");
 
                 if(loggedIn && event.getSharedEventID() != -1){
-                    MeetlyServer server = new MeetlyServer();
+                    final MeetlyServer server = new MeetlyServer();
 
-                    try{
-                        server.publishEvent(
-                                settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, Meetly.defaultUMessage),
-                                settings.getInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1),
-                                event.getTitle(),
-                                event.getStartDate(),
-                                event.getEndDate(),
-                                event.getLocation().latitude,
-                                event.getLocation().longitude);
-                    }catch (MeetlyServer.FailedPublicationException e) {
-                        e.printStackTrace();
-                    }
+                    new Thread(new Runnable(){
+                        @Override
+                        public void run() {
+                            connectToDB(server, username, password, event);
+                        }
+                    }).start();
 
                 }
                 finish();
             }
         });
+    }
+
+    private void connectToDB(MeetlyServer server, String username, String password, Event event){
+        try {
+            event.printEvent();
+            SharedPreferences settings = getSharedPreferences(Meetly.MEETLY_PREFERENCES, Context.MODE_PRIVATE);
+            int token = server.login(username, password);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, token);
+
+            server.publishEvent(
+                    settings.getString(Meetly.MEETLY_PREFERENCES_USERNAME, Meetly.defaultUMessage),
+                    settings.getInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, -1),
+                    event.getTitle(),
+                    event.getStartDate(),
+                    event.getEndDate(),
+                    event.getLocation().latitude,
+                    event.getLocation().longitude);
+        }
+        catch (MeetlyServer.FailedPublicationException e) {
+            Log.e(TAG, "Failed to publish event: " + event.getTitle());
+            e.printStackTrace();
+        }catch (MeetlyServer.FailedLoginException e){
+            Log.e(TAG, "Failed to login to publish event");
+            e.printStackTrace();
+        }
     }
 
     private void displayMap() {

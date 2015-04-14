@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -118,7 +117,13 @@ public class EventsDataSource {
         values.put(MySQLiteHelper.COLUMN_VIEWED, 0);
         values.put(MySQLiteHelper.COLUMN_MODIFIABLE, 0);
         //get row id and insert into database
-        long insertID = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
+        long insertID = -1;
+        try{
+            insertID = database.insert(MySQLiteHelper.TABLE_EVENTS,null,values);
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
 
 
         //get this record and create new event object
@@ -290,11 +295,6 @@ public class EventsDataSource {
             e.printStackTrace();
         }
 
-        if(!event.isModifiable()){
-            Log.e(TAG, "Failed to edit event. Event not created by user.");
-            return;
-        }
-
         //build record pairs
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_SHAREDEVENTID,event.getSharedEventID());
@@ -408,8 +408,11 @@ public class EventsDataSource {
         LatLng location = new LatLng(loc_lat,loc_long);
         event.setLocation(location);
 
-        event.setViewed(getBooleanFromCursor(resultSet, resultSet.getColumnIndex(MySQLiteHelper.COLUMN_VIEWED)));
-        event.setModifiable(getBooleanFromCursor(resultSet, resultSet.getColumnIndex(MySQLiteHelper.COLUMN_MODIFIABLE)));
+        //event.setViewed(getBooleanFromCursor(resultSet, resultSet.getColumnIndex(MySQLiteHelper.COLUMN_VIEWED)));
+        //event.setModifiable(getBooleanFromCursor(resultSet, resultSet.getColumnIndex(MySQLiteHelper.COLUMN_MODIFIABLE)));
+
+        event.setViewed(getBoolean(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_VIEWED)));
+        event.setModifiable(getBoolean(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_MODIFIABLE)));
 
         return event;
     }
@@ -419,6 +422,14 @@ public class EventsDataSource {
             return false;
         } else {
             return true;
+        }
+    }
+
+    private boolean getBoolean(int index) {
+        if (index == 1) {
+            return true;
+        } else {
+            return false;
         }
     }
 

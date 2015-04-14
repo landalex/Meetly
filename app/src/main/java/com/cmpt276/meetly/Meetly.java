@@ -20,6 +20,7 @@ public class Meetly extends ActionBarActivity {
     public static final String MEETLY_PREFERENCES_FIRSTRUN = "first_run"; //boolean
     public static final String MEETLY_PREFERENCES_USERNAME = "username"; //string
     public static final String MEETLY_PREFERENCES_ISLOGGEDIN = "is_logged_in"; //string
+    public static final String MEETLY_PREFERENCES_PASS = "password"; //string
     public static final String defaultUMessage = "not logged in"; //boolean
 
     @Override
@@ -42,6 +43,7 @@ public class Meetly extends ActionBarActivity {
             editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, defaultUMessage);
             editor.putBoolean(Meetly.MEETLY_PREFERENCES_FIRSTRUN, false);
             editor.putBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
+            editor.putString(MEETLY_PREFERENCES_PASS, "-1");
             editor.commit();
         }
     }
@@ -62,6 +64,7 @@ public class Meetly extends ActionBarActivity {
     }
 
 }
+
 
 
 

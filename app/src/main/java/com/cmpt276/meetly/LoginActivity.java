@@ -331,8 +331,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             if(token != -1){
                 editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, token);
                 editor.putString(Meetly.MEETLY_PREFERENCES_USERNAME, mEmail);
+                editor.putString(Meetly.MEETLY_PREFERENCES_PASS, mPassword);
                 editor.putBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, true);
-                editor.apply();
+                editor.commit();
             }
 
             return true;

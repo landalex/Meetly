@@ -37,7 +37,8 @@ public class Event {
 
 
     /**
-     * Event Constructor using LatLng
+     * Event Constructor
+     * @param eventID
      * @param title
      * @param startDate
      * @param endDate
@@ -51,6 +52,7 @@ public class Event {
         eventLocation = new LatLng(location.latitude,location.longitude);
         sharedEventID = -1;
         viewed = true;
+        this.modifiable = true;
     }
 
 
@@ -67,6 +69,7 @@ public class Event {
         eventLocation = eventCopy.eventLocation;
         this.sharedEventID = eventCopy.getSharedEventID();
         this.viewed = eventCopy.isViewed();
+        this.modifiable = eventCopy.isModifiable();
     }
 
     /**
@@ -95,6 +98,8 @@ public class Event {
         );
 
         viewed = values.getAsBoolean(MySQLiteHelper.COLUMN_VIEWED);
+
+        modifiable = values.getAsBoolean(MySQLiteHelper.COLUMN_MODIFIABLE);
     }
 
     /**
@@ -110,6 +115,7 @@ public class Event {
         eventLocation = null;
         sharedEventID = -1;
         viewed = false;
+        modifiable = false;
     }
 
     /**
@@ -121,11 +127,12 @@ public class Event {
 
         Log.i(TAG, "\nEvent ID: " + eventID
                 + "\nEvent title: " + title
-                + "\nEvent start date: " + sdf.format(startDate)
-                + "\nEvent end date: " + sdf.format(endDate)
+                + "\nEvent start date: " + sdf.format(startDate.getTime())
+                + "\nEvent end date: " + sdf.format(endDate.getTime())
                 + "\nEvent location: " + eventLocation.latitude + ", " + eventLocation.longitude
                 + "\nEvent sharedEventId: " + sharedEventID
-                + "\nEvent is viewed?: " + viewed);
+                + "\nEvent is viewed?: " + viewed
+                + "\nEvent is modifiable?: " + modifiable);
     }
 
     // Accessors

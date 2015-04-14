@@ -346,28 +346,56 @@ public class EventList extends Fragment {
     }
 
     private void editEventFromID(Long eventIndex) {
-        Intent intent = new Intent(getActivity(), EditEvent.class);
-        intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
-        startActivity(intent);
+        //only works for events that were created by user
+        EventsDataSource eds = new EventsDataSource(getActivity());
+        Event event = eds.findEventByID(eventList.get(eventIndex.intValue()).getID());
+        Log.i(TAG, "event modifiable?: " + event.isModifiable());
+        if(event.isModifiable()){
+            Intent intent = new Intent(getActivity(), EditEvent.class);
+            intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
+            startActivity(intent);
+        }else{
+
+        }
+
     }
 
-    private boolean publishEventByID(String username, Integer userToken, Long ID) {
+    private boolean publishEventByID(final String username, Integer userToken, Long ID) {
         EventsDataSource db = new EventsDataSource(getActivity());
-        Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
-        MeetlyServer server = new MeetlyServer();
-        LatLng location = event.getLocation();
-                    try {
-                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), event.getStartDate(),
-                                                                event.getEndDate(), location.latitude, location.longitude);
-                        event.setSharedEventID(sharedEventID);
-                        db.updateDatabaseEvent(event);
-                        return true;
+        final Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
+        final MeetlyServer server = new MeetlyServer();
 
-                    }
-                    catch (MeetlyServer.FailedPublicationException e) {
-                        Log.e(TAG, "Failed to publish event: " + event.getTitle());
-                        return false;
-                    }
+        SharedPreferences settings = getActivity().getSharedPreferences(Meetly.MEETLY_PREFERENCES, Context.MODE_PRIVATE);
+        final String password = settings.getString(Meetly.MEETLY_PREFERENCES_PASS, Meetly.defaultUMessage);
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                connectToDB(server, username, password, event);
+            }
+        }).start();
+
+        db.updateDatabaseEvent(event);
+        return true;
+    }
+
+    private void connectToDB(MeetlyServer server, String username, String password, Event event){
+        try {
+            SharedPreferences settings = getActivity().getSharedPreferences(Meetly.MEETLY_PREFERENCES, Context.MODE_PRIVATE);
+            int token = server.login(username, password);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt(Meetly.MEETLY_PREFERENCES_USERTOKEN, token);
+
+            int sharedEventID = server.publishEvent(username, token, event.getTitle(), event.getStartDate(),
+                    event.getEndDate(), event.getLocation().latitude, event.getLocation().longitude);
+            event.setSharedEventID(sharedEventID);
+        }
+        catch (MeetlyServer.FailedPublicationException e) {
+            Log.e(TAG, "Failed to publish event: " + event.getTitle());
+            e.printStackTrace();
+        }catch (MeetlyServer.FailedLoginException e){
+            Log.e(TAG, "Failed to login to publish event");
+            e.printStackTrace();
+        }
     }
 
     private AlertDialog makeDuplicateEventAlertDialog(final Long eventIndex, String title, String message, String positiveButtonLabel, String negativeButtonLabel) {
