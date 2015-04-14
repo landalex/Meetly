@@ -34,7 +34,8 @@ public class EventsDataSource {
             MySQLiteHelper.COLUMN_ENDDATE,
             MySQLiteHelper.COLUMN_LATITUDE,
             MySQLiteHelper.COLUMN_LONGITUDE,
-            MySQLiteHelper.COLUMN_VIEWED};
+            MySQLiteHelper.COLUMN_VIEWED,
+            MySQLiteHelper.COLUMN_MODIFIABLE};
     /**
      * Events Data Source constructor.
      * Facilitates database connections and supports adding new events and fetching events
@@ -411,8 +412,8 @@ public class EventsDataSource {
         //event.setViewed(getBooleanFromCursor(resultSet, resultSet.getColumnIndex(MySQLiteHelper.COLUMN_VIEWED)));
         //event.setModifiable(getBooleanFromCursor(resultSet, resultSet.getColumnIndex(MySQLiteHelper.COLUMN_MODIFIABLE)));
 
-        event.setViewed(getBoolean(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_VIEWED)));
-        event.setModifiable(getBoolean(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_MODIFIABLE)));
+        event.setViewed(getBoolean(resultSet.getShort(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_VIEWED))));
+        event.setModifiable(getBoolean(resultSet.getShort(resultSet.getColumnIndex(MySQLiteHelper.COLUMN_MODIFIABLE))));
 
         return event;
     }

@@ -366,8 +366,6 @@ public class EventList extends Fragment {
             Intent intent = new Intent(getActivity(), EditEvent.class);
             intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
             startActivity(intent);
-        }else{
-
         }
 
     }

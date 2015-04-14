@@ -334,24 +334,31 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     }
 
     protected void syncWithServerNow() {
-        Timer timer = new Timer();
-        timer.schedule(new MeetlyTimerTask(), 0);
+        final Timer timer = new Timer();
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                fetchNewServerEvents();
+            }
+        }).start();
     }
 
     private void setSchedule(){
         //For timer
         serverEventSynchTask = new MeetlyTimerTask();
         Timer synchTimer = new Timer();
-        if(serverEventSynchTask == null) synchTimer.schedule(serverEventSynchTask, 0, getServerSyncInterval());
+        if(serverEventSynchTask == null) synchTimer.schedule(serverEventSynchTask, 10000, getServerSyncInterval());
         Log.i(TAG, "Setting schedule for fetching events from server");
     }
 
     class MeetlyTimerTask extends TimerTask {
         public void run() {
-
+            new Thread(new Runnable(){
+                @Override
+                public void run() {
                     fetchNewServerEvents();
-
-
+                }
+            }).start();
             }
         }
 }
