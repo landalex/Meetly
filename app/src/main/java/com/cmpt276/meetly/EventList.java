@@ -224,12 +224,12 @@ public class EventList extends Fragment {
     private MaterialLargeImageCard makeMaterialLargeImageCard(ArrayList<BaseSupplementalAction> actions, Event event, int eventIndex) {
         final long eventID = event.getID();
 
-        int supplementalActionsLayout = pickSupplementalActionsLayout(event.isViewed());
+        int supplementalActionsLayout = pickSupplementalActionsLayout(false); // event.isViewed()
 
         MaterialLargeImageCard card = MaterialLargeImageCard.with(getActivity())
                 .setTextOverImage(event.getTitle())
                 .setTitle(Event.getTimestringForEventStart(event))
-                .setSubTitle(timeUntil(event.getStartDate().getTime()) + "\n" + getString(R.string.eventlist_card_unshared))
+                .setSubTitle(timeUntil(event.getStartDate().getTime()) + "\n" + getEventSharedStatus(event))
                 .useDrawableId(pickDrawableForCard(event.getTitle()))
                 .setupSupplementalActions(supplementalActionsLayout, actions)
                 .build();
@@ -249,6 +249,15 @@ public class EventList extends Fragment {
             }
         });
         return card;
+    }
+
+    private String getEventSharedStatus(Event event) {
+        if (event.getSharedEventID() == -1) {
+            return getString(R.string.eventlist_card_unshared);
+        }
+        else {
+            return getString(R.string.eventlist_card_shared);
+        }
     }
 
     private int pickSupplementalActionsLayout(boolean viewed) {
@@ -320,10 +329,13 @@ public class EventList extends Fragment {
                     String username = getUserName();
                     Integer userToken = getUserToken();
                     boolean published = publishEventByID(username, userToken, Long.parseLong(card.getId()));
-                    if (published) {
-                        MaterialLargeImageCard mCard = (MaterialLargeImageCard) card;
-                        mCard.setSubTitle(mCard.getSubTitle() + "\n" + getString(R.string.eventlist_card_shared));
-                    }
+                    MaterialLargeImageCard mCard = (MaterialLargeImageCard) card;
+                    String unsharedText = getString(R.string.eventlist_card_unshared);
+                    String subTitle = (String) mCard.getSubTitle().subSequence(0, mCard.getSubTitle().length() - unsharedText.length() - 1);
+                    Log.d("Subtitle", subTitle);
+                    mCard.setSubTitle(subTitle + "\n" + getString(R.string.eventlist_card_shared));
+                    UpdateCards updater = new UpdateCards();
+                    updater.execute(updater.CREATE_MODE, eventList.size());
                 }
 
                 else {
