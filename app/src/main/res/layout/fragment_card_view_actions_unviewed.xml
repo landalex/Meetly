@@ -14,7 +14,7 @@
         android:src="@drawable/ic_unviewed_green"
         android:background="?android:selectableItemBackground"
         style="@style/card.native.actions.button"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="20dp"
         android:clickable="false"
         android:visibility="visible"/>
 
