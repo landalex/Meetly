@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.maps.model.LatLng;
@@ -60,7 +61,6 @@ public class EventList extends Fragment {
 
     private RecyclerViewAdapter mCardArrayAdapter;
     private ArrayList<Card> cards = new ArrayList<>(0);
-    public boolean showingCrouton;
     private List<Event> eventList = new ArrayList<>(0);
 //    ProgressDialog dialog = null;
     private Map<String, Integer> drawableMap;
@@ -210,9 +210,9 @@ public class EventList extends Fragment {
                 .setupSupplementalActions(R.layout.fragment_card_view_actions, actions)
                 .build();
         card.addCardHeader(new CardHeader(getActivity()));
-
+        setUnviewedIcon(event.isViewed());
         card.setId("" + eventIndex);
-        card.setCardElevation(10);
+        card.setCardElevation(20);
 
         Log.d(TAG, "Card ID: " + card.getId());
         // Pass the event ID with the intent to ViewEvent
@@ -226,6 +226,17 @@ public class EventList extends Fragment {
             }
         });
         return card;
+    }
+
+    private void setUnviewedIcon(boolean viewed) {
+        ImageButton indicator = (ImageButton) getActivity().findViewById(R.id.viewedIndicator);
+        if (indicator != null) {
+            if (!viewed) {
+                indicator.setVisibility(View.VISIBLE);
+            } else {
+                indicator.setVisibility(View.GONE);
+            }
+        }
     }
 
     private int pickDrawableForCard(String title) {
@@ -293,31 +304,19 @@ public class EventList extends Fragment {
     }
 
     private void editEventFromID(Long eventIndex) {
-        EventsDataSource eventsDataSource = new EventsDataSource(getActivity());
-        Event event = eventsDataSource.findEventByID(eventIndex);
-        if (!event.isModifiable()){
-            Log.e(TAG, "Warning! Event is not modifiable because it is a remote shared event");
-            return;
-        }
         Intent intent = new Intent(getActivity(), EditEvent.class);
         intent.putExtra("eventID", eventList.get(eventIndex.intValue()).getID());
         startActivity(intent);
     }
 
     private boolean publishEventByID(String username, Integer userToken, Long ID) {
-        final int MILLIS_IN_HOUR = 3600000;
-
         EventsDataSource db = new EventsDataSource(getActivity());
         Event event = db.findEventByID(eventList.get(ID.intValue()).getID());
         MeetlyServer server = new MeetlyServer();
         LatLng location = event.getLocation();
                     try {
-                        Calendar startTime = new GregorianCalendar();
-                        startTime = event.getStartDate();
-                        Calendar endTime = new GregorianCalendar();
-                        endTime = event.getEndDate();
-                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), startTime,
-                                                                endTime, location.latitude, location.longitude);
+                        int sharedEventID = server.publishEvent(username, userToken, event.getTitle(), event.getStartDate(),
+                                                                event.getEndDate(), location.latitude, location.longitude);
                         event.setSharedEventID(sharedEventID);
                         db.updateDatabaseEvent(event);
                         return true;
@@ -391,59 +390,7 @@ public class EventList extends Fragment {
         return database.getAllEvents();
     }
 
-    public Crouton makeLocationCrouton() {
-        LifecycleCallback callback = new LifecycleCallback() {
-            @Override
-            public void onDisplayed() {
-                showingCrouton = true;
-            }
 
-            @Override
-            public void onRemoved() {
-                showingCrouton = false;
-            }
-        };
-        Configuration config = new Configuration.Builder()
-                .setDuration(Configuration.DURATION_INFINITE)
-                .setInAnimation(R.anim.abc_slide_in_top)
-                .setOutAnimation(R.anim.abc_slide_out_top)
-                .build();
-
-        Style style = new Style.Builder()
-                .setBackgroundColorValue(getResources().getColor(R.color.green))
-                .setHeight(150)
-                .setConfiguration(config)
-                .build();
-
-        final Crouton crouton = Crouton.makeText(getActivity(), getLocation(), style);
-        crouton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                crouton.hide();
-            }
-        });
-        crouton.setLifecycleCallback(callback);
-        return crouton;
-    }
-
-    private String getLocation() {
-        String location = getString(R.string.no_location_found);
-
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Activity.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria, true);
-
-        Location myLocation = locationManager.getLastKnownLocation(provider);
-        Geocoder geocoder = new Geocoder(getActivity());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(myLocation.getLatitude(), myLocation.getLongitude(), 5);
-            location = addresses.get(0).getLocality() + ", " + addresses.get(0).getAdminArea();
-        }
-        catch (Exception e) {
-            Log.e(TAG, "geocoder.getFromLocation failed");
-        }
-        return location;
-    }
 
     @Override
     public void onAttach(Activity activity) {

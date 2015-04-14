@@ -1,10 +1,7 @@
 package com.cmpt276.meetly;
 
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -23,7 +20,6 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -38,7 +34,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
     private final String TAG = "MainActivity";
     private EventList eventListFragment;
-    private Crouton locationCrouton;
     private final IntentFilter intentFilter = new IntentFilter();
     private BroadcastReceiver mReceiver;
     private WifiP2pHelper wifiP2pHelper;
@@ -46,7 +41,8 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
     private MaterialAccount account;
     private MaterialSection eventListSection;
     private MeetlyTimerTask serverEventSynchTask;
-    private Long serverEventUpdateInterval;
+    private boolean locationSet = false;
+    private String locationString;
 
 
     @Override
@@ -54,15 +50,12 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         Meetly.setMeetlySharedPrefs(getApplicationContext());
         Meetly.showPrefs(getApplicationContext());
 
-        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
 
-/*
-        registerServerSyncInterval(Long.parseLong(preferences.getString("server_sync_interval", "0")));
-*/
-        serverEventUpdateInterval = Long.parseLong(preferences.getString("server_sync_interval", "0"));
         wifiP2pHelper = new WifiP2pHelper(this, getApplicationContext(), intentFilter);
         mReceiver = wifiP2pHelper.getReceiver();
 
+        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
 
         String username = getUsername(preferences);
         makeAccountSection(username);
@@ -83,9 +76,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
 
 
         setSchedule();
-
-        //default interval is 15 minutes
-        serverEventUpdateInterval = 900000l;
     }
 
     @Override
@@ -100,19 +90,6 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         return super.backToSection(currentSection);
     }
 
-/*    private void registerServerSyncInterval(Long updateIntervalInMillis) {
-        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, ServerSyncReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-
-        if (updateIntervalInMillis > 0) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), updateIntervalInMillis,
-                    pendingIntent);
-        }
-        else {
-            alarmManager.cancel(pendingIntent);
-        }
-    }*/
 
     private String getUsername(SharedPreferences preferences) {
         boolean loggedIn = preferences.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false);
@@ -153,44 +130,48 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         actionBarMenu = menu;
+        if (locationSet) {
+            setUserLocationButton();
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_delete_db) {
             onUpgradeDBClick(getCurrentFocus());
             return true;
         }
-
         else if (id == R.id.action_get_location) {
-            if (eventListFragment == null) {
-                eventListFragment = (EventList) getFragmentManager().findFragmentByTag("EventListFragment");
-                locationCrouton = eventListFragment.makeLocationCrouton();
-            }
-            if (eventListFragment.showingCrouton) {
-                locationCrouton.hide();
-                Log.d(TAG, "hide crouton");
-            }
-            else {
-                locationCrouton = eventListFragment.makeLocationCrouton();
-                locationCrouton.show();
-                Log.d(TAG, "show crouton");
-            }
+            setUserLocationButton();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    /*
-     * Changes the menu_login menu item text depending if user is logged in or not
-     */
+    private void setUserLocationButton() {
+        MenuItem menuItem = actionBarMenu.findItem(R.id.action_get_location);
+        if (locationString == null) {
+            locationString = UserLocation.getLocation(this);
+        }
+        setLocationString(menuItem, locationString);
+    }
+
+    private void setLocationString(MenuItem menuItem, String location) {
+        if (!location.equals(getString(R.string.no_location_found))) {
+            menuItem.setIcon(null);
+            menuItem.setTitle(location);
+        }
+        else {
+            menuItem.setIcon(null);
+            menuItem.setTitle(getString(R.string.location_not_available));
+        }
+        locationSet = true;
+    }
+
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         return super.onPrepareOptionsMenu(menu);
@@ -201,6 +182,7 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
      */
     public void showLogOut(){
         this.closeDrawer();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.app_logout_confirmation));
         builder.setPositiveButton(getString(R.string.app_logout_dialog_positive), new DialogInterface.OnClickListener() {
@@ -279,22 +261,9 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         unregisterReceiver(mReceiver);
     }
 
-//    @Override
-//    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
-//        if (keyCode == KeyEvent.KEYCODE_BACK) {
-//            Intent startMain = new Intent(Intent.ACTION_MAIN);
-//            startMain.addCategory(Intent.CATEGORY_HOME);
-//            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            startActivity(startMain);
-//        }
-//        return true;
-//    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Crouton.cancelAllCroutons();
-        serverEventSynchTask.cancel();
     }
 
     //For Scheduling Time-Interval Event Retrieval from Server
@@ -307,6 +276,17 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
         SharedPreferences settingss = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
         EventsDataSource eventsDataSource = new EventsDataSource(getApplicationContext());
 
+        Long syncInterval = getServerSyncInterval();
+
+        if (syncInterval > 0) {
+            synchTimer.schedule(serverEventSynchTask, 3000, syncInterval);
+        }
+    }
+
+    private long getServerSyncInterval() {
+        SharedPreferences preferences = getSharedPreferences(Meetly.MEETLY_PREFERENCES, MODE_PRIVATE);
+        return Long.parseLong(preferences.getString("server_sync_interval", "0"));
+    }
         //only pulls events if user is logged in
         if(settingss.getBoolean(Meetly.MEETLY_PREFERENCES_ISLOGGEDIN, false)){
             try {
@@ -334,6 +314,8 @@ public class MainActivity extends MaterialNavigationDrawer implements EventList.
                         event.setLocation(latLng);
                         eventsDataSource.updateDatabaseEvent(event);
                     }
+                } catch (MeetlyServer.FailedFetchException e) {
+                    e.printStackTrace();
                 }
             } catch (MeetlyServer.FailedFetchException e) {
                 e.printStackTrace();
